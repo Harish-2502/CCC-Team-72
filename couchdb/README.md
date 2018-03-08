@@ -6,12 +6,12 @@ Docker containers simulating independent nodes.
 
 ## Cluster setup
  
-Pulls Docker image 
+Pull Docker image 
 ```
 docker pull couchdb:2.1.1
 ```
 
-Sets node IP addresses, electing the first as "master node"
+Set node IP addresses, electing the first as "master node"
 and admin credentials
 ```
 export declare -a nodes=(172.17.0.2 172.17.0.3 172.17.0.4)
@@ -27,18 +27,18 @@ Create Docker containers
 for node in ${nodes[@]}}; do docker create couchdb:2.1.1 -–ip=${node}; done
 ```
 
-Puts in conts the Docker container IDs
+Put in conts the Docker container IDs
 ```
 declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
 ```
 
-Starts the containers
+Start the containers
 ```
 for cont in "${conts[@]}"; do docker start ${cont}; done
 sleep 3
 ```
 
-Writes the cookie name and node name to the CouchDB configuration on every node
+Write the cookie name and node name to the CouchDB configuration on every node
 ```
 for (( i=0; i<${size}; i++ )); do
     docker exec ${conts[${i}]} \
@@ -48,13 +48,13 @@ for (( i=0; i<${size}; i++ )); do
 done
 ```
 
-Restarts containers to pick-up changes to CouchDB configurations
+Restart containers to pick-up changes to CouchDB configurations
 ```
 for cont in "${conts[@]}"; do docker restart ${cont}; done
 sleep 3
 ```
 
-Sets the CouchDB cluster (deleting the default nonode@nohost node from the configuration)
+Set the CouchDB cluster (deleting the default nonode@nohost node from the configuration)
 ```
 for node in "${nodes[@]}"; do     
     curl -XPUT "http://${node}:5984/_node/_local/_config/admins/${user}" --data "\"${pass}\""    
@@ -80,7 +80,7 @@ rev=`curl -XGET "http://172.17.0.2:5986/_nodes/nonode@nohost" --user "${user}:${
 curl -X DELETE "http://172.17.0.2:5986/_nodes/nonode@nohost?rev=${rev}"  --user "${user}:${pass}"
 ```
 
-Checks the correct cluster configuration
+Check the correct cluster configuration
 ```
 for node in "${nodes[@]}"; do  curl -X GET "http://${user}:${pass}@${node}:5984/_membership"; done
 ```
@@ -91,42 +91,76 @@ curl -XPUT "http://${user}:${pass}@${masternode}:5984/twitter"
 for node in "${nodes[@]}"; do  curl -X GET "http://${user}:${pass}@${node}:5984/_all_dbs"; done
 ```
 
-Adds Twitter data
+
+## Cluster management
+
+(First run the "Set node IP addresses, electing the first as "master node" 
+and admin credentials" above)
+
+Put in conts the Docker container IDs
+```
+declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
+```
+
+Starts the cluster 
+```
+for cont in "${conts[@]}"; do docker start ${cont}; done
+sleep 3
+```
+
+Shutdowns the cluster nicely
+``` 
+for cont in "${conts[@]}"; do docker stop ${cont}; done
+```
+
+Deletes the cluster containers
+```
+for cont in "${conts[@]}"; do docker rm --force ${cont}; done
+```
+
+## Loading of sanple data
+
+Add Twitter data
 ```
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_bulk_docs " --header "Content-Type: application/json" \
   --data @./couchdb/twitter/data.json
 ```
+
+
+## MapReduce views, and list/show funcitons
 
 Add a design document with MapReduce Views, Lists and Shows functions
 ```
 grunt couch-compile
 ```
 
-Tries out a MapReduce View
+Request a MapReduce View
 ```
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_view/language?reduce=true&group_level=2"
 ```
 
-Tries a show function returning HTML
+Request a show function returning HTML
 ```
 docid=`curl -XGET "http://${masternode}:5984/twitter/_all_docs?limit=1" | jq '.rows[].id' | sed 's/"//g'`
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_show/html/${docid}"
 ```
 
-Tries a list function returning HTML
+Request a list function returning HTML
 ```
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_list/html/language?reduce=true&group_level=2"
 ```
 
-Tries a list function returning GeoJSON
+Request a list function returning GeoJSON
 ```
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_list/geojson/language?reduce=false&include_docs=true" | jq '.' > /tmp/twitter.geojson"
 ```
-You can now load the GeoJSON in a tetx editor, or display them on a map using QGIS
+You can now load the GeoJSON in a text editor, or display them on a map using QGIS
 
 
-## TBD
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 
+## Mango queries and indexes
+
+Mango query request
+```
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" \
 --header "Content-Type: application/json" --data '{
    "fields" : ["_id", "text", "user.screen_name"],
@@ -134,7 +168,11 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" \
       "user.lang": {"$eq": "ja"}
    }
 }'  | jq '.' -M
+```
 
+More complex Mango query, with tweets sorted by screen_name (it should fail, beacuse no index
+has been defined for the sort field)
+```
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "Content-Type: application/json" --data '{
    "fields" : ["_id", "user.lang", "user.screen_name", "text"],
    "selector": {
@@ -142,10 +180,15 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "
         {"user.lang": {"$eq": "en"}},
         {"user.screen_name": {"$gt": "pin"}}
       ]
-   }
+   }, 
+   "sort": [{"user.screen_name": "asc"}]
 }' | jq '.' -M
-   ,"sort": [{"user.screen_name": "asc"}]
+```
 
+Create index for lang and screen_name, hence the above query runs faster, but, still,
+it cannot sort by screen_name, since this index order documents for the combination
+of lang and screen_name, not for either field taken in isolation (same as SQL DBSMes) 
+```
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 --header "Content-Type: application/json" --data '{
    "ddoc": "indexes",
@@ -155,21 +198,89 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
    "name": "lang-screen-index",
    "type": "json"
 }'
+```
 
+Create index for just the screen_name, now the query above should work
+```
+curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
+--header "Content-Type: application/json" --data '{
+   "ddoc": "indexes",
+   "index": {
+      "fields": ["user.screen_name"]
+   },
+   "name": "screen-index",
+   "type": "json"
+}'
+```
+
+Get the list of indexes
+```
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_index" | jq '.' -M
+```
 
+Indexes can be deleted as usual
+```
 curl -XDELETE "http://${user}:${pass}@${masternode}:5984/twitter/_index/indexes/json/lang-screen-index"
+```
 
-# Shutdowns the cluster nicely 
-for cont in "${conts[@]}"; do docker stop ${cont}; done
+## Space and time indexes
 
-# Starts the cluster 
-declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
-for cont in "${conts[@]}"; do docker start ${cont}; done
+Index by location (works only for points, unfortunately)
+```
+curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
+--header "Content-Type: application/json" --data '{
+   "ddoc": "indexes",
+   "index": {
+      "fields": ["coordinates.coordinates"]
+   },
+   "name": "coordinates",
+   "type": "json"
+}'
+```
 
-# Deletes the cluster containers
-declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
-for cont in "${conts[@]}"; do docker rm --force ${cont}; done
+Query data by their location
+```
+curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "Content-Type: application/json" --data '{
+   "fields" : ["_id", "user.lang", "user.screen_name", "text", "created_at", "coordinates"],
+   "selector": {
+      "$and": [
+        {"coordinates.coordinates": {"$gt": [100, -31]}},
+        {"coordinates.coordinates": {"$lt": [116, -33]}}
+      ]
+   }
+}' | jq '.' -M
+```
 
-# Docker container with full-text search
+Index by time ????
+```
+curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
+--header "Content-Type: application/json" --data '{
+   "ddoc": "indexes",
+   "index": {
+      "fields": ["Date.parse(\"created_at\")"]
+   },
+   "name": "time",
+   "type": "json"
+}'
+```
+
+```
+curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "Content-Type: application/json" --data '{
+   "fields" : ["_id", "user.lang", "user.screen_name", "text", "created_at", "coordinates"],
+   "use_index": ["indexes", "time"],
+   "selector": {
+      "$and": [
+        {"Date.parse(\"created_at\")": {"$gt": 1320386446000}},
+        {"Date.parse(\"created_at\")": {"$lt": 1478239246000}}
+      ]
+   }
+}' | jq '.' -M
+```
+
+Date.parse("Fri Nov 04 06:00:46 +0000 2011")
+
+## Bookmarks for easier pagination than using skip and limit
+
+## Docker container with full-text search
+
 https://github.com/neutrinity/ntr-couch-docker
