@@ -238,7 +238,7 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 }'
 ```
 
-Query data by their location
+Query data by their location (the index is now built, analogously to the MapReduce views)
 ```
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "Content-Type: application/json" --data '{
    "fields" : ["_id", "user.lang", "user.screen_name", "text", "created_at", "coordinates"],
