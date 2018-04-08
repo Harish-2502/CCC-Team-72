@@ -132,6 +132,7 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_bulk_docs " --he
 Add a design document with MapReduce Views, Lists and Shows functions
 ```
 grunt couch-compile
+grunt couch-push
 ```
 
 Request a MapReduce View
@@ -170,7 +171,18 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" \
 }'  | jq '.' -M
 ```
 
-More complex Mango query, with tweets sorted by screen_name (it should fail, beacuse no index
+Mango query explanation (use of indexes, or lack there-of, etc)
+```
+curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_explain" \
+--header "Content-Type: application/json" --data '{
+   "fields" : ["_id", "text", "user.screen_name"],
+   "selector": {
+      "user.lang": {"$eq": "ja"}
+   }
+}'  | jq '.' -M
+```
+
+More complex Mango query, with tweets sorted by screen_name (it should fail, because no index
 has been defined for the sort field)
 ```
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "Content-Type: application/json" --data '{
@@ -217,13 +229,14 @@ Get the list of indexes
 ```
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_index" | jq '.' -M
 ```
-
+(Partial indexes selextor may be used to exclude some documents from indexing, in order to speed up indexing)
 Indexes can be deleted as usual
+
 ```
 curl -XDELETE "http://${user}:${pass}@${masternode}:5984/twitter/_index/indexes/json/lang-screen-index"
 ```
 
-## Space and time indexes
+## Space indexes
 
 Index by location (works only for points, unfortunately)
 ```
@@ -251,35 +264,6 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "
 }' | jq '.' -M
 ```
 
-Index by time ????
-```
-curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
---header "Content-Type: application/json" --data '{
-   "ddoc": "indexes",
-   "index": {
-      "fields": ["Date.parse(\"created_at\")"]
-   },
-   "name": "time",
-   "type": "json"
-}'
-```
-
-```
-curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "Content-Type: application/json" --data '{
-   "fields" : ["_id", "user.lang", "user.screen_name", "text", "created_at", "coordinates"],
-   "use_index": ["indexes", "time"],
-   "selector": {
-      "$and": [
-        {"Date.parse(\"created_at\")": {"$gt": 1320386446000}},
-        {"Date.parse(\"created_at\")": {"$lt": 1478239246000}}
-      ]
-   }
-}' | jq '.' -M
-```
-
-Date.parse("Fri Nov 04 06:00:46 +0000 2011")
-
-## Bookmarks for easier pagination than using skip and limit
 
 ## Docker container with full-text search
 
