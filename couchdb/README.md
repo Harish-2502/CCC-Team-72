@@ -8,7 +8,7 @@ Docker containers simulating independent nodes.
  
 Pull Docker image 
 ```
-docker pull couchdb:2.1.1
+docker pull couchdb:2.3.0
 ```
 
 Set node IP addresses, electing the first as "master node"
@@ -24,7 +24,7 @@ export pass=admin
 
 Create Docker containers
 ```
-for node in ${nodes[@]}}; do docker create couchdb:2.1.1 -–ip=${node}; done
+for node in ${nodes[@]}}; do docker create couchdb:2.3.0 -–ip=${node}; done
 ```
 
 Put in conts the Docker container IDs
@@ -95,7 +95,9 @@ for node in "${nodes[@]}"; do  curl -X GET "http://${user}:${pass}@${node}:5984/
 ## Cluster management
 
 (First run the "Set node IP addresses, electing the first as "master node" 
-and admin credentials" above)
+and admin credentials" above.)
+
+Fauxton user interface (`http://172.17.0.2:5984/_utils`).
 
 Put in conts the Docker container IDs
 ```
@@ -212,7 +214,7 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 }'
 ```
 
-Create index for just the screen_name, now the query above should work
+Create index for just the screen_name, now the query above works
 ```
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 --header "Content-Type: application/json" --data '{
@@ -238,7 +240,7 @@ curl -XDELETE "http://${user}:${pass}@${masternode}:5984/twitter/_index/indexes/
 
 ## Space indexes
 
-Index by location (works only for points, unfortunately)
+Index by location (works only for points).
 ```
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 --header "Content-Type: application/json" --data '{
@@ -267,4 +269,4 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "
 
 ## Docker container with full-text search
 
-https://github.com/neutrinity/ntr-couch-docker
+This GitGub repository `https://github.com/neutrinity/ntr-couch-docker` implements full-text search for CouchdDB.
