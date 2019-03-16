@@ -4,6 +4,11 @@ The following instructions details how to setup a cluster of CouchDB databases o
 Docker containers simulating independent nodes.
 
 
+## Prerequirements
+
+A Linux-based shell
+
+
 ## Cluster setup
  
 Pull Docker image 
