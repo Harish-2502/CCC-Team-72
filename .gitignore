@@ -58,3 +58,4 @@ typings/
 .env
 
 /couchdb/twitter/spacetime/
+/openfaas/faas/
