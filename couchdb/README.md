@@ -11,13 +11,13 @@ A Linux-based shell
 
 ## Cluster setup
  
-Pull Docker image 
+Pull the relevant Docker image: 
 ```
 docker pull couchdb:2.3.0
 ```
 
 Set node IP addresses, electing the first as "master node"
-and admin credentials
+and admin credentials (make sure you have no other Docker containers running):
 ```
 export declare -a nodes=(172.17.0.2 172.17.0.3 172.17.0.4)
 export masternode=`echo ${nodes} | cut -f1 -d' '`
@@ -27,17 +27,17 @@ export user=admin
 export pass=admin
 ```
 
-Create Docker containers
+Create Docker containers:
 ```
 for node in ${nodes[@]}}; do docker create couchdb:2.3.0 -–ip=${node}; done
 ```
 
-Put in conts the Docker container IDs
+Put in conts the Docker container IDs:
 ```
 declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
 ```
 
-Start the containers
+Start the containers (and wait a bit while they boot):
 ```
 for cont in "${conts[@]}"; do docker start ${cont}; done
 sleep 3
@@ -53,13 +53,13 @@ for (( i=0; i<${size}; i++ )); do
 done
 ```
 
-Restart containers to pick-up changes to CouchDB configurations
+Restart containers to pick-up changes to CouchDB configurations:
 ```
 for cont in "${conts[@]}"; do docker restart ${cont}; done
 sleep 3
 ```
 
-Set the CouchDB cluster (deleting the default nonode@nohost node from the configuration)
+Set the CouchDB cluster (deleting the default `nonode@nohost` node from the configuration):
 ```
 for node in "${nodes[@]}"; do     
     curl -XPUT "http://${node}:5984/_node/_local/_config/admins/${user}" --data "\"${pass}\""    
@@ -85,16 +85,26 @@ rev=`curl -XGET "http://172.17.0.2:5986/_nodes/nonode@nohost" --user "${user}:${
 curl -X DELETE "http://172.17.0.2:5986/_nodes/nonode@nohost?rev=${rev}"  --user "${user}:${pass}"
 ```
 
-Check the correct cluster configuration
+Check the correct cluster configuration:
 ```
 for node in "${nodes[@]}"; do  curl -X GET "http://${user}:${pass}@${node}:5984/_membership"; done
 ```
 
-Adding a database to one node of the cluster cause it to be created on all other nodes as well
+Adding a database to one node of the cluster cause it to be created on all other nodes as well:
 ```
 curl -XPUT "http://${user}:${pass}@${masternode}:5984/twitter"
 for node in "${nodes[@]}"; do  curl -X GET "http://${user}:${pass}@${node}:5984/_all_dbs"; done
 ```
+
+
+## Cluster nodes on different VMs
+
+To deploy a CouchDB cluster on different VMs (say, on NeCTAR), the step above have to be changed significantly:
+* Docker commands have to be run on each node
+* Security groups have to set up to allow communications between nodes;
+* IP address have to follow the ones assigned by NeCTAR.
+
+(For more details `https://docs.couchdb.org/en/master/setup/cluster.html`.)   
 
 
 ## Cluster management
@@ -125,12 +135,13 @@ Deletes the cluster containers
 for cont in "${conts[@]}"; do docker rm --force ${cont}; done
 ```
 
+
 ## Loading of sanple data
 
 Add Twitter data
 ```
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_bulk_docs " --header "Content-Type: application/json" \
-  --data @./couchdb/twitter/data.json
+  --data @./twitter/data.json
 ```
 
 
@@ -160,7 +171,7 @@ curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_
 
 Request a list function returning GeoJSON
 ```
-curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_list/geojson/language?reduce=false&include_docs=true" | jq '.' > /tmp/twitter.geojson"
+curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_list/geojson/language?reduce=false&include_docs=true" | jq '.' > /tmp/twitter.geojson
 ```
 You can now load the GeoJSON in a text editor, or display them on a map using QGIS
 
@@ -189,8 +200,8 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_explain" \
 }'  | jq '.' -M
 ```
 
-More complex Mango query, with tweets sorted by screen_name (it should fail, because no index
-has been defined for the sort field)
+More complex Mango query, with tweets sorted by screen_name (it should return a warning, 
+because no index has been defined for the sort field):
 ```
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "Content-Type: application/json" --data '{
    "fields" : ["_id", "user.lang", "user.screen_name", "text"],
@@ -219,7 +230,7 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 }'
 ```
 
-Create index for just the screen_name, now the query above works
+Create index for just the screen_name, now the query above works without warnings:
 ```
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 --header "Content-Type: application/json" --data '{
@@ -243,7 +254,7 @@ Indexes can be deleted as usual
 curl -XDELETE "http://${user}:${pass}@${masternode}:5984/twitter/_index/indexes/json/lang-screen-index"
 ```
 
-## Space indexes
+## Spatial indexes
 
 Index by location (works only for points).
 ```
