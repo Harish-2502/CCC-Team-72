@@ -2,7 +2,7 @@ version: "2.1"
 
 services:
   spark-master:
-    image: spark-2:2.4.0
+    image: spark-2:2.4.1
     command: bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
     networks:
       sparknet:
@@ -30,7 +30,7 @@ services:
       - ./data:/tmp/data
 
   spark-worker-1:
-    image: spark-2:2.4.0
+    image: spark-2:2.4.1
     command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     networks:
       sparknet:
