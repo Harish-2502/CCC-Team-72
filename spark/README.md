@@ -14,7 +14,7 @@ These are the steps to follow in order to simulate a Spark cluster on a single c
 ## Building of spark image
 
 ```bash
-  docker build spark-2 --tag spark-2:2.4.0
+  docker build spark-2 --tag spark-2:2.4.1
 ```
 
 
