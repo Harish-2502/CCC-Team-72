@@ -30,8 +30,7 @@ These are the steps to follow in order to simulate a Spark cluster on a single c
 Open a new shell to execute these commands
   
 ```bash
-export mastercont=`docker ps | grep spark-master | cut -f1 -d' '`
-docker exec -ti ${mastercont} /bin/bash
+docker exec -ti spark_spark-master_1 /bin/bash
 pyspark
 execfile('/root/wc.py')
 exit()
@@ -44,13 +43,12 @@ To have a look at the cluster workers, point your browser to: `http://173.17.2.1
 ## Interactive Spark session with the Python shell
 
 ```bash
-export mastercont=`docker ps | grep spark-master | cut -f1 -d' '`
-docker exec -ti ${mastercont} /bin/bash
+docker exec -ti spark_spark-master_1 /bin/bash
 pyspark
 ```
 
 To execute the word count example and have a look on how it is done:
-```javascript
+```python
 execfile('/root/wc.py')
 ```
 
