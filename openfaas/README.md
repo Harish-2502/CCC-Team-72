@@ -11,7 +11,7 @@ These are the steps to follow in order to deploy an OpenFaaS instance running on
 4. A Linux-based shell
 
 
-## Install and staft OpenFaaS
+## Install and start OpenFaaS
 
 ```bash
 git clone https://github.com/openfaas/faas
@@ -62,11 +62,7 @@ module.exports = (context, callback) => {
     .forEach ((w) => {
       counts[w] = (counts[w] ? counts[w] + 1 : 1);
     });
-  callback (undefined,
-    {
-      counts: counts,
-      page: context
-    });
+  callback (undefined, counts);
 };
 ```
 
