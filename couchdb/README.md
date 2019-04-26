@@ -6,7 +6,7 @@ Docker containers simulating independent nodes.
 
 ## Prerequirements
 
-A Linux-based shell
+A Linux-based system. (MacOS scripts to install the CouchDB cluster are provided under the `macos` directory.)
 
 
 ## Cluster setup
@@ -15,6 +15,8 @@ Pull the relevant Docker image:
 ```
 docker pull couchdb:2.3.0
 ```
+
+The following instructions apply only to Linux-based systems; for MacOS please move to the `macos` directory and execute `run.sh`. 
 
 Set node IP addresses, electing the first as "master node"
 and admin credentials (make sure you have no other Docker containers running):
@@ -42,6 +44,8 @@ Start the containers (and wait a bit while they boot):
 for cont in "${conts[@]}"; do docker start ${cont}; done
 sleep 3
 ```
+
+The following instructions apply only to Linux-based systems; for MacOS please move to the `macos` directory and execute `run.sh`. 
 
 Write the cookie name and node name to the CouchDB configuration on every node
 ```
@@ -109,8 +113,8 @@ To deploy a CouchDB cluster on different VMs (say, on NeCTAR), the step above ha
 
 ## Cluster management
 
-(First run the "Set node IP addresses, electing the first as "master node" 
-and admin credentials" above.)
+For Linux-based system first run the "Set node IP addresses, electing the first as "master node" 
+and admin credentials" above.  For MacOS, change the IP addresses as needed, using the ones specified i nthe `run.sh` script under the `macos` directory.  
 
 Fauxton user interface (`http://172.17.0.2:5984/_utils`).
 
