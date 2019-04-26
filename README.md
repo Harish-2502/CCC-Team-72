@@ -10,7 +10,7 @@ Code snippets for the Cloud Computing course
 * NPM 3.10.x (Installed along Node.js)
 * Grunt 1.0.x (https://gruntjs.com/installing-grunt)
 * jq 1.5.x (https://stedolan.github.io/jq/download/)
-* a Linux-based shell (tested it with Ubuntu, it should work with MacOS as well)
+* a Linux-based shell (tested it with Ubuntu, scripts are provided to have it run on MacOS, which has some know limitations when it comes to MacOS https://docs.docker.com/docker-for-mac/networking/)
 
 (Minimum versions, it should work with newer ones as well.)
 
