@@ -4,10 +4,6 @@ services:
   spark-master:
     image: spark-2:2.4.1
     command: bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
-    networks:
-      sparknet:
-        ipv4_address: "173.17.2.2"
-    hostname: spark-master
     environment:
       MASTER: spark://spark-master:7077
       SPARK_CONF_DIR: /conf
@@ -28,14 +24,13 @@ services:
     volumes:
       - ./conf/spark-master:/conf
       - ./data:/tmp/data
+    networks:
+      sparknet:
+        ipv4_address: "173.17.2.2"
 
   spark-worker-1:
     image: spark-2:2.4.1
     command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
-    networks:
-      sparknet:
-        ipv4_address: "173.17.2.3"
-    hostname: spark-worker-1
     environment:
       SPARK_CONF_DIR: /conf
       SPARK_PUBLIC_DNS: 173.17.2.3
@@ -56,6 +51,9 @@ services:
     volumes:
       - ./conf/spark-worker-1:/conf
       - ./data:/tmp/data
+    networks:
+      sparknet:
+        ipv4_address: "173.17.2.3"
 
 networks:
   sparknet:

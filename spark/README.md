@@ -8,20 +8,20 @@ These are the steps to follow in order to simulate a Spark cluster on a single c
 1. Install Docker CE `https://docs.docker.com/engine/installation/`
 2. Install Docker Compose `https://docs.docker.com/compose/install/`
 3. About 2GB of RAM available for this cluster
-4. A Linux-based shell
+4. A Linux-based shell (it works with MacOS as well)
 
 
 ## Building of spark image
 
 ```bash
-  docker build spark-2 --tag spark-2:2.4.1
+docker build --tag spark-2:2.4.1 spark-2 
 ```
 
 
-## Cluster creation and start (1 master, 1 worker)
+## Cluster creation anpwdpwdd start (1 master, 1 worker)
 
 ```bash
-  docker-compose up
+docker-compose up
 ```
 
 
