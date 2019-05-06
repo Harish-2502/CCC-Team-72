@@ -22,24 +22,52 @@ cd faas
 (Take note of the credentails that have been generated).
 
 Check all Docker services have started:
+
 ```bash
 docker service ls
 ```
 (There should be six services listed.)
 
 
-## Admin UI
+### Command-Line Interface installation:
+
+Linux:
+
+```bash
+curl -sSL https://cli.openfaas.com | sudo sh
+```
+
+MacOS:
+
+```bash
+brew install faas-cli # or curl -sSL https://cli.openfaas.com | sudo sh
+```
+
+
+### Login to the cluster
+
+Use the username and password generated during installation.
+
+```bash
+faas-cli login -u admin -p <password>
+```
+
+
+## Admin UI (optional)
 
 Point your browser to:
+
 ```bash
 http://0.0.0.0:8080/ui/
 ```
-and insert the credentials (username and password) generated during installation.
+
+...and insert the credentials (`admin` and password) generated during installation.
 
 
 ## Creating of a function from a template
 
 (Make sure you are in the `faas` directory, the one where OpenFaaS was installed.)
+
 ```bash
 faas-cli template pull # Grab all the tamplates in different languages
 faas-cli new wcmp --lang=node # Creates a new function in Node.js
@@ -50,6 +78,7 @@ cd wcmp # Goes into the newly created function (only package.json and handler.js
 ## Word-count function 
 
 Replace `handler.js` with the following code:
+
 ```javascript
 "use strict";
 module.exports = (context, callback) => {
@@ -67,25 +96,27 @@ module.exports = (context, callback) => {
 ```
 
 
-## Build and Deployment of Word-count function
+## Build and Deployment of wcmp function
 
 ```bash
-# Build and deploy the just-modified function 
 faas-cli build --image=wcmpimage --lang=node --handler=./ --name=wcmp # Build image
 faas-cli deploy --image=wcmpimage --name=wcmp # Deploy function to local OpenFaaS instance
-# Call the function (it shoud return 
-curl -XPOST "http://0.0.0.0:8080/function/wcmp" --data 'italy'
+curl -XPOST "http://0.0.0.0:8080/function/wcmp" --data 'italy' # Call the function 
 ```
 
 
 ## Testing OpenFaas scalability
 
 Execute the following (every second it will show the actual and desired function replicas)
+
+(On MacOS, `watch` may need to be installed first with `brew install watch`)
+
 ```bash
 watch -n 1 docker service ls
 ```
 
 In another shell, download Wikipedia pages for the test
+
 ```bash
 pages="italy china france germany australia brazil denmark mexico zambia thailand"
 for page in ${pages};
@@ -95,6 +126,7 @@ done
 ```
 
 Call the word-count functions on the downloaded pages repeateadly  
+
 ```bash
 for i in {1..100};
   do
