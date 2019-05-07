@@ -8,7 +8,7 @@ These are the steps to follow in order to deploy an OpenFaaS instance running on
 1. Install Docker CE `https://docs.docker.com/engine/installation/`
 2. Install Docker Compose `https://docs.docker.com/compose/install/`
 3. About 2GB of RAM available for this deployment
-4. A Linux-based shell
+4. A Linux-based shell (MacOS works as well, but with slightly different commands)
 
 
 ## Install and start OpenFaaS
