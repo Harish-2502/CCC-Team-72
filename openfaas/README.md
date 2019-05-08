@@ -120,8 +120,8 @@ In another shell, download Wikipedia pages for the test
 ```bash
 pages="italy china france germany australia brazil denmark mexico zambia thailand"
 for page in ${pages};
-   do curl "https://en.wikipedia.org/w/api.php?format=text&action=parse&prop=wikitext&page=${page}"\
-      -o /tmp/${page}.html      
+   do curl "https://en.wikipedia.org/w/api.php?format=xml&action=parse&prop=wikitext&page=${page}"\
+      -o /tmp/${page}.xml      
 done
 ```
 
@@ -131,7 +131,7 @@ Call the word-count functions on the downloaded pages repeateadly
 for i in {1..100};
   do
     for page in ${pages};
-      do text=`cat /tmp/${page}.html`; curl -XPOST "http://0.0.0.0:8080/function/wcmp" --data "${text}" -o /dev/null -s -w "%{http_code} `date`\n"       
+      do text=`cat /tmp/${page}.xml`; curl -XPOST "http://0.0.0.0:8080/function/wcmp" --data '${text}' -o /dev/null -s -w "%{http_code} `date`\n"       
     done
   done
 ```
