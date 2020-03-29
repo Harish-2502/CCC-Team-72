@@ -11,36 +11,46 @@ A Linux-based system. (MacOS scripts to install the CouchDB cluster are provided
 
 ## Cluster setup
  
-Pull the relevant Docker image: 
-```
-docker pull couchdb:2.3.0
-```
-
 The following instructions apply only to Linux-based systems; for MacOS please move to the `macos` directory and execute `run.sh`. 
 
 Set node IP addresses, electing the first as "master node"
 and admin credentials (make sure you have no other Docker containers running):
-```
+```shell script
 export declare -a nodes=(172.17.0.2 172.17.0.3 172.17.0.4)
 export masternode=`echo ${nodes} | cut -f1 -d' '`
 export othernodes=`echo ${nodes[@]} | sed s/${masternode}//`
 export size=${#nodes[@]}
 export user=admin
 export pass=admin
+export VERSION='3.0.0'
+```
+
+Pull the relevant Docker image: 
+```shell script
+docker pull couchdb:${VERSION}
 ```
 
 Create Docker containers:
-```
-for node in ${nodes[@]}}; do docker create couchdb:2.3.0 -–ip=${node}; done
+```shell script
+for node in "${nodes[@]}" 
+  do 
+    docker rm $(docker ps --all --filter "name=couchdb${node}" --quiet) 
+    docker create\
+      --name couchdb${node}\
+      --ip ${node}\
+      --env COUCHDB_USER=${user}\
+      --env COUCHDB_PASSWORD=${pass}\
+      couchdb:${VERSION}
+done
 ```
 
 Put in conts the Docker container IDs:
-```
+```shell script
 declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
 ```
 
 Start the containers (and wait a bit while they boot):
-```
+```shell script
 for cont in "${conts[@]}"; do docker start ${cont}; done
 sleep 3
 ```
@@ -48,7 +58,7 @@ sleep 3
 The following instructions apply only to Linux-based systems; for MacOS please move to the `macos` directory and execute `run.sh`. 
 
 Write the cookie name and node name to the CouchDB configuration on every node
-```
+```shell script
 for (( i=0; i<${size}; i++ )); do
     docker exec ${conts[${i}]} \
       bash -c "echo \"-setcookie couchdb_cluster\" >> /opt/couchdb/etc/vm.args"
@@ -58,18 +68,20 @@ done
 ```
 
 Restart containers to pick-up changes to CouchDB configurations:
-```
+```shell script
 for cont in "${conts[@]}"; do docker restart ${cont}; done
 sleep 3
 ```
 
 Set the CouchDB cluster (deleting the default `nonode@nohost` node from the configuration):
-```
-for node in "${nodes[@]}"; do     
+```shell script
+for node in "${nodes[@]}" 
+do     
     curl -XPUT "http://${node}:5984/_node/_local/_config/admins/${user}" --data "\"${pass}\""    
     curl -XPUT "http://${user}:${pass}@${node}:5984/_node/couchdb@${node}/_config/chttpd/bind_address" --data '"0.0.0.0"'
 done
-for node in "${nodes[@]}"; do     
+for node in "${nodes[@]}"
+do     
     curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup" \
       --header "Content-Type: application/json" \
       --data "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\", \
@@ -77,7 +89,8 @@ for node in "${nodes[@]}"; do
         \"remote_node\": \"${node}\", \
         \"remote_current_user\":\"${user}\", \"remote_current_password\":\"${pass}\"}"
 done
-for node in "${nodes[@]}"; do     
+for node in "${nodes[@]}"
+do     
     curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup" \
       --header "Content-Type: application/json" \
       --data "{\"action\": \"add_node\", \"host\":\"${node}\", \
@@ -90,12 +103,12 @@ curl -X DELETE "http://172.17.0.2:5986/_nodes/nonode@nohost?rev=${rev}"  --user 
 ```
 
 Check the correct cluster configuration:
-```
+```shell script
 for node in "${nodes[@]}"; do  curl -X GET "http://${user}:${pass}@${node}:5984/_membership"; done
 ```
 
-Adding a database to one node of the cluster cause it to be created on all other nodes as well:
-```
+Adding a database to one node of the cluster makes it to be created on all other nodes as well:
+```shell script
 curl -XPUT "http://${user}:${pass}@${masternode}:5984/twitter"
 for node in "${nodes[@]}"; do  curl -X GET "http://${user}:${pass}@${node}:5984/_all_dbs"; done
 ```
@@ -119,62 +132,63 @@ and admin credentials" above.  For MacOS, change the IP addresses as needed, usi
 Fauxton user interface (`http://172.17.0.2:5984/_utils`).
 
 Put in conts the Docker container IDs
-```
+```shell script
 declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
 ```
 
 Starts the cluster 
-```
+```shell script
 for cont in "${conts[@]}"; do docker start ${cont}; done
 sleep 3
 ```
 
 Shutdowns the cluster nicely
-``` 
+```shell script
 for cont in "${conts[@]}"; do docker stop ${cont}; done
 ```
 
 Deletes the cluster containers
-```
+```shell script
 for cont in "${conts[@]}"; do docker rm --force ${cont}; done
 ```
 
 
 ## Loading of sanple data
 
-Add Twitter data
-```
+Once the cluster is started, some data can be added:
+```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_bulk_docs " --header "Content-Type: application/json" \
   --data @./twitter/data.json
 ```
 
 
-## MapReduce views, and list/show funcitons
+## MapReduce views, and list/show functions
 
-Add a design document with MapReduce Views, Lists and Shows functions
-```
-grunt couch-compile
-grunt couch-push
+Add a design document with MapReduce Views, Lists and Shows functions. (Depending on your computer configuration you may not need to use `sudo`.)
+```shell script
+export dbname='twitter'
+sudo --preserve-env grunt couch-compile
+sudo --preserve-env grunt couch-push
 ```
 
 Request a MapReduce View
-```
+```shell script
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_view/language?reduce=true&group_level=2"
 ```
 
 Request a show function returning HTML
-```
+```shell script
 docid=`curl -XGET "http://${masternode}:5984/twitter/_all_docs?limit=1" | jq '.rows[].id' | sed 's/"//g'`
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_show/html/${docid}"
 ```
 
 Request a list function returning HTML
-```
+```shell script
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_list/html/language?reduce=true&group_level=2"
 ```
 
 Request a list function returning GeoJSON
-```
+```shell script
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_list/geojson/language?reduce=false&include_docs=true" | jq '.' > /tmp/twitter.geojson
 ```
 You can now load the GeoJSON in a text editor, or display them on a map using QGIS
@@ -183,7 +197,7 @@ You can now load the GeoJSON in a text editor, or display them on a map using QG
 ## Mango queries and indexes
 
 Mango query request
-```
+```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" \
 --header "Content-Type: application/json" --data '{
    "fields" : ["_id", "text", "user.screen_name"],
@@ -194,7 +208,7 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" \
 ```
 
 Mango query explanation (use of indexes, or lack there-of, etc)
-```
+```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_explain" \
 --header "Content-Type: application/json" --data '{
    "fields" : ["_id", "text", "user.screen_name"],
@@ -206,7 +220,7 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_explain" \
 
 More complex Mango query, with tweets sorted by screen_name (it should return a warning, 
 because no index has been defined for the sort field):
-```
+```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "Content-Type: application/json" --data '{
    "fields" : ["_id", "user.lang", "user.screen_name", "text"],
    "selector": {
@@ -222,7 +236,7 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "
 Create index for lang and screen_name, hence the above query runs faster, but, still,
 it cannot sort by screen_name, since this index order documents for the combination
 of lang and screen_name, not for either field taken in isolation (same as SQL DBSMes) 
-```
+```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 --header "Content-Type: application/json" --data '{
    "ddoc": "indexes",
@@ -235,7 +249,7 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 ```
 
 Create index for just the screen_name, now the query above works without warnings:
-```
+```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 --header "Content-Type: application/json" --data '{
    "ddoc": "indexes",
@@ -248,20 +262,19 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 ```
 
 Get the list of indexes
-```
+```shell script
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_index" | jq '.' -M
 ```
-(Partial indexes selextor may be used to exclude some documents from indexing, in order to speed up indexing)
+(Partial indexes selector may be used to exclude some documents from indexing, in order to speed up indexing)
 Indexes can be deleted as usual
-
-```
+```shell script
 curl -XDELETE "http://${user}:${pass}@${masternode}:5984/twitter/_index/indexes/json/lang-screen-index"
 ```
 
 ## Spatial indexes
 
 Index by location (works only for points).
-```
+```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 --header "Content-Type: application/json" --data '{
    "ddoc": "indexes",
@@ -274,7 +287,7 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 ```
 
 Query data by their location (the index is now built, analogously to the MapReduce views)
-```
+```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "Content-Type: application/json" --data '{
    "fields" : ["_id", "user.lang", "user.screen_name", "text", "created_at", "coordinates"],
    "selector": {
@@ -287,6 +300,48 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "
 ```
 
 
-## Docker container with full-text search
+## Creation and use of partitioned database
 
-This GitGub repository `https://github.com/neutrinity/ntr-couch-docker` implements full-text search for CouchdDB.
+Create a partitioned database:
+```shell script
+curl -XPUT "http://${user}:${pass}@${masternode}:5984/twitterpart?partitioned=true"
+```
+
+Transfer the tweets to the partitioned database partitioning by user's screen name:
+```shell script
+(
+  cd couchdb
+  node transfer.js
+)
+```
+
+Get some information on a partition:
+```shell script
+curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-ABCrusader"
+```
+
+
+List all the documents in a given partition (should return all the tweets of user `ABCrusader`):
+```shell script
+curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-ABCrusader/_all_docs"
+```
+ 
+NOTE: Keep in mind the above is a simplified code that is not optimized for large databases.
+
+Since partioend databases cannot use custom `reduce` functions, we cannot just use the design document of the other database.
+ 
+Add a design document with MapReduce Views, Lists and Shows functions
+```shell script
+export dbname='twitterpart'
+curl -X PUT http://${user}:${pass}@${masternode}:5984/${dbname}/_design/language\
+   --data '{"views":{"language":{"map":"function(doc) { emit([doc.user.lang], 1); }", "reduce":"_stats"}}}'\
+   --header 'Content-Type:application/json'
+```
+
+Executes a partitioned query:
+```shell script
+curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-ABCrusader/_design/language/_view/language?reduce=true&group_level=2"
+```
+
+Non-partitioned views have to be explictely declared during the creation of a design document, byadding `partioned: false` to their `options` property.
+(By default, all views in a partitioned database are partitioned.)

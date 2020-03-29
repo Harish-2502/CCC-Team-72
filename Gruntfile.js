@@ -14,12 +14,11 @@ module.exports = function (grunt) {
           pass: process.env.pass
         },
         twitter: {
-          files: {
-            "http://172.17.0.2:5984/twitter": "/tmp/twitter.json"
-          }
         }
       }
     });
 
+  grunt.config.set(`couch-push.twitter.files.http://172\\.17\\.0\\.2:5984/${process.env.dbname}`, "/tmp/twitter.json");
+console.log(JSON.stringify(grunt.config.get()));
   grunt.loadNpmTasks("grunt-couch");
 };
