@@ -16,31 +16,42 @@ The following instructions apply only to Linux-based systems; for MacOS please m
 Set node IP addresses, electing the first as "master node"
 and admin credentials (make sure you have no other Docker containers running):
 ```shell script
-export declare -a nodes=(172.17.0.2 172.17.0.3 172.17.0.4)
+export declare -a nodes=(172.17.0.4 172.17.0.3 172.17.0.2)
 export masternode=`echo ${nodes} | cut -f1 -d' '`
-export othernodes=`echo ${nodes[@]} | sed s/${masternode}//`
+export declare -a othernodes=`echo ${nodes[@]} | sed s/${masternode}//`
 export size=${#nodes[@]}
 export user=admin
 export pass=admin
 export VERSION='3.0.0'
+export cookie='a192aeb9904e6590849337933b000c99'
+export uuid='a192aeb9904e6590849337933b001159'
 ```
 
-Pull the relevant Docker image: 
 ```shell script
-docker pull couchdb:${VERSION}
+docker pull ibmcom/couchdb3:${VERSION}
 ```
 
-Create Docker containers:
+Create Docker containers (stops and removes the current ones if existing):
 ```shell script
 for node in "${nodes[@]}" 
-  do 
-    docker rm $(docker ps --all --filter "name=couchdb${node}" --quiet) 
+  do
+    if [ ! -z $(docker ps --all --filter "name=couchdb${node}" --quiet) ] 
+       then
+         docker stop $(docker ps --all --filter "name=couchdb${node}" --quiet) 
+         docker rm $(docker ps --all --filter "name=couchdb${node}" --quiet)
+    fi 
+done
+
+for node in "${nodes[@]}" 
+  do
     docker create\
       --name couchdb${node}\
-      --ip ${node}\
       --env COUCHDB_USER=${user}\
       --env COUCHDB_PASSWORD=${pass}\
-      couchdb:${VERSION}
+      --env NOOENAME=couchdb@${node}\
+      --env COUCHDB_SECRET=${cookie}\
+      --env ERL_FLAGS="-setcookie \"${cookie}\" -name \"couchdb@${node}\""\
+      ibmcom/couchdb3:${VERSION}
 done
 ```
 
@@ -52,57 +63,34 @@ declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${si
 Start the containers (and wait a bit while they boot):
 ```shell script
 for cont in "${conts[@]}"; do docker start ${cont}; done
-sleep 3
 ```
 
-The following instructions apply only to Linux-based systems; for MacOS please move to the `macos` directory and execute `run.sh`. 
 
-Write the cookie name and node name to the CouchDB configuration on every node
+Set up the CouchDB cluster:
 ```shell script
-for (( i=0; i<${size}; i++ )); do
-    docker exec ${conts[${i}]} \
-      bash -c "echo \"-setcookie couchdb_cluster\" >> /opt/couchdb/etc/vm.args"
-    docker exec ${conts[${i}]} \
-      bash -c "echo \"-name couchdb@${nodes[${i}]}\" >> /opt/couchdb/etc/vm.args"
-done
-```
-
-Restart containers to pick-up changes to CouchDB configurations:
-```shell script
-for cont in "${conts[@]}"; do docker restart ${cont}; done
-sleep 3
-```
-
-Set the CouchDB cluster (deleting the default `nonode@nohost` node from the configuration):
-```shell script
-for node in "${nodes[@]}" 
-do     
-    curl -XPUT "http://${node}:5984/_node/_local/_config/admins/${user}" --data "\"${pass}\""    
-    curl -XPUT "http://${user}:${pass}@${node}:5984/_node/couchdb@${node}/_config/chttpd/bind_address" --data '"0.0.0.0"'
-done
-for node in "${nodes[@]}"
-do     
+for node in ${othernodes} 
+do
     curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup" \
-      --header "Content-Type: application/json" \
-      --data "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\", \
-        \"username\": \"${user}\", \"password\":\"${pass}\", \"port\": \"5984\", \
-        \"remote_node\": \"${node}\", \
-        \"remote_current_user\":\"${user}\", \"remote_current_password\":\"${pass}\"}"
+      --header "Content-Type: application/json"\
+      --data "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\",\
+             \"username\": \"${user}\", \"password\":\"${pass}\", \"port\": \"5984\",\
+             \"remote_node\": \"${node}\", \"node_count\": \"$(echo ${nodes[@]} | wc -w)\",\
+             \"remote_current_user\":\"${user}\", \"remote_current_password\":\"${pass}\"}"
 done
-for node in "${nodes[@]}"
-do     
-    curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup" \
-      --header "Content-Type: application/json" \
-      --data "{\"action\": \"add_node\", \"host\":\"${node}\", \
-        \"port\": \"5984\", \"username\": \"${user}\", \"password\":\"${pass}\"}"
+
+for node in ${othernodes}
+do
+    curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup"\
+      --header "Content-Type: application/json"\
+      --data "{\"action\": \"add_node\", \"host\":\"${node}\",\
+             \"port\": \"5984\", \"username\": \"${user}\", \"password\":\"${pass}\"}"
 done
-curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup" \
-    --header "Content-Type: application/json" --data "{\"action\": \"finish_cluster\"}" 
-rev=`curl -XGET "http://172.17.0.2:5986/_nodes/nonode@nohost" --user "${user}:${pass}" | sed -e 's/[{}"]//g' | cut -f3 -d:`
-curl -X DELETE "http://172.17.0.2:5986/_nodes/nonode@nohost?rev=${rev}"  --user "${user}:${pass}"
+
+curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup"\
+    --header "Content-Type: application/json" --data "{\"action\": \"finish_cluster\"}"
 ```
 
-Check the correct cluster configuration:
+Check wether the cluster configuration is correct:
 ```shell script
 for node in "${nodes[@]}"; do  curl -X GET "http://${user}:${pass}@${node}:5984/_membership"; done
 ```
@@ -345,3 +333,4 @@ curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-A
 
 Non-partitioned views have to be explictely declared during the creation of a design document, byadding `partioned: false` to their `options` property.
 (By default, all views in a partitioned database are partitioned.)
+
