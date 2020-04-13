@@ -127,7 +127,6 @@ declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${si
 Starts the cluster 
 ```shell script
 for cont in "${conts[@]}"; do docker start ${cont}; done
-sleep 3
 ```
 
 Shutdowns the cluster nicely
@@ -152,11 +151,11 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_bulk_docs " --he
 
 ## MapReduce views, and list/show functions
 
-Add a design document with MapReduce Views, Lists and Shows functions. (Depending on your computer configuration you may not need to use `sudo`.)
+Add a design document with MapReduce Views, Lists and Shows functions.
 ```shell script
 export dbname='twitter'
-sudo --preserve-env grunt couch-compile
-sudo --preserve-env grunt couch-push
+grunt couch-compile
+grunt couch-push
 ```
 
 Request a MapReduce View
@@ -166,7 +165,7 @@ curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_
 
 Request a show function returning HTML
 ```shell script
-docid=`curl -XGET "http://${masternode}:5984/twitter/_all_docs?limit=1" | jq '.rows[].id' | sed 's/"//g'`
+docid=`curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_all_docs?limit=1" | jq '.rows[].id' | sed 's/"//g'`
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_show/html/${docid}"
 ```
 
@@ -253,8 +252,9 @@ Get the list of indexes
 ```shell script
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_index" | jq '.' -M
 ```
-(Partial indexes selector may be used to exclude some documents from indexing, in order to speed up indexing)
-Indexes can be deleted as usual
+(Partial indexes selector may be used to exclude some documents from indexing, in order to speed up indexing.)
+
+Indexes can be deleted as well:
 ```shell script
 curl -XDELETE "http://${user}:${pass}@${masternode}:5984/twitter/_index/indexes/json/lang-screen-index"
 ```
@@ -285,6 +285,31 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "
       ]
    }
 }' | jq '.' -M
+```
+
+
+
+## Full-text search (search indexes)
+
+Create a search index:
+```shell script
+curl -XPUT "http://${user}:${pass}@${masternode}:5984/twitter/_design/textsearch"\
+  --header 'Content-Type:application/json'\
+   --data @./twitter/textsearch/text.json
+```
+
+Query all the tweets in Spanish:
+```shell script
+curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_design/textsearch/_search/text"\
+  --header 'Content-Type:application/json'\
+   --data '{"q": "languagex:es"}'
+```
+
+Query all the tweets in Englsh that contains the words 'apple' or 'orange';
+```shell script
+curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_design/textsearch/_search/text"\
+  --header 'Content-Type:application/json'\
+   --data '{"q": "language:en AND (text:weekend AND text:days)"}'
 ```
 
 
