@@ -3,17 +3,9 @@
 These are the steps to follow in order to deploy an OpenFaaS instance running on Docker Swarm in a single computer.
 
 
-## Prerequirements
-
-1. Install Docker CE `https://docs.docker.com/engine/installation/`
-2. Install Docker Compose `https://docs.docker.com/compose/install/`
-3. About 2GB of RAM available for this deployment
-4. A Linux-based shell (MacOS works as well, but with slightly different commands)
-
-
 ## Install and start OpenFaaS
 
-```bash
+```shell script
 git clone https://github.com/openfaas/faas
 docker swarm init
 cd faas
@@ -23,7 +15,7 @@ cd faas
 
 Check all Docker services have started:
 
-```bash
+```shell script
 docker service ls
 ```
 (There should be six services listed.)
@@ -33,13 +25,13 @@ docker service ls
 
 Linux:
 
-```bash
+```shell script
 curl -sSL https://cli.openfaas.com | sudo sh
 ```
 
 MacOS:
 
-```bash
+```shell script
 brew install faas-cli # or curl -sSL https://cli.openfaas.com | sudo sh
 ```
 
@@ -48,7 +40,7 @@ brew install faas-cli # or curl -sSL https://cli.openfaas.com | sudo sh
 
 Use the username and password generated during installation.
 
-```bash
+```shell script
 faas-cli login -u admin -p <password>
 ```
 
@@ -57,7 +49,7 @@ faas-cli login -u admin -p <password>
 
 Point your browser to:
 
-```bash
+```shell script
 http://0.0.0.0:8080/ui/
 ```
 
@@ -68,7 +60,7 @@ http://0.0.0.0:8080/ui/
 
 (Make sure you are in the `faas` directory, the one where OpenFaaS was installed.)
 
-```bash
+```shell script
 faas-cli template pull # Grab all the tamplates in different languages
 faas-cli new wcmp --lang=node # Creates a new function in Node.js
 cd wcmp # Goes into the newly created function (only package.json and handler.js there)
@@ -98,7 +90,7 @@ module.exports = (context, callback) => {
 
 ## Build and Deployment of wcmp function
 
-```bash
+```shell script
 faas-cli build --image=wcmpimage --lang=node --handler=./ --name=wcmp # Build image
 faas-cli deploy --image=wcmpimage --name=wcmp # Deploy function to local OpenFaaS instance
 curl -XPOST "http://0.0.0.0:8080/function/wcmp" --data 'italy' # Call the function 
@@ -111,13 +103,13 @@ Execute the following (every second it will show the actual and desired function
 
 (On MacOS, `watch` may need to be installed first with `brew install watch`)
 
-```bash
+```shell script
 watch -n 1 docker service ls
 ```
 
 In another shell, download Wikipedia pages for the test
 
-```bash
+```shell script
 pages="italy china france germany australia brazil denmark mexico zambia thailand"
 for page in ${pages};
    do curl "https://en.wikipedia.org/w/api.php?format=xml&action=parse&prop=wikitext&page=${page}"\
@@ -127,7 +119,7 @@ done
 
 Call the word-count functions on the downloaded pages repeateadly  
 
-```bash
+```shell script
 for i in {1..100};
   do
     for page in ${pages};

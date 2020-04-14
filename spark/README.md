@@ -3,22 +3,16 @@
 These are the steps to follow in order to simulate a Spark cluster on a single computer.
 
 
-## Prerequirements
-
-* About 2GB of RAM available for this cluster
-* A Linux-based shell (it works with MacOS as well)
-
-
 ## Building of spark image
 
-```bash
+```shell script
 docker build --tag spark-2:2.4.5 spark-2 
 ```
 
 
 ## Cluster creation anpwdpwdd start (1 master, 1 worker)
 
-```bash
+```shell script
 docker-compose up
 ```
 
@@ -27,7 +21,7 @@ docker-compose up
 
 Open a new shell to execute these commands
   
-```bash
+```shell script
 docker exec -ti spark_spark-master_1 /bin/bash
 pyspark
 execfile('/root/wc.py')
@@ -40,7 +34,7 @@ To have a look at the cluster workers, point your browser to: `http://173.17.2.1
 
 ## Interactive Spark session with the Python shell
 
-```bash
+```shell script
 docker exec -ti spark_spark-master_1 /bin/bash
 pyspark
 ```
@@ -58,7 +52,7 @@ to: `http://173.17.2.1:4040`
 
 ## Cluster stop and re-start
 
-```bash
+```shell script
   docker-compose stop
   docker-compose start
 ```
