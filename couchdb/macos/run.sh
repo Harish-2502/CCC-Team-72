@@ -11,13 +11,16 @@ export pass=pass
 
 echo "== Start the containers =="
 docker-compose up -d
-sleep 10
+
+sleep 30
 
 echo "== Enable cluster setup =="
 for (( i=0; i<${size}; i++ )); do
   curl -X POST "http://${user}:${pass}@localhost:${ports[${i}]}/_cluster_setup" -H 'Content-Type: application/json' \
     -d "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\", \"username\": \"${user}\", \"password\":\"${pass}\", \"node_count\":\"${size}\"}"
 done
+
+sleep 10
 
 echo "== Add nodes to cluster =="
 for (( i=0; i<${size}; i++ )); do
@@ -29,6 +32,8 @@ for (( i=0; i<${size}; i++ )); do
       -d "{\"action\": \"add_node\", \"host\":\"${nodes[${i}]}\", \"port\": 5984, \"username\": \"${user}\", \"password\":\"${pass}\"}"
   fi
 done
+
+sleep 10
 
 curl -X POST "http://${user}:${pass}@localhost:${master_port}/_cluster_setup" -H 'Content-Type: application/json' -d '{"action": "finish_cluster"}'
 

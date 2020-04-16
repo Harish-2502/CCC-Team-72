@@ -1,7 +1,7 @@
 version: "3"
 services:
   couch_master:
-    image: "couchdb:2.3.0"
+    image: "ibmcom/couchdb3:3.0.0"
     restart: always
     ports:
       - "5984:5984"
@@ -12,7 +12,7 @@ services:
       - couch_slave1
       - couch_slave2
     volumes:
-      - /Users/alwynpan/Workspace/Teaching/couchdb/master/data:/opt/couchdb/data
+      - ./data/master/data:/opt/couchdb/data
     environment:
       - COUCHDB_USER=user
       - COUCHDB_PASSWORD=pass
@@ -21,13 +21,14 @@ services:
     networks:
       couchdb_nw:
         ipv4_address: 172.20.0.2
+
   couch_slave1:
-    image: "couchdb:2.3.0"
+    image: "ibmcom/couchdb3:3.0.0"
     restart: always
     ports:
       - "15984:5984"
     volumes:
-      - /Users/alwynpan/Workspace/Teaching/couchdb/slave1/data:/opt/couchdb/data
+      - ./data/slave1/data:/opt/couchdb/data
     environment:
       - COUCHDB_USER=user
       - COUCHDB_PASSWORD=pass
@@ -36,13 +37,14 @@ services:
     networks:
       couchdb_nw:
         ipv4_address: 172.20.0.3
+
   couch_slave2:
-    image: "couchdb:2.3.0"
+    image: "ibmcom/couchdb3:3.0.0"
     restart: always
     ports:
       - "25984:5984"
     volumes:
-      - /Users/alwynpan/Workspace/Teaching/couchdb/slave2/data:/opt/couchdb/data
+      - ./data/slave2/data:/opt/couchdb/data
     environment:
       - COUCHDB_USER=user
       - COUCHDB_PASSWORD=pass
