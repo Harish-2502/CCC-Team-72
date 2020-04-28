@@ -17,7 +17,7 @@ Code snippets for the Cloud Computing course
 (Minimum software versions, it should work with newer ones as well.)
 
 This is optional:
-* QGIS 3.4.x (https://qgis.org/en/site/)
+* QGIS 3.x (https://qgis.org/en/site/)
 
 
 # Installation
@@ -26,6 +26,6 @@ This is optional:
 npm install
 ```
 
-(Ignore NPM vulneraiblity messages.)
+(Ignore NPM vulnerability messages.)
 
 

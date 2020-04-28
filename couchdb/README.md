@@ -140,7 +140,7 @@ for cont in "${conts[@]}"; do docker rm --force ${cont}; done
 ```
 
 
-## Loading of sanple data
+## Loading of sample data
 
 Once the cluster is started, some data can be added:
 ```shell script
@@ -298,18 +298,18 @@ curl -XPUT "http://${user}:${pass}@${masternode}:5984/twitter/_design/textsearch
    --data @./twitter/textsearch/text.json
 ```
 
-Query all the tweets in Spanish:
+Query all the tweets in Japanese:
 ```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_design/textsearch/_search/text"\
   --header 'Content-Type:application/json'\
-   --data '{"q": "languagex:es"}'
+  --data '{"q": "language:ja"}' | jq '.'
 ```
 
-Query all the tweets in Englsh that contains the words 'apple' or 'orange';
+Query all the tweets in English that contains the words 'weekend' and 'days';
 ```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_design/textsearch/_search/text"\
   --header 'Content-Type:application/json'\
-   --data '{"q": "language:en AND (text:weekend AND text:days)"}'
+  --data '{"q": "language:en AND (text:weekend AND text:days)"}' | jq '.'
 ```
 
 
@@ -322,40 +322,36 @@ curl -XPUT "http://${user}:${pass}@${masternode}:5984/twitterpart?partitioned=tr
 
 Transfer the tweets to the partitioned database partitioning by user's screen name:
 ```shell script
-(
-  cd couchdb
-  node transfer.js
-)
+node transfer.js
 ```
+(The program above is a simplified code that is not optimized for large databases.)
+
 
 Get some information on a partition:
 ```shell script
-curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-ABCrusader"
+curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-ABCrusader" | jq '.'
 ```
-
 
 List all the documents in a given partition (should return all the tweets of user `ABCrusader`):
 ```shell script
-curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-ABCrusader/_all_docs"
+curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-ABCrusader/_all_docs" | jq '.'
 ```
  
-NOTE: Keep in mind the above is a simplified code that is not optimized for large databases.
-
-Since partioend databases cannot use custom `reduce` functions, we cannot just use the design document of the other database.
+Since partitioned databases cannot use custom `reduce` functions, we cannot just use the design document of the other database.
  
 Add a design document with MapReduce Views, Lists and Shows functions
 ```shell script
 export dbname='twitterpart'
 curl -X PUT http://${user}:${pass}@${masternode}:5984/${dbname}/_design/language\
-   --data '{"views":{"language":{"map":"function(doc) { emit([doc.user.lang], 1); }", "reduce":"_stats"}}}'\
+   --data '{"views":{"language":{"map":"function(doc) { emit([doc.user.lang], 1); }", "reduce":"_count"}}}'\
    --header 'Content-Type:application/json'
 ```
 
 Executes a partitioned query:
 ```shell script
-curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-ABCrusader/_design/language/_view/language?reduce=true&group_level=2"
+curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-ABCrusader/_design/language/_view/language?reduce=true&group_level=2" | jq '.'
 ```
 
-Non-partitioned views have to be explictely declared during the creation of a design document, byadding `partioned: false` to their `options` property.
+Non-partitioned views have to be explictely declared during the creation of a design document, by adding `partioned: false` to their `options` property.
 (By default, all views in a partitioned database are partitioned.)
 
