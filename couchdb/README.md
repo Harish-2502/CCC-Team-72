@@ -160,7 +160,7 @@ grunt couch-push
 
 Request a MapReduce View
 ```shell script
-curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_view/language?reduce=true&group_level=2"
+curl -XGET "http://${user}:${pass}@${masternode}:5984/twitter/_design/language/_view/language?reduce=true&group_level=1"
 ```
 
 Request a show function returning HTML
@@ -352,6 +352,6 @@ Executes a partitioned query:
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-ABCrusader/_design/language/_view/language?reduce=true&group_level=2" | jq '.'
 ```
 
-Non-partitioned views have to be explictely declared during the creation of a design document, by adding `partioned: false` to their `options` property.
+dispayNon-partitioned views have to be explictely declared during the creation of a design document, by adding `partioned: false` to their `options` property.
 (By default, all views in a partitioned database are partitioned.)
 
