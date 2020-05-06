@@ -74,16 +74,16 @@ Replace `handler.js` with the following code:
 ```javascript
 "use strict";
 module.exports = (context, callback) => {
-  let counts = {};
-  context.toLowerCase ()
-    .split (/[ \/\!\-\+\#\$\%\(\)\`\'\":;\.,\{\}\[\]\=\|\*\<\>\t\n]+/)
-    .filter ((w) => {
-      return w.length > 1;
-    })
-    .forEach ((w) => {
-      counts[w] = (counts[w] ? counts[w] + 1 : 1);
-    });
-  callback (undefined, counts);
+    let counts = {};
+    context.toLowerCase ()
+      .split(/\W+/)
+      .filter ((w) => {
+          return w.length > 1;
+      })
+      .forEach ((w) => {
+          counts[w] = (counts[w] ? counts[w] + 1 : 1);
+      });
+    callback (undefined, counts);
 };
 ```
 
@@ -123,7 +123,7 @@ Call the word-count functions on the downloaded pages repeateadly
 for i in {1..100};
   do
     for page in ${pages};
-      do text=`cat /tmp/${page}.xml`; curl -XPOST "http://0.0.0.0:8080/function/wcmp" --data '${text}' -o /dev/null -s -w "%{http_code} `date`\n"       
+      do curl -XPOST 'http://0.0.0.0:8080/function/wcmp' --data @/tmp/${page}.xml       
     done
   done
 ```
