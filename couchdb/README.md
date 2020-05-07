@@ -48,7 +48,6 @@ for node in "${nodes[@]}"
       --name couchdb${node}\
       --env COUCHDB_USER=${user}\
       --env COUCHDB_PASSWORD=${pass}\
-      --env NOOENAME=couchdb@${node}\
       --env COUCHDB_SECRET=${cookie}\
       --env ERL_FLAGS="-setcookie \"${cookie}\" -name \"couchdb@${node}\""\
       ibmcom/couchdb3:${VERSION}
