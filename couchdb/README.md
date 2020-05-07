@@ -85,10 +85,12 @@ do
              \"port\": \"5984\", \"username\": \"${user}\", \"password\":\"${pass}\"}"
 done
 
+# THis empty request is to avoid an error message when finishing the cluster setup 
+curl -XGET "http://${user}:${pass}@${masternode}:5984/"
+
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup"\
     --header "Content-Type: application/json" --data "{\"action\": \"finish_cluster\"}"
 ```
-(You may disregartd the error message `{"error":"unknown_error","reason":"undef","ref":1124911208}`.)
 
 Check wether the cluster configuration is correct:
 ```shell script
