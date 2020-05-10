@@ -10,7 +10,7 @@ docker build --tag spark-2:2.4.5 spark-2
 ```
 
 
-## Cluster creation anpwdpwdd start (1 master, 1 worker)
+## Cluster creation and start (1 master, 1 worker)
 
 ```shell script
 docker-compose up
