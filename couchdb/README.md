@@ -20,11 +20,10 @@ export declare -a nodes=(172.17.0.4 172.17.0.3 172.17.0.2)
 export masternode=`echo ${nodes} | cut -f1 -d' '`
 export declare -a othernodes=`echo ${nodes[@]} | sed s/${masternode}//`
 export size=${#nodes[@]}
-export user=admin
-export pass=admin
+export user='admin'
+export pass='admin'
 export VERSION='3.0.0'
 export cookie='a192aeb9904e6590849337933b000c99'
-export uuid='a192aeb9904e6590849337933b001159'
 ```
 
 ```shell script
@@ -54,7 +53,7 @@ for node in "${nodes[@]}"
 done
 ```
 
-Put in conts the Docker container IDs:
+Put in `conts` the Docker container IDs:
 ```shell script
 declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
 ```
@@ -85,14 +84,14 @@ do
              \"port\": \"5984\", \"username\": \"${user}\", \"password\":\"${pass}\"}"
 done
 
-# THis empty request is to avoid an error message when finishing the cluster setup 
+# This empty request is to avoid an error message when finishing the cluster setup
 curl -XGET "http://${user}:${pass}@${masternode}:5984/"
 
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup"\
     --header "Content-Type: application/json" --data "{\"action\": \"finish_cluster\"}"
 ```
 
-Check wether the cluster configuration is correct:
+Check whether the cluster configuration is correct:
 ```shell script
 for node in "${nodes[@]}"; do  curl -X GET "http://${user}:${pass}@${node}:5984/_membership"; done
 ```
@@ -106,22 +105,22 @@ for node in "${nodes[@]}"; do  curl -X GET "http://${user}:${pass}@${node}:5984/
 
 ## Cluster nodes on different VMs
 
-To deploy a CouchDB cluster on different VMs (say, on NeCTAR), the step above have to be changed significantly:
+To deploy a CouchDB cluster on different VMs (say, on MRC), the steps above have to be changed significantly:
 * Docker commands have to be run on each node
 * Security groups have to set up to allow communications between nodes;
-* IP address have to follow the ones assigned by NeCTAR.
+* IP address have to follow the ones assigned by MRC.
 
-(For more details `https://docs.couchdb.org/en/master/setup/cluster.html`.)   
+(For more details [https://docs.couchdb.org/en/latest/setup/cluster.html](https://docs.couchdb.org/en/latest/setup/cluster.html).)   
 
 
 ## Cluster management
 
 For Linux-based system first run the "Set node IP addresses, electing the first as "master node" 
-and admin credentials" above.  For MacOS, change the IP addresses as needed, using the ones specified i nthe `run.sh` script under the `macos` directory.  
+and admin credentials" above.  For MacOS, change the IP addresses as needed, using the ones specified in the `run.sh` script under the `macos` directory.  
 
 Fauxton user interface (`http://172.17.0.2:5984/_utils`).
 
-Put in conts the Docker container IDs
+Put in `conts` the Docker container IDs
 ```shell script
 declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
 ```
@@ -354,6 +353,6 @@ Executes a partitioned query:
 curl -XGET "http://${user}:${pass}@${masternode}:5984/twitterpart/_partition/T-ABCrusader/_design/language/_view/language?reduce=true&group_level=2" | jq '.'
 ```
 
-dispayNon-partitioned views have to be explictely declared during the creation of a design document, by adding `partioned: false` to their `options` property.
+Non-partitioned views have to be explicitly declared during the creation of a design document, by adding `partitioned: false` to their `options` property.
 (By default, all views in a partitioned database are partitioned.)
 
