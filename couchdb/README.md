@@ -83,6 +83,7 @@ do
       --data "{\"action\": \"add_node\", \"host\":\"${node}\",\
              \"port\": \"5984\", \"username\": \"${user}\", \"password\":\"${pass}\"}"
 done
+```
 
 # This empty request is to avoid an error message when finishing the cluster setup
 curl -XGET "http://${user}:${pass}@${masternode}:5984/"
@@ -145,6 +146,7 @@ for cont in "${conts[@]}"; do docker rm --force ${cont}; done
 
 Once the cluster is started, some data can be added:
 ```shell script
+cd couchdb
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_bulk_docs " --header "Content-Type: application/json" \
   --data @./twitter/data.json
 ```
@@ -195,7 +197,7 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" \
 }'  | jq '.' -M
 ```
 
-Mango query explanation (use of indexes, or lack there-of, etc)
+Mango query explanation (use of indexes, or lack-there-of, etc)
 ```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_explain" \
 --header "Content-Type: application/json" --data '{
