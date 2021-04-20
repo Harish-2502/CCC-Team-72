@@ -1,6 +1,6 @@
 schema_version: 20180708
 name: pywcmp
-version: 0.0.36
+version: 0.0.40
 runtime: python
 entrypoint: /python/bin/fdk /function/func.py handler
 memory: 256

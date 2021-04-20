@@ -10,11 +10,7 @@ def handler(ctx, data: io.BytesIO = None):
         logger = logging.getLogger()
 
         for word in data.getvalue().split():
-
-            if word in counts:
-                counts[word.decode('utf-8')] += 1
-            else:
-                counts[word.decode('utf-8')] = 1
+            counts[word.decode('utf-8')]= (counts.get(word.decode('utf-8')) or 0) + 1
 
     except (Exception, ValueError) as ex:
         logging.getLogger().info('error: ' + str(ex))
