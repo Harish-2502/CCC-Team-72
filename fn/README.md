@@ -28,7 +28,7 @@ Sample function creaation:
 fn init --runtime node --trigger http wcmp 
 ```
 
-A new directory name `wcmp` should have been added; a few editings has to be done to its contensts:
+A new directory name `wcmp` should have been added; a few editings has to be done to its contents:
 
 Create a `Dockerfile` file with the contents:
 ```dockerfile
@@ -64,7 +64,7 @@ fdk.handle (function (input) {
 
 In the `func.yaml` file, change `runtime: node` to `runtime: docker`.
 
-Create an Fn `app` (group of functions):
+Create an Fn `app` (these commands have to be run from the directory containing the `wmcp` funciton directory):
 ```shell script
 fn create app wcapp
 ```
@@ -145,7 +145,7 @@ async def handler(ctx, data: io.BytesIO=None):
     )
 ```
 
-Function build and deployment on the lcoal Fn server:
+Function build and deployment on the lcoal Fn server (these commands have to be run from the directory containing the `wmcp` funciton directory):
 ```shell script
 fn deploy --app wcapp --local pywcmp
 fn list functions wcapp 
