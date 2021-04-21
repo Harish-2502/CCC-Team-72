@@ -226,7 +226,7 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "
 ```
 
 Create index for lang and screen_name, hence the above query runs faster, but, still,
-it cannot sort by screen_name, since this index order documents for the combination
+it cannot efficiently sort by screen_name, since this index order documents for the combination
 of lang and screen_name, not for either field taken in isolation (same as SQL DBSMes) 
 ```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
@@ -240,7 +240,8 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 }'
 ```
 
-Create index for just the screen_name, now the query above works without warnings:
+Create index for just the screen_name, now the query should be faster 
+(not that one can notice with just 1,000 documents withoud instrumentation, but you get the idea):
 ```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 --header "Content-Type: application/json" --data '{
@@ -266,7 +267,7 @@ curl -XDELETE "http://${user}:${pass}@${masternode}:5984/twitter/_index/indexes/
 
 ## Spatial indexes
 
-Index by location (works only for points).
+Index by location (works only for points, and it is higly inefficient, but it works for small datasets).
 ```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 --header "Content-Type: application/json" --data '{
@@ -291,7 +292,6 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "
    }
 }' | jq '.' -M
 ```
-
 
 
 ## Full-text search (search indexes)
