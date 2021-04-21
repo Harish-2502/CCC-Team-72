@@ -22,9 +22,10 @@ export declare -a othernodes=`echo ${nodes[@]} | sed s/${masternode}//`
 export size=${#nodes[@]}
 export user='admin'
 export pass='admin'
-export VERSION='3.0.0'
+export VERSION='3.1.1'
 export cookie='a192aeb9904e6590849337933b000c99'
 ```
+(Ignore the `bash: export: `-a': not a valid identifier` error if it were to appear.)
 
 ```shell script
 docker pull ibmcom/couchdb3:${VERSION}
@@ -86,6 +87,7 @@ done
 ```
 
 # This empty request is to avoid an error message when finishing the cluster setup
+```shell
 curl -XGET "http://${user}:${pass}@${masternode}:5984/"
 
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup"\
