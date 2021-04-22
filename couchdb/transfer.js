@@ -13,6 +13,9 @@ http.request (`${twitterDB}/_all_docs?include_docs=true`, {method: 'GET'}, (res)
   res.on ('data', (chunk) => {
     resBody += chunk
   });
+  res.on ('error', (err) => {
+    console.log(`ERROR ${JSON.stringify(err)}`);
+  });
 
   // Once all the docments ha ve been read
   res.on ('end', (chunk) => {
