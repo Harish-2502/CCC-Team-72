@@ -12,7 +12,7 @@ Code snippets for the Cloud Computing course
 * NPM 6.10 or newer (Installed along Node.js)
 * Grunt CLI 1.2 (https://gruntjs.com/installing-grunt). To install on Ubuntu: `sudo apt install node-grunt-cli`
 * jq 1.5 or newer (https://stedolan.github.io/jq/download/)
-* a Linux-based shell (tested it with Ubuntu, scripts are provided to have it run on MacOS, which has some know limitations when it comes to MacOS https://docs.docker.com/docker-for-mac/networking/)
+* a Linux-based shell (I tested it with Ubuntu, scripts are provided to have it run on MacOS, which has some know limitations when it comes to Docker https://docs.docker.com/docker-for-mac/networking/)
 
 (Minimum software versions, it should work with newer ones as well.)
 
