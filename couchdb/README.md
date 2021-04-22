@@ -280,18 +280,20 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 }'
 ```
 
-Query data by their location (the index is now built, analogously to the MapReduce views)
+Query data by their longitude (the index is now built, analogously to the MapReduce views)
 ```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "Content-Type: application/json" --data '{
    "fields" : ["_id", "user.lang", "user.screen_name", "text", "created_at", "coordinates"],
    "selector": {
       "$and": [
-        {"coordinates.coordinates": {"$gt": [100, -31]}},
-        {"coordinates.coordinates": {"$lt": [116, -33]}}
+        {"coordinates.coordinates": {"$gt": [115.3]}},
+        {"coordinates.coordinates": {"$lt": [115.6]}}
       ]
    }
 }' | jq '.' -M
 ```
+(Only the longitude is part of the query since Mango indexes only the first element of an array
+-`coordinates.coordinates` is an array.)
 
 
 ## Full-text search (search indexes)
