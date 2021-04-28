@@ -1,7 +1,9 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
-ARG SPARK_ARCHIVE="http://archive.apache.org/dist/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz"
-ENV SPARK_HOME /usr/local/spark-2.4.5-bin-hadoop2.7
+ARG SPARK_VERSION
+
+ARG SPARK_ARCHIVE="http://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop2.7.tgz"
+ENV SPARK_HOME /usr/local/spark-${SPARK_VERSION}-bin-hadoop2.7
 ENV PATH $PATH:$SPARK_HOME/bin
 
 EXPOSE 4040 6066 7077 8080

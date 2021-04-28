@@ -29,6 +29,7 @@ fn init --runtime node --trigger http wcmp
 ```
 
 A new directory name `wcmp` should have been added; a few editings has to be done to its contents:
+Suppose we aant to fine-tune the Docker image that Fn builds by default, we then have to add a Dockerfile and change the function runtime.  
 
 Create a `Dockerfile` file with the contents:
 ```dockerfile
@@ -44,7 +45,9 @@ COPY --from=build-stage /function/node_modules/ /function/node_modules/
 ENTRYPOINT ["node", "func.js"]
 ```
 
-Replace `func.js` with:
+In the `func.yaml` file, change `runtime: node` to `runtime: docker`.
+
+To have our functions counts the inout words, we have to replace `func.js` with:
 ```javascript
 const fdk = require ('@fnproject/fdk');
 
@@ -56,13 +59,11 @@ fdk.handle (function (input) {
       return w.length > 1;
     })
     .forEach ((w) => {
-      counts[w] = (counts[w] ? counts[w] + 1 : 1);
+      counts[w] = (coun ts[w] ? counts[w] + 1 : 1);
     });
   return counts;
 })
 ```
-
-In the `func.yaml` file, change `runtime: node` to `runtime: docker`.
 
 Create an Fn `app` (these commands have to be run from the directory containing the `wmcp` funciton directory):
 ```shell script
@@ -128,20 +129,25 @@ A new directory name `pywcmp` should have been added; a few editings has to be d
 
 Replace `func.py` with:
 ```python
-import json
 import io
+import json
+import logging
+
 from fdk import response
-async def handler(ctx, data: io.BytesIO=None):
-    name = "World"
+
+def handler(ctx, data: io.BytesIO = None):
     try:
-        body = json.loads(data.getvalue())
-        name = body.get("name")
+        counts = dict()
+        logger = logging.getLogger()
+
+        for word in data.getvalue().split():
+            counts[word.decode('utf-8')]= (counts.get(word.decode('utf-8')) or 0) + 1
+
     except (Exception, ValueError) as ex:
-        print(str(ex))
+        logging.getLogger().info('error: ' + str(ex))
+
     return response.Response(
-        ctx, response_data=json.dumps(
-            {"message": "Hello {0}".format(name)}), 
-        headers={"Content-Type": "application/json"}
+        ctx, response_data=json.dumps(counts), headers={"Content-Type": "application/json"}
     )
 ```
 
