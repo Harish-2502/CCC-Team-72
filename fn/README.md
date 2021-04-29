@@ -59,7 +59,7 @@ fdk.handle (function (input) {
       return w.length > 1;
     })
     .forEach ((w) => {
-      counts[w] = (coun ts[w] ? counts[w] + 1 : 1);
+      counts[w] = (counts[w] ? counts[w] + 1 : 1);
     });
   return counts;
 })
