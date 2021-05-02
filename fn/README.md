@@ -77,7 +77,10 @@ fn list functions wcapp
 ```
 
 Function invokation:
-```shell script
+```shell scriptimport urllib2  # the lib that handles the url stuff
+
+data = urllib2.urlopen(target_url) # it's a file like object and works just like a file
+
 curl -XPOST 'http://localhost:8080/t/wcapp/wcmp' --data 'lorem ipsum'
 ```
 
