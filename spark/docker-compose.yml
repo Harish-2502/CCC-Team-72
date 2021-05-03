@@ -11,6 +11,7 @@ services:
       - SPARK_SSL_ENABLED=no
     ports:
       - '8080:8080'
+      - '4040:4040'
     networks:
       sparknet:
         ipv4_address: "173.17.2.2"

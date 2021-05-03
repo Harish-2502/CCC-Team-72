@@ -1,14 +1,11 @@
-# Build and deployment of Spark 2 on Docker
+# Build and deployment of Spark on Docker
 
 These are the steps to follow in order to simulate a Spark cluster on a single computer.
 
-
-## Requirements
-
-* Python 3.6 (I did it with (https://docs.conda.io/en/latest/miniconda.html)[Miniconda3 4.5.4])
+Note to MacOS users: the memory available to Docker (say, on Docker Desktop) has to be set at least to 4GB to run thw workshop code.
 
 
-# Building of spark image
+# Building of a spark image
 
 ```shell script
 docker build --tag spark:latest\
@@ -38,7 +35,9 @@ exit()
 exit
 ```
 
-To have a look at the cluster workers, point your browser to: `http://173.17.2.1:8080`
+To have a look at the cluster workers, point your browser to: `http://173.17.2.2:8080`
+(`http://0.0.0.0:8080` on MacOS)
+
 
 ## Cluster stop and re-start
 
@@ -47,15 +46,16 @@ To have a look at the cluster workers, point your browser to: `http://173.17.2.1
   docker-compose start
 ```
 
+
 ## Topic Modelling
 
 Topic modelling is a problem that can be solved by using clustring techniques such
 as Latent Dirichlet Allocation.
 
-I took inspiraiton from (this blog entry)[https://medium.com/@connectwithghosh/topic-modelling-with-latent-dirichlet-allocation-lda-in-pyspark-2cb3ebd5678e]
+I took inspiraiton from [this blog entry](https://medium.com/@connectwithghosh/topic-modelling-with-latent-dirichlet-allocation-lda-in-pyspark-2cb3ebd5678e)
 to develop am LDA implementaiton in Python for Spark. 
 
-The corpus (1,000 bloggers entries) are taken from (this repository)[https://u.cs.biu.ac.il/~koppel/BlogCorpus.htm] 
+The corpus (1,000 bloggers) are taken from [this repository](https://u.cs.biu.ac.il/~koppel/BlogCorpus.htm) 
 
 
 ### Cluster set-up for the LDA
@@ -176,10 +176,12 @@ lda_model = LDA.train(result_tfidf[['index','features']].rdd\
 ### Display of results
 
 Show processing in the Spark webamdin, point your browser to:
-* `http://173.17.2.2:8080/`
-* `http://173.17.2.2:4040/`
-* `http://173.17.2.3:8081/`
-* `http://173.17.2.4:8081/`
+* `http://173.17.2.2:8080/` (`http://0.0.0.0:8080` on MacOS)
+* `http://173.17.2.2:4040/` (`http://0.0.0.0:4040` on MacOS)
+* `http://173.17.2.3:8081/` (It does not work under MacOS)
+* `http://173.17.2.4:8081/` (It does not work under MacOS)
+
+NOTE: the `4040` application is active only when a job is running (such as when there is a PySpark session active).
 
 Describe the top topics and show their top (stemmed) words in the PySpark shell:
 ```python
@@ -197,5 +199,7 @@ topics_final = topicIndices.map(lambda topic: topic_render(topic)).collect()
 for topic in range(len(topics_final)):
     print ('Topic {}: {}'.format(str(topic), topics_final[topic]))   
 ```
+
+Given the probabilistic nature of LDA, different runs may yield slightly different topics.
 
 
