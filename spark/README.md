@@ -12,28 +12,25 @@ These are the steps to follow in order to simulate a Spark cluster on a single c
 
 ```shell script
 docker build --tag spark:latest\
-   --build-arg SPARK_VERSION=3.1.1 --build-arg HADOOP_VERSION=2.7\
+   --build-arg SPARK_VERSION=3.1.1\
    spark-image 
 ```
 
-```shell script
-curl -LO https://raw.githubusercontent.com/bitnami/bitnami-docker-spark/master/docker-compose.yml
-docker-compose up
-```
 
-docker cp ../spark-image/wc.py bitnami_spark_1:/tmp docker cp ../spark-image/wc.txt bitnami_spark_1:/tmp
-
-## Cluster creation and start (1 master, 1 worker)
+## Cluster creation and start (1 master, 2 workers)
 
 ```shell script
 docker-compose up
 ```
+
 
 ## Word-count example on generated data
 
 Open a new shell to execute these commands
 
 ```shell script
+docker cp data/wc.py spark_spark-master_1:/tmp
+docker cp data/wc.txt spark_spark-master_1:/tmp
 docker exec -ti spark_spark-master_1 /bin/bash
 pyspark
 exec(open('/tmp/wc.py', "rb").read())
@@ -50,29 +47,41 @@ To have a look at the cluster workers, point your browser to: `http://173.17.2.1
   docker-compose start
 ```
 
-## Topic Modeling
+## Topic Modelling
 
-https://medium.com/@connectwithghosh/topic-modelling-with-latent-dirichlet-allocation-lda-in-pyspark-2cb3ebd5678e
-https://github.com/hacertilbec/LDA-spark-python/blob/master/SparkLDA.py
-https://u.cs.biu.ac.il/~koppel/BlogCorpus.htm
+Topic modelling is a problem that can be solved by using clustring techniques such
+as Latent Dirichlet Allocation.
 
-Copy the corpus over to the master container:
+I took inspiraiton from (this blog entry)[https://medium.com/@connectwithghosh/topic-modelling-with-latent-dirichlet-allocation-lda-in-pyspark-2cb3ebd5678e]
+to develop am LDA implementaiton in Python for Spark. 
+
+The corpus (1,000 bloggers entries) are taken from (this repository)[https://u.cs.biu.ac.il/~koppel/BlogCorpus.htm] 
+
+
+### Cluster set-up for the LDA
+
 ```shell
 docker cp blogs.tar.gz spark_spark-master_1:/tmp
 docker exec spark_spark-master_1 /bin/bash -c '\
   cd /tmp;\
   tar xvfz blogs.tar.gz'
+```
 
+Libraries installation on every node of the cluster:
+```shell
 for s in $(docker ps --quiet); do
   echo ${s}
   docker exec ${s} bash -c '\
     pip install pandas numpy nltk lxml;\
     python -m nltk.downloader -d /usr/local/share/nltk_data stopwords;\
     python -m nltk.downloader -d /usr/local/share/nltk_data punkt;\
-    ls /root\
+    python -m nltk.downloader -d /usr/local/share/nltk_data averaged_perceptron_tagger;\
   '
 done  
 ```
+
+
+### Start of the PySpark session
 
 Access the master container:
 ```shell
@@ -84,7 +93,8 @@ Start an interactive PySpark session:
 pyspark --master spark://0.0.0.0:7077 --deploy-mode client 
 ```
 
-Proceed to perform the topic modelling in Python:
+
+### Topic modelling execution:
 
 Package imports:
 ```python
@@ -133,6 +143,7 @@ stemmer= PorterStemmer()
 engStopwords= stopwords.words('english')
 tokens = sc.parallelize(documents)\
     .map(lambda document: word_tokenize(document)) \
+    .map(lambda document: [x[0] for x in nltk.pos_tag(document) if x[1][0:1] == 'N']) \
     .map(lambda document: [x for x in document if x.isalpha()]) \
     .map(lambda document: [x for x in document if len(x) >= minWordLength] ) \
     .map(lambda document: [x for x in document if x not in engStopwords]) \
@@ -161,12 +172,16 @@ lda_model = LDA.train(result_tfidf[['index','features']].rdd\
    .map(list), k=numTopics, maxIterations=maxIterations)
 ```
 
-Show processing in the Sparl webamdin, point your browser to:
+
+### Display of results
+
+Show processing in the Spark webamdin, point your browser to:
 * `http://173.17.2.2:8080/`
 * `http://173.17.2.2:4040/`
 * `http://173.17.2.3:8081/`
+* `http://173.17.2.4:8081/`
 
-Describe the top topics and show their top (stemmed) words:
+Describe the top topics and show their top (stemmed) words in the PySpark shell:
 ```python
 topicIndices = sc.parallelize(lda_model.describeTopics(maxTermsPerTopic=wordNumbers))
 
