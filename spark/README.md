@@ -137,11 +137,11 @@ vocabSize= 5000
 minDF= 10.0 # Minimum number of docs the term has to appear in   
 ```
 
-Initial text processing:
+Initial text processing (plese note the partitioning in 12, which is more efficient than the default parittion in the number of workers -2 in this setup):
 ```python
 stemmer= PorterStemmer()
 engStopwords= stopwords.words('english')
-tokens = sc.parallelize(documents)\
+tokens = sc.parallelize(documents, 12)\
     .map(lambda document: word_tokenize(document)) \
     .map(lambda document: [x[0] for x in nltk.pos_tag(document) if x[1][0:1] == 'N']) \
     .map(lambda document: [x for x in document if x.isalpha()]) \
@@ -150,6 +150,29 @@ tokens = sc.parallelize(documents)\
     .map(lambda document: list(map(lambda token: stemmer.stem(token), document)))\
     .zipWithIndex()
 ```
+
+To show the kazy evaluation of RDDs, let's rewrite the above text processing as a sequence of steps:
+```python
+tokens0 = sc.parallelize(documents, 12)
+print("tokens0: {}".format(tokens0))
+tokens1= tokens.map(lambda document: word_tokenize(document)) 
+print("tokens1: {}".format(tokens))
+tokens2= tokens1.map(lambda document: [x[0] for x in nltk.pos_tag(document) if x[1][0:1] == 'N']) 
+print("tokens2: {}".format(tokens))
+tokens3= tokens2.map(lambda document: [x for x in document if x.isalpha()]) 
+print("tokens3: {}".format(tokens))
+tokens4= tokens3.map(lambda document: [x for x in document if len(x) >= minWordLength] ) 
+print("tokens4: {}".format(tokens))
+tokens5= tokens4.map(lambda document: [x for x in document if x not in engStopwords]) 
+print("tokens5: {}".format(tokens))
+tokens6= tokens5.map(lambda document: list(map(lambda token: stemmer.stem(token), document)))
+print("tokens6: {}".format(tokens))
+tokens7= tokens6.zipWithIndex()
+print("tokens7: {}".format(tokens))
+```
+You can see that the evaluaiton is triggered only by the `zipWithIndex` statement,
+You could also go to the webadmin and compare the two stages that were profiled `http://173.17.2.2:4040/` (`http://0.0.0.0:4040` on MacOS). Spoiler alert: they are almost identical.
+
 
 Compute metrics:
 ```python
@@ -185,7 +208,7 @@ NOTE: the `4040` application is active only when a job is running (such as when 
 
 Describe the top topics and show their top (stemmed) words in the PySpark shell:
 ```python
-topicIndices = sc.parallelize(lda_model.describeTopics(maxTermsPerTopic=wordNumbers))
+topicIndices = sc.parallelize(lda_model.describeTopics(maxTermsPerTopic=wordNumbers), 12)
 
 def topic_render(topic):
     terms = topic[0]
