@@ -151,11 +151,11 @@ tokens = sc.parallelize(documents, 12)\
     .zipWithIndex()
 ```
 
-To show the kazy evaluation of RDDs, let's rewrite the above text processing as a sequence of steps:
+To show the lazy evaluation of RDDs, let's rewrite the above text processing as a sequence of steps:
 ```python
 tokens0 = sc.parallelize(documents, 12)
 print("tokens0: {}".format(tokens0))
-tokens1= tokens.map(lambda document: word_tokenize(document)) 
+tokens1= tokens0.map(lambda document: word_tokenize(document)) 
 print("tokens1: {}".format(tokens))
 tokens2= tokens1.map(lambda document: [x[0] for x in nltk.pos_tag(document) if x[1][0:1] == 'N']) 
 print("tokens2: {}".format(tokens))
