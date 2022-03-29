@@ -58,5 +58,7 @@ typings/
 .env
 
 /couchdb/twitter/spacetime/
-/openfaas/faas/
 /couchdb/macos/data
+/fn/wcmp
+/fn/pywcmp
+

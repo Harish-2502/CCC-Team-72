@@ -6,8 +6,11 @@ These are the steps to follow in order to deploy an Fn instance running on a sin
 ## Install and start Fn
 
 ```shell script
-curl -LSs https://raw.githubusercontent.com/fnproject/cli/master/install | sh
-fn start --log-level DEBUG
+(
+  cd fn
+  curl -LSs https://raw.githubusercontent.com/fnproject/cli/master/install | sh
+  fn start --log-level DEBUG
+)
 ```
 
 (For instructions on operating systems othe than Linux, see [Quickstart](https://github.com/fnproject/fn#quickstart).
@@ -25,13 +28,16 @@ docker ps
 
 Sample function creaation:
 ```shell script
-fn init --runtime node --trigger http wcmp 
+(  
+  cd fn
+  fn init --runtime node --trigger http wcmp 
+)
 ```
 
 A new directory name `wcmp` should have been added; a few editings has to be done to its contents:
 Suppose we aant to fine-tune the Docker image that Fn builds by default, we then have to add a Dockerfile and change the function runtime.  
 
-Create a `Dockerfile` file with the contents:
+Create a `Dockerfile` file under the `fn/wcmp` directory, with the contents:
 ```dockerfile
 FROM fnproject/node:dev as build-stage
 WORKDIR /function
@@ -47,7 +53,7 @@ ENTRYPOINT ["node", "func.js"]
 
 In the `func.yaml` file, change `runtime: node` to `runtime: docker`.
 
-To have our functions counts the inout words, we have to replace `func.js` with:
+To have our functions counts the input words, we have to replace `func.js` with:
 ```javascript
 const fdk = require ('@fnproject/fdk');
 
@@ -65,22 +71,25 @@ fdk.handle (function (input) {
 })
 ```
 
-Create an Fn `app` (these commands have to be run from the directory containing the `wmcp` funciton directory):
+Create an Fn `app` (these commands have to be run from the directory containing the `wmcp` function directory):
 ```shell script
-fn create app wcapp
+(
+  cd fn/wcmp
+  fn create app wcapp
+)
 ```
 
-Function build and deployment on the lcoal Fn server:
+Function build and deployment on the local Fn server:
 ```shell script
-fn deploy --app wcapp --local wcmp
-fn list functions wcapp 
+(
+  cd fn
+  fn deploy --app wcapp --verbose --local wcmp
+  fn list functions wcapp 
+)
 ```
 
 Function invokation:
-```shell scriptimport urllib2  # the lib that handles the url stuff
-
-data = urllib2.urlopen(target_url) # it's a file like object and works just like a file
-
+```shell script
 curl -XPOST 'http://localhost:8080/t/wcapp/wcmp' --data 'lorem ipsum'
 ```
 
@@ -89,7 +98,8 @@ curl -XPOST 'http://localhost:8080/t/wcapp/wcmp' --data 'lorem ipsum'
 
 Start the Fn webadmin user interface:
 ```shell
-docker run --rm -it --link fnserver:api -p 4000:4000 -e FN_API_URL=http://api:8080 -e FN_LISTENER=unix:/iofs/lsnr.sock fnproject/ui
+docker run --rm -it --link fnserver:api -p 4000:4000 -e FN_API_URL=http://api:8080\
+  -e FN_LISTENER=unix:/iofs/lsnr.sock fnproject/ui
 ```
 
 Point your browser to `http://0.0.0.0:4000`. 
@@ -125,7 +135,10 @@ On the UI window, the number of replicas can be observed to raise, and then fall
 
 Sample function creaation:
 ```shell script
-fn init --runtime python --trigger http pywcmp 
+(
+  cd fn
+  fn init --runtime python --trigger http pywcmp 
+)
 ```
 
 A new directory name `pywcmp` should have been added; a few editings has to be done to its contensts:
@@ -156,8 +169,11 @@ def handler(ctx, data: io.BytesIO = None):
 
 Function build and deployment on the lcoal Fn server (these commands have to be run from the directory containing the `wmcp` funciton directory):
 ```shell script
-fn deploy --app wcapp --local pywcmp
-fn list functions wcapp 
+(
+  cd fn
+  fn deploy --app wcapp --local pywcmp
+  fn list functions wcapp 
+)
 ```
 
 Function invokation:

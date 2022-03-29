@@ -57,6 +57,12 @@ To have a look at the cluster workers, point your browser to: `http://173.17.2.2
 (
   cd spark
   docker-compose stop
+)  
+```
+
+```shell script
+(
+  cd spark
   docker-compose start
 )  
 ```
