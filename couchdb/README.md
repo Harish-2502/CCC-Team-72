@@ -22,7 +22,7 @@ export declare -a othernodes=`echo ${nodes[@]} | sed s/${masternode}//`
 export size=${#nodes[@]}
 export user='admin'
 export pass='admin'
-export VERSION='3.2.0'
+export VERSION='3.2.1'
 export cookie='a192aeb9904e6590849337933b000c99'
 ```
 (Ignore the `bash: export: `-a': not a valid identifier` error if it were to appear.)
@@ -86,6 +86,8 @@ do
 done
 ```
 
+(Ignore the `{"error":"setup_error","reason":"Cluster setup unable to sync admin passwords"}` message.)
+
 Finish the cluster setup
 ```shell
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup"\
@@ -146,9 +148,11 @@ for cont in "${conts[@]}"; do docker rm --force ${cont}; done
 
 Once the cluster is started, some data can be added:
 ```shell script
-cd couchdb
-curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_bulk_docs " --header "Content-Type: application/json" \
-  --data @./twitter/data.json
+(
+  cd couchdb
+  curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_bulk_docs " --header "Content-Type: application/json" \
+    --data @./twitter/data.json
+)
 ```
 
 
@@ -156,9 +160,12 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_bulk_docs " --he
 
 Add a design document with MapReduce Views, Lists and Shows functions.
 ```shell script
-export dbname='twitter'
-grunt couch-compile
-grunt couch-push
+(
+  cd couchdb
+  export dbname='twitter'
+  grunt couch-compile
+  grunt couch-push
+)  
 ```
 
 Request a MapReduce View
@@ -300,7 +307,7 @@ Create a search index:
 ```shell script
 curl -XPUT "http://${user}:${pass}@${masternode}:5984/twitter/_design/textsearch"\
   --header 'Content-Type:application/json'\
-   --data @./twitter/textsearch/text.json
+   --data @./couchdb/twitter/textsearch/text.json
 ```
 
 Query all the tweets in Japanese:
@@ -327,7 +334,7 @@ curl -XPUT "http://${user}:${pass}@${masternode}:5984/twitterpart?partitioned=tr
 
 Transfer the tweets to the partitioned database partitioning by user's screen name:
 ```shell script
-node transfer.js
+node ./couchdb/transfer.js
 ```
 (The program above is a simplified code that is not optimized for large databases.)
 
