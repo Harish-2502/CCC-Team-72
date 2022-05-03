@@ -58,7 +58,7 @@ To have our functions counts the input words, we have to replace `func.js` with:
 ```javascript
 const fdk = require ('@fnproject/fdk');
 
-fdk.handle (function (input) {
+fdk.handle ( (input) => {
   let counts = {};
   input.toLowerCase ()
     .split(/\W+/)
