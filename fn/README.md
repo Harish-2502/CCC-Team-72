@@ -51,7 +51,8 @@ COPY --from=build-stage /function/node_modules/ /function/node_modules/
 ENTRYPOINT ["node", "func.js"]
 ```
 
-In the `func.yaml` file, change `runtime: node` to `runtime: docker`.
+In the `func.yaml` file, change `runtime: node` to `runtime: docker` and delete the unnecessary `build_image`, `run_image`, and `entrypoint` entries.`
+.
 
 To have our functions counts the input words, we have to replace `func.js` with:
 ```javascript
@@ -74,7 +75,7 @@ fdk.handle (function (input) {
 Create an Fn `app` (these commands have to be run from the directory containing the `wmcp` function directory):
 ```shell script
 (
-  cd fn/wcmp
+  cd fn
   fn create app wcapp
 )
 ```

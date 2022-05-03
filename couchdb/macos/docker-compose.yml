@@ -12,7 +12,7 @@ services:
       - couch_slave1
       - couch_slave2
     volumes:
-      - ./data/master/data:/opt/couchdb/data
+      - data_master:/opt/couchdb/data
     environment:
       - COUCHDB_USER=user
       - COUCHDB_PASSWORD=pass
@@ -28,7 +28,7 @@ services:
     ports:
       - "15984:5984"
     volumes:
-      - ./data/slave1/data:/opt/couchdb/data
+      - data_slave1:/opt/couchdb/data
     environment:
       - COUCHDB_USER=user
       - COUCHDB_PASSWORD=pass
@@ -44,7 +44,7 @@ services:
     ports:
       - "25984:5984"
     volumes:
-      - ./data/slave2/data:/opt/couchdb/data
+      - data_slave2:/opt/couchdb/data
     environment:
       - COUCHDB_USER=user
       - COUCHDB_PASSWORD=pass
@@ -53,6 +53,11 @@ services:
     networks:
       couchdb_nw:
         ipv4_address: 172.20.0.4
+
+volumes:
+  data_master:
+  data_slave1:
+  data_slave2:
 
 networks:
   couchdb_nw:
