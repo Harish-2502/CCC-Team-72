@@ -9,6 +9,9 @@ workshop code.
 
 # Building of a spark image
 
+This step is needed to set the Docker user to `ROOT` in order to simplify the installation of Python packages
+(do not do this on a production environment!)
+
 ```shell script
 (
   cd spark
@@ -163,16 +166,20 @@ for f in listdir(corpusDir):
 Topic modelling parameters:
 
 ```python
-minWordLength= 4
+minWordLength= 4 # Min length of a word
 numTopics= 10
 maxIterations= 100
-wordNumbers= 5
+wordNumbers= 5 # Min number of words per topic
 vocabSize= 5000
 minDF= 10.0 # Minimum number of docs the term has to appear in   
 ```
 
 Initial text processing (plese note the partitioning in 12, which is more efficient than the default parittion in the
 number of workers -2 in this setup):
+
+As a rule-of-thumb, the number of partitions should be equal to 4 times the number of cores in the cluster.
+By no means this is guarantee optimal results! Data size and complexity of the job may well force to
+deviate from this number.
 
 ```python
 stemmer= PorterStemmer()
@@ -246,6 +253,9 @@ Show processing in the Spark webamdin, point your browser to:
 * `http://173.17.2.4:8081/` (It does not work under MacOS)
 
 NOTE: the `4040` application is active only when a job is running (such as when there is a PySpark session active).
+
+NOTE: `Skipped stages` means that data are already in the cache, hence a lower number of partitions would probably
+be more efficient.
 
 Describe the top topics and show their top (stemmed) words in the PySpark shell:
 
