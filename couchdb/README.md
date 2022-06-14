@@ -16,16 +16,15 @@ The following instructions apply only to Linux-based systems; for MacOS please m
 Set node IP addresses, electing the first as "master node"
 and admin credentials (make sure you have no other Docker containers running):
 ```shell script
-export declare -a nodes=(172.17.0.4 172.17.0.3 172.17.0.2)
+export declare nodes=(172.17.0.4 172.17.0.3 172.17.0.2)
 export masternode=`echo ${nodes} | cut -f1 -d' '`
-export declare -a othernodes=`echo ${nodes[@]} | sed s/${masternode}//`
+export declare othernodes=`echo ${nodes[@]} | sed s/${masternode}//`
 export size=${#nodes[@]}
 export user='admin'
 export pass='admin'
 export VERSION='3.2.1'
 export cookie='a192aeb9904e6590849337933b000c99'
 ```
-(Ignore the `bash: export: `-a': not a valid identifier` error if it were to appear.)
 
 ```shell script
 docker pull ibmcom/couchdb3:${VERSION}
@@ -56,7 +55,7 @@ done
 
 Put in `conts` the Docker container IDs:
 ```shell script
-declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
+declare conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
 ```
 
 Start the containers (and wait a bit while they boot):
@@ -125,7 +124,7 @@ Fauxton user interface (`http://172.17.0.2:5984/_utils`).
 
 Put in `conts` the Docker container IDs
 ```shell script
-declare -a conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
+declare conts=(`docker ps --all | grep couchdb | cut -f1 -d' ' | xargs -n${size} -d'\n'`)
 ```
 
 Starts the cluster 

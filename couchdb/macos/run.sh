@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 echo "== Set variables =="
-declare -a nodes=(172.20.0.2 172.20.0.3 172.20.0.4)
-declare -a ports=(5984 15984 25984)
+declare nodes=(172.20.0.2 172.20.0.3 172.20.0.4)
+declare ports=(5984 15984 25984)
 export master_node=172.20.0.2
 export master_port=5984
 export size=${#nodes[@]}
-export user=user
+
 export pass=pass
 
 echo "== Start the containers =="
