@@ -85,18 +85,29 @@ do
 done
 ```
 
-(Ignore the `{"error":"setup_error","reason":"Cluster setup unable to sync admin passwords"}` message.)
-
 Finish the cluster setup
 ```shell
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/_cluster_setup"\
     --header "Content-Type: application/json" --data "{\"action\": \"finish_cluster\"}"
 ```
+(Ignore the `{"error":"setup_error","reason":"Cluster setup unable to sync admin passwords"}` message.)
+
 
 Check whether the cluster configuration is correct:
 ```shell script
 for node in "${nodes[@]}"; do  curl -X GET "http://${user}:${pass}@${node}:5984/_membership"; done
 ```
+
+Addition of the Photon web-admin:
+```shell
+couch="-H Content-Type:application/json -X PUT http://$user:$pass@172.17.0.2:5984"; \
+curl $couch/photon; curl https://raw.githubusercontent.com/ermouth/couch-photon/master/photon.json | \
+curl $couch/photon/_design/photon -d @- ; curl $couch/photon/_security -d '{}' ; \
+curl $couch/_node/_local/_config/csp/attachments_enable -d '"false"' ; \
+curl $couch/_node/_local/_config/chttpd_auth/same_site -d '"lax"' ; 
+```
+
+To test Photon, point your browser to: `http://172.17.0.2:5984/photon/_design/photon/index.html`
 
 Adding a database to one node of the cluster makes it to be created on all other nodes as well:
 ```shell script
