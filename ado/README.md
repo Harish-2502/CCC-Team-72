@@ -5,14 +5,25 @@
 
 * Create a `secrets.sh` file with this contents:
 ```shell
+export TWITTER_API_KEY='<twitter api key>>'
+export TWITTER_API_KEY_SECRET='<twitter ap ikey secret>'
+export TWITTER_ACCESS_TOKEN='<twitter access token>>'
+export TWITTER_ACCESS_TOKEN_SECRET='twitter access toen secret'
 export ADO_API_KEY="<api key>"
 export MASTODON_ACCESS_TOKEN="<access token>>"
 ```
-* Go to [Mastodon.py installation page](https://pypi.org/project/Mastodon.py/#files) and download the WHL file;
+
+* Go to [Mastodon.py installation page](https://pypi.org/project/Mastodon.py/#files) and download the WHL file version `1.8.x`;
 * Unzip the downloaded file into this directory.
+* * install `tweepy` version `4.13.x` 
 
 
 ## ADO login
+
+```shell
+. ./secrets.sh
+python
+```
 
 ```python
 import os, requests
@@ -20,7 +31,7 @@ import os, requests
 ado_url = 'https://devapi.ado.eresearch.unimelb.edu.au'
 res = requests.post(f'{ado_url}/login', auth = requests.auth.HTTPBasicAuth('apikey', os.environ['ADO_API_KEY']))
 headers = {'Authorization': f'Bearer {res.text}', 'Content-Type': 'application/json'}
-   
+
 print(requests.get(f'{ado_url}/version', headers = headers).text)
 ```
 
@@ -54,13 +65,19 @@ login on the Mastodon server has succeeded.
 After the login to ADO API, and before the JWT (JSON Web Token) expires, topics containing a 
 top term (`router` in this case) can be looked up and their Tweet IDs can be downloaded
 using the following script:
+
+```shell
+. ./secrets.sh
+python
+```
+
 ```python
 import json
 
 res = requests.get(f'{ado_url}/analysis/nlp/collections/twitter/topics',\
    headers = headers,\
    params = {'startDate' : '2021-07-01' , 'endDate':'2021-07-22', 'fullResult' : False})
-   
+
 
 sel_topics=[]
 
@@ -70,18 +87,51 @@ for d in res.json():
          if term[0] == 'router':
             id = d['time'].split('-')
             sel_topics.append(f'{id[1]}{int(id[2]):02d}{int(id[3]):02d}-{t_ind + 1}')
-            
+
 res = requests.post(f'{ado_url}/analysis/nlp/collections/twitter/topicposts',\
    headers = headers,\
    json = sel_topics)
 
-            
-with open('ado-download-topics.json', 'w') as json_file: 
+with open('ado-download-topics.json', 'w') as json_file:
    json_file.write(json.dumps(res.json()))
 ```
 
 
 ## Twitter posts "hydration"
+
+```shell
+. ./secrets.sh
+python
+```
+
+```python
+import tweepy, os, json
+
+consumer_key = os.environ['TWITTER_API_KEY']
+consumer_secret = os.environ['TWITTER_API_KEY_SECRET']
+access_token = os.environ['TWITTER_ACCESS_TOKEN']
+access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
+
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+
+with open('ado-download-topics.json', 'r') as f:
+    tweet_ids = json.load(f)
+
+for id in tweet_ids:
+    try:
+        print(f'\nPost ID: {id}\n{ tweepy.API(auth).get_status(id).text}')
+    except tweepy.errors.NotFound:
+        print('*** Post not found')
+        continue
+    except tweepy.errors.TooManyRequests:
+        print('*** Request rate exceeded')
+        time.sleep(2)
+        continue
+    except tweepy.errors.Forbidden:
+        print('*** User suspende or unauthorized')
+        break
+```
 
 
 ## Mastodon posts "hydration"
@@ -94,6 +144,12 @@ Therefore, the data retrieved from the CSV file have to be split and fed into th
 retrieve the posts.
 
 An example of a script that does it (assuming the post DIs were downloaded in a file called `ado-download-mastodon.csv`):
+
+```shell
+. ./secrets.sh
+python
+```
+
 ```python
 from mastodon import Mastodon, MastodonNotFoundError, MastodonRatelimitError
 import csv, os, time
@@ -105,8 +161,8 @@ with open('ado-download-mastodon.csv') as csv_file:
         id = line[0].split('/')
         print(f'\nPost complete ID: {id}')
         try:
-           print(Mastodon(api_base_url=f"https://{id[0]}",
-                   access_token = os.environ["MASTODON_ACCESS_TOKEN"]
+           print(Mastodon(api_base_url=f'https://{id[0]}',
+                   access_token = os.environ['MASTODON_ACCESS_TOKEN']
                  ).status(id[2])["content"]
                 )
         except MastodonNotFoundError:
