@@ -60,7 +60,52 @@ If the Mastodon API version and the content of a post are printed out, the Masto
 login on the Mastodon server has succeeded.
 
 
-## Retrieval of post belonging to the same topic in ADO
+## Retrieval of Mastodon posts with the ADO text search
+
+The following script executes a login to the ADO API and search the Mastodon collection
+for post including "melbourne" in a given date range.
+
+Once the first page of results is returned (200 max) a bookmark is returned to load the
+next page of results, and so on.
+
+```shell
+. ./secrets.sh
+python
+```
+
+```python
+import os, requests
+
+def printResults(res):
+  print(f"Hits: {len(res.json())}\nBookmark: {res.headers['x-ado-bookmark']}\nIDs:{res.json()[0:5]}")
+
+ado_url = 'https://devapi.ado.eresearch.unimelb.edu.au'
+res = requests.post(f'{ado_url}/login', auth = requests.auth.HTTPBasicAuth('apikey', os.environ['ADO_API_KEY']))
+headers = {'Authorization': f'Bearer {res.text}'}
+
+expr= "*:* AND (text:'melbourne' AND (date:'20230110' OR date:'20230111' OR date:'20230112' OR date:'20230113' OR date:'20230114'))"
+searchUrl= f'{ado_url}/analysis/textsearch/collections/mastodon'
+
+resPage1= requests.get(searchUrl, headers = headers, params= {'query': expr})
+printResults(resPage1)
+
+headers['x-ado-bookmark']= resPage1.headers['x-ado-bookmark']
+resPage2= requests.get(searchUrl, headers = headers, params= {'query': expr})
+printResults(resPage2)
+
+headers['x-ado-bookmark']= resPage2.headers['x-ado-bookmark']
+resPage3= requests.get(searchUrl, headers = headers, params= {'query': expr})
+printResults(resPage3)
+```
+
+The search expression is limited in length to 3,060 characters, hence a data range may have to be split into different
+expressions.
+
+When an expression error occurs a status code of `400` is returned, and `414` when the expression
+is too long.
+
+
+## Retrieval of Twitter posts belonging to the same topic in ADO
 
 After the login to ADO API, and before the JWT (JSON Web Token) expires, topics containing a 
 top term (`router` in this case) can be looked up and their Tweet IDs can be downloaded
