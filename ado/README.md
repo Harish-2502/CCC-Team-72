@@ -1,7 +1,7 @@
 # ADO API workshop\
 
 
-## INstllation
+## Installation
 
 * Create a `secrets.sh` file with this contents:
 ```shell
@@ -15,7 +15,16 @@ export MASTODON_ACCESS_TOKEN="<access token>>"
 
 * Go to [Mastodon.py installation page](https://pypi.org/project/Mastodon.py/#files) and download the WHL file version `1.8.x`;
 * Unzip the downloaded file into this directory.
-* * install `tweepy` version `4.13.x` 
+
+```shell
+unzip /path/to/file.whl
+```
+
+* install `tweepy` version `4.13.x` 
+
+```shell
+pip install tweepy
+```
 
 
 ## ADO login
@@ -117,7 +126,11 @@ python
 ```
 
 ```python
-import json
+import json, requests, os
+
+ado_url = 'https://api.ado.eresearch.unimelb.edu.au'
+res = requests.post(f'{ado_url}/login', auth = requests.auth.HTTPBasicAuth('apikey', os.environ['ADO_API_KEY']))
+headers = {'Authorization': f'Bearer {res.text}'}
 
 res = requests.get(f'{ado_url}/analysis/nlp/collections/twitter/topics',\
    headers = headers,\
@@ -181,14 +194,14 @@ for id in tweet_ids:
 
 ## Mastodon posts "hydration"
 
-The Mastodon post IDs downloaded uaing the ADO API are in the format:
+The Mastodon post IDs downloaded using the ADO API are in the format:
 `<hostname>`/<user handle>/<post id>`
 and wrapped in a CSV format (one post ID per line).
 
 Therefore, the data retrieved from the CSV file have to be split and fed into the Mastodon API to 
 retrieve the posts.
 
-An example of a script that does it (assuming the post DIs were downloaded in a file called `ado-download-mastodon.csv`):
+An example of a script that does it (assuming the post IDs were downloaded in a file called `ado-download-mastodon.csv`):
 
 ```shell
 . ./secrets.sh
@@ -219,6 +232,6 @@ with open('ado-download-mastodon.csv') as csv_file:
             continue
 ```
 
-Some posts may have been deleted in the meantime and return 404; in addition, there are limitations
+Some posts may have been deleted in the meantime and return 404; In addition, there are limitations
 to the number of requests a Mastodon server accepts in a given unit of time, raising the `MastodonRatelimitError` exception
 (please see the Mastodon API documentation).
