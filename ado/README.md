@@ -1,61 +1,89 @@
-# ADO API workshop\
+# Mastodon API workshop
 
 
 ## Installation
 
-* Create a `secrets.sh` file with this contents:
+* Register on a Mastodon server of your choice and add an Application (this action generates an API Key that can be used to access that Masotdon server).
+* Create a `secrets.sh` file with this content:
 ```shell
-export TWITTER_API_KEY='<twitter api key>>'
-export TWITTER_API_KEY_SECRET='<twitter ap ikey secret>'
-export TWITTER_ACCESS_TOKEN='<twitter access token>>'
-export TWITTER_ACCESS_TOKEN_SECRET='twitter access toen secret'
-export ADO_API_KEY="<api key>"
 export MASTODON_ACCESS_TOKEN="<access token>>"
 ```
-
 * Go to [Mastodon.py installation page](https://pypi.org/project/Mastodon.py/#files) and download the WHL file version `1.8.x`;
 * Unzip the downloaded file into this directory.
-
 ```shell
 unzip /path/to/file.whl
 ```
-
 * install `tweepy` version `4.13.x` 
-
 ```shell
 pip install tweepy
 ```
 
 
-## ADO login
+## Mastodon API example with cURL 
 
 ```shell
+# Set parameters
 . ./secrets.sh
-python
+export URL='https://mastodon.au/api/v1'
+
+# Test access 
+curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
+     -XGET \
+     -vvv \
+  	 "${URL}/accounts/verify_credentials" | jq
+
+# Stream the user timeline
+curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
+     -XGET \
+     -vvv \
+     "${URL}/streaming/user"
+
+# Post on the user timeline 
+curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
+     -XPOST \
+     -vvv \
+     --header "Content-Type: application/json"\
+     "${URL}/statuses"\
+     --data '{"status": "Test 3"}' | jq
+
+# Delete the post from the user timeline
+STATUSID='<status id returned by the command above>'
+curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
+     -XDELETE \
+     -vvv \
+     "${URL}/statuses/${STATUSID}" | jq
+
+# Stream federated timeline 	
+curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
+     -XGET \
+     -vvv \
+	 "${URL}/streaming/public" 
+
+# Stream local timeline 	
+curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
+     -XGET \
+     -vvv \
+ 	 "${URL}/streaming/public/local"
+
+# Stream federated timeline for a given hashtag
+curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
+     -XGET \
+     -vvv \
+     "${URL}/streaming/hashtag?tag=dogecoin" 	
 ```
 
-```python
-import os, requests
 
-ado_url = 'https://devapi.ado.eresearch.unimelb.edu.au'
-res = requests.post(f'{ado_url}/login', auth = requests.auth.HTTPBasicAuth('apikey', os.environ['ADO_API_KEY']))
-headers = {'Authorization': f'Bearer {res.text}', 'Content-Type': 'application/json'}
+## Mastodon API example with Python
 
-print(requests.get(f'{ado_url}/version', headers = headers).text)
-```
-
-If the API key is enabled, the script should print the version of the development API.
-
-
-## Mastodon login
+### Mastodon login
 
 Load the secrets file and start the Python interpreter:
+
 ```shell
 . ./secrets.sh
 python
 ```
 
-Test API:
 ```python
 from mastodon import Mastodon
 import os
@@ -65,173 +93,25 @@ mastodon.retrieve_mastodon_version()
 mastodon.status("109666136628267939")["content"]
 ```
 
-If the Mastodon API version and the content of a post are printed out, the Mastodon library has been instaled successfully and the
+### Streaming of Mastodon timelines
+
+```python
+from mastodon import Mastodon, MastodonNotFoundError, MastodonRatelimitError, StreamListener
+import csv, os, time, json
+
+m = Mastodon(
+        api_base_url=f'https://mastodon.au',
+        access_token=os.environ['MASTODON_ACCESS_TOKEN']
+    )
+
+class Listener(StreamListener):
+    def on_update(self, status):
+        print(json.dumps(status, indent=2, sort_keys=True, default=str))
+
+m.stream_public(Listener())
+```
+
+If the Mastodon API version and the content of a post are printed out, the Mastodon library has been instaled
+successfully and the
 login on the Mastodon server has succeeded.
 
-
-## Retrieval of Mastodon posts with the ADO text search
-
-The following script executes a login to the ADO API and search the Mastodon collection
-for post including "melbourne" in a given date range.
-
-Once the first page of results is returned (200 max) a bookmark is returned to load the
-next page of results, and so on.
-
-```shell
-. ./secrets.sh
-python
-```
-
-```python
-import os, requests
-
-def printResults(res):
-  print(f"Hits: {len(res.json())}\nBookmark: {res.headers['x-ado-bookmark']}\nIDs:{res.json()[0:5]}")
-
-ado_url = 'https://devapi.ado.eresearch.unimelb.edu.au'
-res = requests.post(f'{ado_url}/login', auth = requests.auth.HTTPBasicAuth('apikey', os.environ['ADO_API_KEY']))
-headers = {'Authorization': f'Bearer {res.text}'}
-
-expr= "*:* AND (text:'melbourne' AND (date:'20230110' OR date:'20230111' OR date:'20230112' OR date:'20230113' OR date:'20230114'))"
-searchUrl= f'{ado_url}/analysis/textsearch/collections/mastodon'
-
-resPage1= requests.get(searchUrl, headers = headers, params= {'query': expr})
-printResults(resPage1)
-
-headers['x-ado-bookmark']= resPage1.headers['x-ado-bookmark']
-resPage2= requests.get(searchUrl, headers = headers, params= {'query': expr})
-printResults(resPage2)
-
-headers['x-ado-bookmark']= resPage2.headers['x-ado-bookmark']
-resPage3= requests.get(searchUrl, headers = headers, params= {'query': expr})
-printResults(resPage3)
-```
-
-The search expression is limited in length to 3,060 characters, hence a data range may have to be split into different
-expressions.
-
-When an expression error occurs a status code of `400` is returned, and `414` when the expression
-is too long.
-
-
-## Retrieval of Twitter posts belonging to the same topic in ADO
-
-After the login to ADO API, and before the JWT (JSON Web Token) expires, topics containing a 
-top term (`router` in this case) can be looked up and their Tweet IDs can be downloaded
-using the following script:
-
-```shell
-. ./secrets.sh
-python
-```
-
-```python
-import json, requests, os
-
-ado_url = 'https://api.ado.eresearch.unimelb.edu.au'
-res = requests.post(f'{ado_url}/login', auth = requests.auth.HTTPBasicAuth('apikey', os.environ['ADO_API_KEY']))
-headers = {'Authorization': f'Bearer {res.text}'}
-
-res = requests.get(f'{ado_url}/analysis/nlp/collections/twitter/topics',\
-   headers = headers,\
-   params = {'startDate' : '2021-07-01' , 'endDate':'2021-07-22', 'fullResult' : False})
-
-
-sel_topics=[]
-
-for d in res.json():
-   for t_ind, t in enumerate(d['topics']):
-      for term in t['terms']:
-         if term[0] == 'router':
-            id = d['time'].split('-')
-            sel_topics.append(f'{id[1]}{int(id[2]):02d}{int(id[3]):02d}-{t_ind + 1}')
-
-res = requests.post(f'{ado_url}/analysis/nlp/collections/twitter/topicposts',\
-   headers = headers,\
-   json = sel_topics)
-
-with open('ado-download-topics.json', 'w') as json_file:
-   json_file.write(json.dumps(res.json()))
-```
-
-
-## Twitter posts "hydration"
-
-```shell
-. ./secrets.sh
-python
-```
-
-```python
-import tweepy, os, json
-
-consumer_key = os.environ['TWITTER_API_KEY']
-consumer_secret = os.environ['TWITTER_API_KEY_SECRET']
-access_token = os.environ['TWITTER_ACCESS_TOKEN']
-access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
-
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
-
-with open('ado-download-topics.json', 'r') as f:
-    tweet_ids = json.load(f)
-
-for id in tweet_ids:
-    try:
-        print(f'\nPost ID: {id}\n{ tweepy.API(auth).get_status(id).text}')
-    except tweepy.errors.NotFound:
-        print('*** Post not found')
-        continue
-    except tweepy.errors.TooManyRequests:
-        print('*** Request rate exceeded')
-        time.sleep(2)
-        continue
-    except tweepy.errors.Forbidden:
-        print('*** User suspende or unauthorized')
-        break
-```
-
-
-## Mastodon posts "hydration"
-
-The Mastodon post IDs downloaded using the ADO API are in the format:
-`<hostname>`/<user handle>/<post id>`
-and wrapped in a CSV format (one post ID per line).
-
-Therefore, the data retrieved from the CSV file have to be split and fed into the Mastodon API to 
-retrieve the posts.
-
-An example of a script that does it (assuming the post IDs were downloaded in a file called `ado-download-mastodon.csv`):
-
-```shell
-. ./secrets.sh
-python
-```
-
-```python
-from mastodon import Mastodon, MastodonNotFoundError, MastodonRatelimitError
-import csv, os, time
-
-with open('ado-download-mastodon.csv') as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
-    next(csv_reader)
-    for line in csv_reader:
-        id = line[0].split('/')
-        print(f'\nPost complete ID: {id}')
-        try:
-           print(Mastodon(api_base_url=f'https://{id[0]}',
-                   access_token = os.environ['MASTODON_ACCESS_TOKEN']
-                 ).status(id[2])["content"]
-                )
-        except MastodonNotFoundError:
-            print('*** Post not found')
-            continue
-        except MastodonRatelimitError:
-            print('*** Request rate exceeded')
-            time.sleep(2)
-            continue
-```
-
-Some posts may have been deleted in the meantime and return 404; In addition, there are limitations
-to the number of requests a Mastodon server accepts in a given unit of time, raising the `MastodonRatelimitError` exception
-(please see the Mastodon API documentation).
