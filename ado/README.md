@@ -13,10 +13,6 @@ export MASTODON_ACCESS_TOKEN="<access token>>"
 ```shell
 unzip /path/to/file.whl
 ```
-* install `tweepy` version `4.13.x` 
-```shell
-pip install tweepy
-```
 
 
 ## Mastodon API example with cURL 
@@ -24,7 +20,7 @@ pip install tweepy
 ```shell
 # Set parameters
 . ./secrets.sh
-export URL='https://mastodon.au/api/v1'
+export URL='https://mastodon.au/api/v2'
 
 # Test access 
 curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
@@ -65,12 +61,29 @@ curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
      -vvv \
  	 "${URL}/streaming/public/local"
 
-# Stream federated timeline for a given hashtag
+# Stream federated timeline for a given hashtag (text search on streaming data is not supported)
 curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
      -XGET \
      -vvv \
      "${URL}/streaming/hashtag?tag=dogecoin" 	
 ```
+
+Full-text search can be performed on `accounts`, `statuses` (posts), or `hashtags` 
+(please  note it requires a different endpoint `v2`):
+
+```shell
+# Search
+curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
+  -XGET \
+  -vvv \
+  -G \
+  --data-urlencode "q=cats" \
+  "https://mastodon.au/api/v2/search" 
+```
+
+However, this feature is not implemented by every server, and it is restricted to only 
+the `statuses` the user has been mentioned in or has written.
+
 
 
 ## Mastodon API example with Python
