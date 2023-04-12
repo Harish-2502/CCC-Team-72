@@ -160,7 +160,8 @@ Once the cluster is started, some data can be added:
 ```shell script
 (
   cd couchdb
-  curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_bulk_docs " --header "Content-Type: application/json" \
+  curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_bulk_docs"\
+    --header "Content-Type: application/json" \
     --data @./twitter/data.json
 )
 ```
@@ -262,9 +263,9 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 --header "Content-Type: application/json" --data '{
    "ddoc": "indexes",
    "index": {
-      "fields": ["user.screen_name"]
+      "fields": ["user.lang", "user.screen_name"]
    },
-   "name": "screen-index",
+   "name": "lang-screen-index",
    "type": "json"
 }'
 ```
@@ -280,9 +281,56 @@ Indexes can be deleted as well:
 curl -XDELETE "http://${user}:${pass}@${masternode}:5984/twitter/_index/indexes/json/lang-screen-index"
 ```
 
+
+## SQL queries on Mango indexes
+
+Photon allows to query CouchDB using a (very limited) SQL syntax. which is then translated into MongoDB Query language syntax: 
+```sqlite-psql
+SELECT _id, text
+  FROM _ 
+  WHERE user.screen_name = 'k91x' AND text LIKE '%change%' AND user.lang = 'en'
+```
+
+Becomes:
+```json
+{
+	"fields": [
+		"_id",
+		"text"
+	],
+	"selector": {
+		"$and": [
+			{
+				"$and": [
+					{
+						"user.screen_name": {
+							"$eq": "k91x"
+						}
+					},
+					{
+						"text": {
+							"$regex": "^.*change.*$"
+						}
+					}
+				]
+			},
+			{
+				"user.lang": {
+					"$eq": "en"
+				}
+			}
+		]
+	}
+}
+```
+
+Please note that this "SQL" does not allow join, subqueries, aggregation functions, and the `LIKE` 
+operator scans the whole database (it does not use the full-text search indexes).
+
+
 ## Spatial indexes
 
-Index by location (works only for points, and it is higly inefficient, but it works for small datasets).
+Index by location (works only for points, and it is highly inefficient, but it works for small datasets).
 ```shell script
 curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 --header "Content-Type: application/json" --data '{
