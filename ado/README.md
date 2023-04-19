@@ -20,7 +20,7 @@ unzip /path/to/file.whl
 ```shell
 # Set parameters
 . ./secrets.sh
-export URL='https://mastodon.au/api/v2'
+export URL='https://mastodon.au/api/v1'
 
 # Test access 
 curl --header "Authorization: Bearer ${MASTODON_ACCESS_TOKEN=}" \
