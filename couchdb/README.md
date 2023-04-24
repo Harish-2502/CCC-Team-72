@@ -6,7 +6,8 @@ Docker containers simulating independent nodes.
 
 ## Prerequirements
 
-A Linux-based system. (MacOS scripts to install the CouchDB cluster are provided under the `macos` directory.)
+A Linux-based system. (MacOS scripts to install the CouchDB cluster are provided under the `macos` directory), with
+Docker Engine but not Docker Desktop installed.
 
 
 ## Cluster setup
@@ -103,7 +104,7 @@ Addition of the Photon web-admin:
 couch="-H Content-Type:application/json -X PUT http://$user:$pass@172.17.0.2:5984"; \
 curl $couch/photon; curl https://raw.githubusercontent.com/ermouth/couch-photon/master/photon.json | \
 curl $couch/photon/_design/photon -d @- ; curl $couch/photon/_security -d '{}' ; \
-curl $couch/_node/_local/_config/csp/attachments_enable -d '"false"' ; \
+curl $couch/_node/_locfal/_config/csp/attachments_enable -d '"false"' ; \
 curl $couch/_node/_local/_config/chttpd_auth/same_site -d '"lax"' ; 
 ```
 
@@ -257,17 +258,18 @@ curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
 ```
 
 Create index for just the screen_name, now the query should be faster 
-(not that one can notice with just 1,000 documents withoud instrumentation, but you get the idea):
+(not that one can notice with just 1,000 documents without instrumentation, but you get the idea):
 ```shell script
-curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_index" \
---header "Content-Type: application/json" --data '{
-   "ddoc": "indexes",
-   "index": {
-      "fields": ["user.lang", "user.screen_name"]
-   },
-   "name": "lang-screen-index",
-   "type": "json"
-}'
+curl -XPOST "http://${user}:${pass}@${masternode}:5984/twitter/_find" --header "Content-Type: application/json" --data '{
+   "fields" : ["_id", "user.lang", "user.screen_name", "text"],
+   "selector": {
+      "$and": [
+        {"user.lang": {"$eq": "en"}},
+        {"user.screen_name": {"$gt": "pin"}}
+      ]
+   }, 
+   "sort": [{"user.screen_name": "asc"}]
+}' | jq '.' -M
 ```
 
 Get the list of indexes
@@ -328,7 +330,7 @@ Please note that this "SQL" does not allow join, subqueries, aggregation functio
 operator scans the whole database (it does not use the full-text search indexes).
 
 
-## Spatial indexes
+## Spatial indexes (sort of)
 
 Index by location (works only for points, and it is highly inefficient, but it works for small datasets).
 ```shell script
