@@ -9,10 +9,17 @@ Docker containers simulating independent nodes.
 A Linux-based system. (MacOS scripts to install the CouchDB cluster are provided under the `macos` directory), with
 Docker Engine but not Docker Desktop installed.
 
+The IBM CouchDB image used in this project is not available for M1/M2 Apple systems, 
+hence a different image has to be used, such as [the Apache CouchDB one](https://hub.docker.com/_/couchdb), 
+and this recipe may have to be changed.
+
+Alternatively, you may try to build the IBM CouchDB image from source adding the `'--platform linux/amd64` option .
+
 
 ## Cluster setup
  
-The following instructions apply only to Linux-based systems; for MacOS please move to the `macos` directory and execute `run.sh`. 
+The following instructions apply only to Linux-based systems; for MacOS please move to the `macos` 
+directory and execute `run.sh`. 
 
 Set node IP addresses, electing the first as "master node"
 and admin credentials (make sure you have no other Docker containers running):
@@ -104,7 +111,7 @@ Addition of the Photon web-admin:
 couch="-H Content-Type:application/json -X PUT http://$user:$pass@172.17.0.2:5984"; \
 curl $couch/photon; curl https://raw.githubusercontent.com/ermouth/couch-photon/master/photon.json | \
 curl $couch/photon/_design/photon -d @- ; curl $couch/photon/_security -d '{}' ; \
-curl $couch/_node/_locfal/_config/csp/attachments_enable -d '"false"' ; \
+curl $couch/_node/_local/_config/csp/attachments_enable -d '"false"' ; \
 curl $couch/_node/_local/_config/chttpd_auth/same_site -d '"lax"' ; 
 ```
 

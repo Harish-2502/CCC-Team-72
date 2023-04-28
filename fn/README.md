@@ -35,7 +35,7 @@ Sample function creaation:
 ```
 
 A new directory name `wcmp` should have been added; a few editings has to be done to its contents:
-Suppose we aant to fine-tune the Docker image that Fn builds by default, we then have to add a Dockerfile and change the function runtime.  
+Suppose we want to fine-tune the Docker image that Fn builds by default, we then have to add a Dockerfile and change the function runtime.  
 
 Create a `Dockerfile` file under the `fn/wcmp` directory, with the contents:
 ```dockerfile
@@ -124,12 +124,15 @@ app statistics on the UI:
 for i in {1..100};
   do
     for page in ${pages};
-      do curl -XPOST 'http://localhost:8080/t/wcapp/wcmp' --data @/tmp/${page}.xml &      
-    done
+      do 
+        curl -XPOST 'http://localhost:8080/t/wcapp/wcmp' --data @/tmp/${page}.xml &      
+      done
   done
 ```
 
 On the UI window, the number of replicas can be observed to raise, and then fall.
+A single function can handle multiple requests concurrently, but when the load is too high,
+the Fn server will start new replicas of the function to handle the load.
 
 
 ### Development of a Sample Function (Python)
@@ -142,7 +145,7 @@ Sample function creaation:
 )
 ```
 
-A new directory name `pywcmp` should have been added; a few editings has to be done to its contensts:
+A new directory name `pywcmp` should have been added; a few edits has to be done to its contensts:
 
 Replace `func.py` with:
 ```python
@@ -177,7 +180,7 @@ Function build and deployment on the lcoal Fn server (these commands have to be 
 )
 ```
 
-Function invokation:
+Function invocation:
 ```shell script
 curl -XPOST 'http://localhost:8080/t/wcapp/pywcmp' --data 'lorem ipsum'
 ```
