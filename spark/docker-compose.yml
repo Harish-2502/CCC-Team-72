@@ -1,4 +1,4 @@
-version: "2.1"
+version: "2"
 
 services:
   spark-master:
@@ -9,6 +9,7 @@ services:
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
     ports:
       - '8080:8080'
       - '4040:4040'
@@ -27,6 +28,7 @@ services:
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
     networks:
       sparknet:
         ipv4_address: "173.17.2.3"
@@ -42,6 +44,7 @@ services:
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
     networks:
       sparknet:
         ipv4_address: "173.17.2.4"
