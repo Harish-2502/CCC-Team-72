@@ -16,7 +16,7 @@ This step is needed to set the Docker user to `ROOT` in order to simplify the in
 (
   cd spark
   docker build --tag spark:latest\
-    --build-arg SPARK_VERSION=3.2.1\
+    --build-arg SPARK_VERSION=3.2.4\
      spark-image 
 )
 ```
