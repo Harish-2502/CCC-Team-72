@@ -116,7 +116,7 @@ but it is the most direct one for the sake of this workshop.
 When only one auxiliary script has to be passed, the `--py-files` option can be used to avoid worker installaiton.
 
 In more complex situations a Conda virtual environment can be used to package the Python environment and ship it to the
-worker nodes with the `--archives` option or `spark.archives` configuration (spark.yarn.dist.archives in YARN).
+worker nodes with the `--archives` option or `spark.archives` configuration (`spark.yarn.dist.archives` in YARN).
 
 For Java or Scala driver programs, an uber-JAR has to be used.
 
@@ -184,10 +184,10 @@ vocabSize= 5000
 minDF= 10.0 # Minimum number of docs the term has to appear in   
 ```
 
-Initial text processing (plese note the partitioning in 12, which is more efficient than the default parittion in the
+Initial text processing (plese note the partitioning in 12, which is more efficient than the default partition in the
 number of workers -2 in this setup):
 
-As a rule-of-thumb, the number of partitions should be equal to 4 times the number of cores in the cluster.
+As a rule-of-thumb, the number of partitions should be equal to 4 times the number of cores of the worker nodes in the cluster.
 By no means this is guarantee optimal results! Data size and complexity of the job may well force to
 deviate from this number.
 
@@ -255,7 +255,7 @@ lda_model = LDA.train(result_tfidf[['index','features']].rdd\
 
 ### Display of results
 
-Show processing in the Spark webamdin, point your browser to:
+Show processing in the Spark webadmin, point your browser to:
 
 * `http://173.17.2.2:8080/` (`http://0.0.0.0:8080` on MacOS)
 * `http://173.17.2.2:4040/` (`http://0.0.0.0:4040` on MacOS)
