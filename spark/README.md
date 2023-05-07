@@ -110,6 +110,16 @@ Libraries installation on every node of the cluster:
 )      
 ```
 
+The option of a custom installing on every node is not the best one, as it can interfere with othe concurrent jobs, 
+but it is the most direct one for the sake of this workshop.
+
+When only one auxiliary script has to be passed, the `--py-files` option can be used to avoid worker installaiton.
+
+In more complex situations a Conda virtual environment can be used to package the Python environment and ship it to the
+worker nodes with the `--archives` option or `spark.archives` configuration (spark.yarn.dist.archives in YARN).
+
+For Java or Scala driver programs, an uber-JAR has to be used.
+
 
 ### Start of the PySpark session
 
