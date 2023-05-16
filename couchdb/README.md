@@ -3,6 +3,16 @@
 The following instructions details how to setup a cluster of CouchDB databases on
 Docker containers simulating independent nodes.
 
+For a deployment on a real cluster, please refer to the [official documentation](https://docs.couchdb.org/en/stable/setup/cluster.html)
+for more details.
+
+When deploying on a real cluster, and before trying to build a CouchDB cluster, remember to:
+* control that the `local.ini` configuration file of CouchDb has the `bind_address` option of the `[chttpd]` stanza set to `0.0.0.0`;
+* check that the CouchDB instance is running on each virtual machine of the cluster (if using Docker containers, check with `docker ps`);
+* check that CouchCB ports are exposed on each virtual machine of the cluster (use `netstat -tlnp`);
+* check that the security groups of each virtual machine of the cluster allows incoming traffic on CouchDB ports;
+* check that the each virtual machine of the cluster can reach the others on the CouchDB ports.
+
 
 ## Prerequirements
 
