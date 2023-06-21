@@ -43,7 +43,7 @@ Open a new shell to execute these commands
 )
 ```
 
-Once oin the PySpark shell, type:
+Once in the PySpark shell, type:
 ```python
 exec(open("/tmp/wc.py", "rb").read())
 exit() 
