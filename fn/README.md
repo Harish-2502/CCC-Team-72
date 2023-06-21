@@ -171,7 +171,7 @@ def handler(ctx, data: io.BytesIO = None):
     )
 ```
 
-Function build and deployment on the lcoal Fn server (these commands have to be run from the directory containing the `wmcp` funciton directory):
+Function build and deployment on the lcoal Fn server (these commands have to be run from the directory containing the `wmcp` function directory):
 ```shell script
 (
   cd fn
