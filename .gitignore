@@ -69,4 +69,5 @@ typings/
 /ado/ado-download-groupings.json
 /ado/ado-download-topics.json
 
-
+/elastic/config
+/elastic/secrets.sh

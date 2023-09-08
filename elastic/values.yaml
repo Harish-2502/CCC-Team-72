@@ -1,0 +1,6 @@
+volumeClaimTemplate:
+  accessModes: [ "ReadWriteOnce" ]
+  storageClassName: "elastic"
+  resources:
+    requests:
+      storage: 30Gi
