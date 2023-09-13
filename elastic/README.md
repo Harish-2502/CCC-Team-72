@@ -134,16 +134,91 @@ kibana-kibana                   ClusterIP   10.254.50.97   <none>        5601/TC
 
 To access services on the cluster, one has to use the `port-forward` command of `kubectl`:
 ```shell 
-k port-forward service/elasticsearch-master 9200:9200
+k port-forward service/elasticsearch-master -n elastic 9200:9200
 ```
 
 To access the Kibana user interface, one has to use the `port-forward` command of `kubectl`:
 ```shell
-k port-forward service/kibana-kibana 5601:5601
+k port-forward service/kibana-kibana -n elastic 5601:5601
 ```
 
 The port forwarding can be stopped by pressing `Ctrl-C` (each has to start in a different terminal window) and
 when not used it stops and has to be restarted.
+
+Test the ElasticSearch API:
+```shell
+curl -k 'https://0.0.0.0:9200/_cat/nodes' --user 'elastic:elastic'
+```
+
+Test the Kibana user interface by pointing the browser to: `http://0.0.0.0:5601/` (the default credentials are `elastic:elastic`).
+
+
+Adding access to the API:
+```shell
+k -f ingress.yaml -n elastic
+```
+
+
+## Install Fission FaaS on the Cluster
+
+```shell
+k create namespace fission
+k create -k "github.com/fission/fission/crds/v1?ref=v1.19.0"
+helm repo add fission-charts https://fission.github.io/fission-charts/
+helm repo update
+helm install --version v1.19.0 --namespace fission fission fission-charts/fission-all
+```
+
+Wait for all pods to have started:
+```shell
+k get pods -n fission
+```
+
+Wait for the external IP address to be assigned:
+```shell
+k get svc -n fission | grep router
+```
+
+
+## Install Fission FaaS Client on your Laptop
+
+Mac:
+```shell
+curl -Lo fission https://github.com/fission/fission/releases/download/v1.19.0/fission-v1.19.0-darwin-amd64 && chmod +x fission && sudo mv fission /usr/local/bin/
+```
+
+Linux:
+```shell
+curl -Lo fission https://github.com/fission/fission/releases/download/v1.19.0/fission-v1.19.0-linux-amd64 && chmod +x fission && sudo mv fission /usr/local/bin/
+```
+
+Windows:
+For Windows, you can use the linux binary on WSL. Or you can download this windows executable: https://github.com/fission/fission/releases/download/v1.19.0/fission-v1.19.0-windows-amd64.exe
+
+
+## Create a Fission Function and Expose it as a Service
+
+```shell
+fission env create --name nodejs --image fission/node-env
+curl https://raw.githubusercontent.com/fission/examples/master/nodejs/hello.js > hello.js
+fission function create --name hello --env nodejs --code hello.js
+fission route create --url /hello --function hello --createingress
+```
+
+Test the function:
+```shell
+IP=$(k get svc -n fission | grep router | tr -s " " | cut -f 4 -d' ')
+curl "http://${IP}/hello" -vvv
+```
+
+
+## Harvest Data from the Bureau of Meteorology
+TBD:
+http://www.bom.gov.au/catalogue/anon-ftp.shtml
+IDY03023	Latest Observations from Victoria (hourly update)
+IDV60034	Latest Melbourne Observations (VIC)
+
+ftp://ftp.bom.gov.au/anon/gen/fwo/
 
 
 ## ElasticSearch Cluster Removal

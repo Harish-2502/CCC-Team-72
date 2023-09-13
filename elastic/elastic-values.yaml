@@ -4,14 +4,3 @@ volumeClaimTemplate:
   resources:
     requests:
       storage: 30Gi
-
-ingress:
-  enabled: true
-  annotations: {}
-  className: "nginx"
-  pathtype: ImplementationSpecific
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-  tls: []
