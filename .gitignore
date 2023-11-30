@@ -71,3 +71,8 @@ typings/
 
 /elastic/config
 /elastic/secrets.sh
+/elastic/openrc.sh
+/elastic/set.sh
+/fission/functions/u.sh
+/fission/adddoc.zip
+
