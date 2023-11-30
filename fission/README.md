@@ -52,9 +52,9 @@ https://github.com/fission/fission/releases/download/v${1.19.0}/fission-v${1.19.
 
 ## Create a Fission Function and Expose it as a Service
 
-Create the Python environment on the cluster:
+Create the Python environment on the cluster with the Python builder (it allows to extend the base Python image):
 ```shell
-fission env create --name python --image fission/python-env
+fission env create --name python --image fission/python-env --builder fission/python-builder
 ```
 
 Find the Kubernetes ElasticSearch service:
@@ -70,13 +70,13 @@ The `health.py` source code checks the stato of thee ElasticSearch cluster and r
 
 Test the function:
 ```shell
-fission function create --name health --env python --code health.py
+fission function create --name health --env python --code ./functions/health.py
 fission function test --name health | jq '.' 
 ```
 
 Create an ingress so that the function can be accessed from outside the cluster:
 ```shell
-fission route create --url /health --function health-py --createingress
+fission route create --url /health --function ./functions/health --createingress
 ```
 
 Grab the IP address of the router and send a request:
@@ -89,7 +89,7 @@ curl "http://${IP}/health" -vvv
 ## Create a Fission Function that harvests Data from the Bureau of Meteorology and stores them in ElasticSearch
 
 ```shell
-fission function create --name bom --env python --code bom.py
+fission function create --name bom --env python --code ./functions/bom.py
 fission function test --name bom | jq '.' 
 ```
 
@@ -109,7 +109,40 @@ fission timer delete --name everyminute
 
 ## Create a function that uses additional Python libraries
 
-TO DO
+The function used so far are very simple and do not require any additional Python libraries: let's
+see how we can pack libraries together with a function source code.
+
+In order to do so, a `requirements.txt` file must be created in the same directory as the function, then
+a `build.sh` command must be created to install the libraries and finally the function must be packaged in a ZIP file.
+
+```shell
+zip -jr adddoc.zip functions/adddoc/
+```
+
+Creation of a function with dependencies:
+```shell
+fission package create --sourcearchive adddoc.zip\
+  --env python\
+  --name adddoc\
+  --buildcmd './build.sh'
+```
+
+Check the package has been created:
+```shell
+fission package list | grep adddoc 
+```
+
+Function creation:
+```shell
+fission fn create --name adddoc\
+  --pkg adddoc\
+  --entrypoint "adddoc.main" # Function name and entrypoint
+```
+
+Test the function:
+```shell
+fission function test --name adddoc | jq '.'
+```
 
 
 ## Create a function composition
