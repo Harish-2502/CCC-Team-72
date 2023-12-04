@@ -12,12 +12,19 @@
 ## Install Fission FaaS on the Cluster
 
 ```shell
-FISSION_VERSION='1.19.0'
+export FISSION_VERSION='1.20.0'
+export FISSION_NAMESPACE="fission"
+export KEDA_VERSION='2.9'
 k create namespace fission
-k create -k "github.com/fission/fission/crds/v1?ref=v${1.19.0}"
+k create -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
 helm repo add fission-charts https://fission.github.io/fission-charts/
+helm repo add kedacore https://kedacore.github.io/charts
+helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
 helm repo update
-helm install --version v1.19.0 --namespace fission fission fission-charts/fission-all
+helm install --version v${FISSION_VERSION} --namespace fission fission fission-charts/fission-all
+helm install keda kedacore/keda --namespace keda --create-namespace --version  ${KEDA_VERSION}
+helm upgrade redis-operator ot-helm/redis-operator --install --namespace ot-operators --create-namespace
+helm upgrade redis ot-helm/redis --install --namespace ot-operators 
 ```
 
 Wait for all pods to have started:
@@ -30,31 +37,37 @@ Wait for the external IP address to be assigned:
 k get svc -n fission | grep router
 ```
 
-
 ## Install Fission FaaS Client on your Laptop
 
 Mac:
 ```shell
-curl -Lo fission https://github.com/fission/fission/releases/download/v${1.19.0}/fission-v${1.19.0}-darwin-amd64\
+curl -Lo fission https://github.com/fission/fission/releases/download/v${FISSION_VERSION}/fission-v${FISSION_VERSION}-darwin-amd64\
    && chmod +x fission && sudo mv fission /usr/local/bin/
 ```
 
 Linux:
 ```shell
-curl -Lo fission https://github.com/fission/fission/releases/download/v${1.19.0}/fission-v${1.19.0}-linux-amd64\
+curl -Lo fission https://github.com/fission/fission/releases/download/v${FISSION_VERSION}/fission-v${FISSION_VERSION}-linux-amd64\
    && chmod +x fission && sudo mv fission /usr/local/bin/
 ```
 
 Windows:
 For Windows, you can use the linux binary on WSL, or you can download this windows executable:
-https://github.com/fission/fission/releases/download/v${1.19.0}/fission-v${1.19.0}-windows-amd64.exe
+https://github.com/fission/fission/releases/download/v${FISSION_VERSION}/fission-v${FISSION_VERSION}-windows-amd64.exe
 
 
 ## Create a Fission Function and Expose it as a Service
 
-Create the Python environment on the cluster with the Python builder (it allows to extend the base Python image):
+* Add an alias to simplify typing
 ```shell
-fission env create --name python --image fission/python-env --builder fission/python-builder
+alias f=$(which fission)
+```
+
+Create the Python environment on the cluster with the Python builder (it allows to extend the base Python image),
+and the Node.js environment and builder:
+```shell
+f env create --name python --image fission/python-env --builder fission/python-builder
+f env create --name nodejs --image fission/node-env --builder fission/node-builder
 ```
 
 Find the Kubernetes ElasticSearch service:
@@ -70,13 +83,13 @@ The `health.py` source code checks the stato of thee ElasticSearch cluster and r
 
 Test the function:
 ```shell
-fission function create --name health --env python --code ./functions/health.py
-fission function test --name health | jq '.' 
+f function create --name health --env python --code ./functions/health.py
+f function test --name health | jq '.' 
 ```
 
 Create an ingress so that the function can be accessed from outside the cluster:
 ```shell
-fission route create --url /health --function ./functions/health --createingress
+f route create --url /health --function ./functions/health --createingress
 ```
 
 Grab the IP address of the router and send a request:
@@ -89,26 +102,33 @@ curl "http://${IP}/health" -vvv
 ## Create a Fission Function that harvests Data from the Bureau of Meteorology and stores them in ElasticSearch
 
 ```shell
-fission function create --name bom --env python --code ./functions/bom.py
-fission function test --name bom | jq '.' 
+f function create --name bom --env python --code ./functions/bom.py
+f function test --name bom | jq '.' 
 ```
 
 
 ## Call the function at interval using a timer trigger
 
 ```shell
-fission timer create --name everyminute --function bom --cron "@every 1m"
-fission function log -f --name bom
+f timer create --name everyminute --function bom --cron "@every 1m"
+f function log -f --name bom
 ```
 
 Delete the timer:
 ```shell
-fission timer delete --name everyminute
+f timer delete --name everyminute
 ```
 
 
 ## Create a function that uses additional Python libraries
 
+Local access to the Redis API:
+```shell
+```shell 
+k port-forward service/redis-headless -n ot-operators 6379:6379
+```
+
+```
 The function used so far are very simple and do not require any additional Python libraries: let's
 see how we can pack libraries together with a function source code.
 
@@ -121,7 +141,7 @@ zip -jr adddoc.zip functions/adddoc/
 
 Creation of a function with dependencies:
 ```shell
-fission package create --sourcearchive adddoc.zip\
+f package create --sourcearchive adddoc.zip\
   --env python\
   --name adddoc\
   --buildcmd './build.sh'
@@ -129,25 +149,84 @@ fission package create --sourcearchive adddoc.zip\
 
 Check the package has been created:
 ```shell
-fission package list | grep adddoc 
+f package list | grep adddoc 
 ```
 
 Function creation:
 ```shell
-fission fn create --name adddoc\
+f fn create --name adddoc\
   --pkg adddoc\
   --entrypoint "adddoc.main" # Function name and entrypoint
 ```
 
 Test the function:
 ```shell
-fission function test --name adddoc | jq '.'
+f function test --name adddoc | jq '.'
 ```
 
 
-## Create a function composition
+## Functionc composition using message queues
 
-TO DO
+
+FIXME: due to a bug in th Redis-backed queue in Fission, the following does not work.
+
+I opened an issue on the Fission repo:
+https://github.com/fission/keda-connectors/issues/159
+
+Functions can be composed for added flexibility and reusability. For example, let's create a function that
+reads a BOM weather report and extracts the meteorological data for a given day at am individual location, 
+then another that splits each observation as single document, then another tha adds the documents to ElasticSearch.
+
+Let's start be defining a function that transform BOM weather observation JSON into s simpler document that 
+retains only temperature, location (in a format ElasticSearch can digest), and time data in an array:
+
+```shell
+f function create --name bomsplit --code functions/bomsplit.js --env nodejs
+f function test --name bomsplit
+f route create --url /bomsplit --function bomsplit --createingress 
+```
+
+```shell
+zip -jr wharvester.zip functions/wharvester/
+f package create --sourcearchive wharvester.zip\
+  --env python\
+  --name wharvester\
+  --buildcmd './build.sh'
+  
+f fn create --name wharvester\
+  --pkg wharvester\
+  --entrypoint "wharvester.main" # Function name and entrypoint
+
+f function test --name wharvester | jq '.'
+```
+
+Let's create a workflow than connects the functions that grabs data from the BOM, the one that splits and
+simplifies, and the one that stores the data in ElasticSearch:
+
+```shell
+f mqtrigger create --name weather-split\
+   --function bomsplit\
+   --mqtype redis\
+   --mqtkind keda\
+   --topic weather-bom-topic\
+   --resptopic weather-split-topic\
+   --errortopic weather-error-topic\
+   --maxretries 3\
+   --metadata address=redis-headless.ot-operators.svc.cluster.local:6379\
+   --metadata listLength=10\
+   --metadata listName=weather-bom-topic
+
+f mqtrigger create --name weather-ingest\
+   --function adddoc\
+   --mqtype redis\
+   --mqtkind keda\
+   --topic weather-split-topic\
+   --errortopic weather-error-topic\
+   --maxretries 3\
+   --metadata address=redis-headless.ot-operators.svc.cluster.local:6379\
+   --metadata listLength=10\
+   --metadata listName=weather-split-topic
+```
 
 
 ## Harvest Data from the Bureau of Meteorology
