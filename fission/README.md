@@ -9,7 +9,7 @@
 * "KUBECONFIG" environment variable set (see above)
 
 
-## Install Fission FaaS on the Cluster
+## Install Fission FaaS, Keda, and Redis on the Cluster
 
 ```shell
 export FISSION_VERSION='1.20.0'
@@ -27,15 +27,19 @@ helm upgrade redis-operator ot-helm/redis-operator --install --namespace ot-oper
 helm upgrade redis ot-helm/redis --install --namespace ot-operators 
 ```
 
+[Detailed instructions](https://fission.io/docs/installation/)
+
+
 Wait for all pods to have started:
 ```shell
 k get pods -n fission
 ```
 
-Wait for the external IP address to be assigned:
+Wait for the external IP address to be assigned (wait until is no longer "pending"):
 ```shell
 k get svc -n fission | grep router
 ```
+
 
 ## Install Fission FaaS Client on your Laptop
 
@@ -89,13 +93,13 @@ f function test --name health | jq '.'
 
 Create an ingress so that the function can be accessed from outside the cluster:
 ```shell
-f route create --url /health --function ./functions/health --createingress
+f route create --url /health --function health --createingress
 ```
 
 Grab the IP address of the router and send a request:
 ```shell
 IP=$(k get svc -n fission | grep router | tr -s " " | cut -f 4 -d' ')
-curl "http://${IP}/health" -vvv
+curl "http://${IP}/health" | jq '.'
 ````
 
 
@@ -127,8 +131,8 @@ Local access to the Redis API:
 ```shell 
 k port-forward service/redis-headless -n ot-operators 6379:6379
 ```
+(This port can be used to peek inside Redis by using a management application like (RedisInsight)[https://redis.io/docs/connect/insight/].)
 
-```
 The function used so far are very simple and do not require any additional Python libraries: let's
 see how we can pack libraries together with a function source code.
 
@@ -229,6 +233,14 @@ f mqtrigger create --name weather-ingest\
 ```
 
 
+## Remove Fission FaaS from the Cluster
+
+```shell
+helm uninstall fission
+kubectl delete -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
+```
+
+
 ## Harvest Data from the Bureau of Meteorology
 
 List of stations:
@@ -238,3 +250,15 @@ Single station observations:
 http://reg.bom.gov.au/fwo/IDV60901/IDV60901.95936.json
 
 
+## Air Quality observations:
+
+```shell
+curl -XGET -G "https://naqd.eresearch.unimelb.edu.au/geoserver/wfs"\
+  --data-urlencode service='WFS'\
+  --data-urlencode version='2.0.0'\
+  --data-urlencode request='GetFeature'\
+  --data-urlencode typeName='geonode:vic_observations_2023'\
+  --data-urlencode outputFormat='application/json'\
+  --data-urlencode cql_filter="site_name='Mildura' and time_stamp>=2023-07-11T00:00:00Z and time_stamp<2023-07-12T00:00:00Z"\
+  | jq '.'
+```
