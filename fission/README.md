@@ -9,35 +9,83 @@
 * "KUBECONFIG" environment variable set (see above)
 
 
-## Install Fission FaaS, Keda, and Redis on the Cluster
+## Software stack
+
+## Installation of the software stack
 
 ```shell
 export FISSION_VERSION='1.20.0'
-export FISSION_NAMESPACE="fission"
 export KEDA_VERSION='2.9'
-k create namespace fission
+export STRIMZI_VERSION='0.38.0'
 k create -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
 helm repo add fission-charts https://fission.github.io/fission-charts/
 helm repo add kedacore https://kedacore.github.io/charts
 helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
+helm repo add strimzi https://strimzi.io/charts/
 helm repo update
-helm install --version v${FISSION_VERSION} --namespace fission fission fission-charts/fission-all
-helm install keda kedacore/keda --namespace keda --create-namespace --version  ${KEDA_VERSION}
-helm upgrade redis-operator ot-helm/redis-operator --install --namespace ot-operators --create-namespace
-helm upgrade redis ot-helm/redis --install --namespace ot-operators 
+helm upgrade fission fission-charts/fission-all --install --version v${FISSION_VERSION} --namespace fission --create-namespace 
+helm upgrade keda kedacore/keda --install --namespace keda --create-namespace --version ${KEDA_VERSION}
+helm upgrade kafka strimzi/strimzi-kafka-operator --install --namespace kafka --create-namespace --version ${STRIMZI_VERSION}
+ 
 ```
 
 [Detailed instructions](https://fission.io/docs/installation/)
 
-
 Wait for all pods to have started:
 ```shell
-k get pods -n fission
+k get pods -n fission --watch
+k get pods -n keda --watch
+k get pods -n kafka --watch
 ```
 
 Wait for the external IP address to be assigned (wait until is no longer "pending"):
 ```shell
 k get svc -n fission | grep router
+```
+
+
+### Creation of a Kafka cluster and topics
+
+```shell
+k apply -f https://strimzi.io/examples/latest/kafka/kafka-persistent-single.yaml -n kafka
+```
+
+Wait for all pods to have started:
+```shell
+k get pods -n kafka --watch
+```
+
+The Kafka cluster `my-cluster` is now ready to be used; it has a single broker and a single Zookeeper node.
+```shell
+k get pods -n kafka
+k get kafka -n kafka
+k get kafkatopic -n kafka
+```
+
+
+### Kafka web-admin installation
+
+```shell
+helm repo add kafka-ui https://provectus.github.io/kafka-ui-charts
+helm repo update
+helm upgrade kafka-ui kafka-ui/kafka-ui --install --namespace kafka -f kafka-ui-config.yaml
+```
+
+Forward the pod port to the localhost:
+```shell
+export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=kafka-ui,app.kubernetes.io/instance=kafka-ui" -o jsonpath="{.items[0].metadata.name}")
+k --namespace default port-forward $POD_NAME 8080:8080
+````
+Point your browser to `http://localhost:8080`
+
+
+### Un-installation of the software stack
+
+```shell
+helm uninstall fission --namespace fission 
+helm uninstall keda --namespace keda
+helm uninstall kafka-ui --namespace kafka 
+helm uninstall kafka --namespace kafka
 ```
 
 
@@ -126,13 +174,6 @@ f timer delete --name everyminute
 
 ## Create a function that uses additional Python libraries
 
-Local access to the Redis API:
-```shell
-```shell 
-k port-forward service/redis-headless -n ot-operators 6379:6379
-```
-(This port can be used to peek inside Redis by using a management application like (RedisInsight)[https://redis.io/docs/connect/insight/].)
-
 The function used so far are very simple and do not require any additional Python libraries: let's
 see how we can pack libraries together with a function source code.
 
@@ -140,54 +181,111 @@ In order to do so, a `requirements.txt` file must be created in the same directo
 a `build.sh` command must be created to install the libraries and finally the function must be packaged in a ZIP file.
 
 ```shell
-zip -jr adddoc.zip functions/adddoc/
+zip -jr addobservation.zip functions/addobservation/
 ```
 
 Creation of a function with dependencies:
 ```shell
-f package create --sourcearchive adddoc.zip\
+f package create --sourcearchive addobservation.zip\
   --env python\
-  --name adddoc\
+  --name addobservation\
   --buildcmd './build.sh'
 ```
 
 Check the package has been created:
 ```shell
-f package list | grep adddoc 
+f package list | grep addobservation 
 ```
 
 Function creation:
 ```shell
-f fn create --name adddoc\
-  --pkg adddoc\
-  --entrypoint "adddoc.main" # Function name and entrypoint
+f fn create --name addobservation\
+  --pkg addobservation\
+  --entrypoint "addobservation.main" # Function name and entrypoint
 ```
 
 Test the function:
 ```shell
-f function test --name adddoc | jq '.'
+f function test --name addobservation | jq '.'
+```
+
+## Build an index to hold weather observations
+
+Start a port redirct in a shell:
+```shell
+curl -k 'https://0.0.0.0:9200' --user 'elastic:elastic' | jq '.'
+
+```
+
+Create the index:
+```shell
+curl -XPUT -k 'https://0.0.0.0:9200/observations'\
+   --header 'Content-Type: application/json'\
+   --data '{
+    "settings": {
+        "index": {
+            "number_of_shards": 3,
+            "number_of_replicas": 2
+        }
+    },
+    "mappings": {
+        "properties": {
+            "id": {
+                "type": "text"
+            },
+            "wmo": {
+                "type": "integer"
+            },
+            "name": {
+                "type": "text"
+            },
+            "geo": {
+                "type": "point"
+            },
+            "local_date_time": {
+                "type": "text"
+            },
+            "local_date_time_full": {
+                "type": "text"
+            },
+            "air_temp": {
+                "type": "short"
+            },
+            "rel_hum": {
+                "type": "short"
+            }
+        }
+    }
+}'\
+   --user 'elastic:elastic' | jq '.'
+
 ```
 
 
-## Functionc composition using message queues
+## Function composition using message queues
 
-
-FIXME: due to a bug in th Redis-backed queue in Fission, the following does not work.
-
-I opened an issue on the Fission repo:
-https://github.com/fission/keda-connectors/issues/159
-
-Functions can be composed for added flexibility and reusability. For example, let's create a function that
+Functions can be composed for added flexibility and reuse. For example, let's create a function that
 reads a BOM weather report and extracts the meteorological data for a given day at am individual location, 
-then another that splits each observation as single document, then another tha adds the documents to ElasticSearch.
+then another that splits each observation as single document, then another that adds the documents to ElasticSearch.
+
+To do this, we need to create three topics (queues) in Kafka:
+* a `weather` topic that contains the raw data from the BOM;
+* a `documents` topic that contains the documents to be added to ElasticSearch;
+* an `errors` topic that contains possible errors.
+
+```shell
+k apply -f ./topics/weather.yaml -n kafka
+k apply -f ./topics/documents.yaml -n kafka
+k apply -f ./topics/errors.yaml -n kafka
+```
 
 Let's start be defining a function that transform BOM weather observation JSON into s simpler document that 
 retains only temperature, location (in a format ElasticSearch can digest), and time data in an array:
 
 ```shell
-f function create --name bomsplit --code functions/bomsplit.js --env nodejs
-f function test --name bomsplit
-f route create --url /bomsplit --function bomsplit --createingress 
+f function create --name splitter --code functions/splitter.js --env nodejs
+f function test --name splitter
+f route create --url /splitter --function splitter --createingress 
 ```
 
 ```shell
@@ -209,27 +307,29 @@ simplifies, and the one that stores the data in ElasticSearch:
 
 ```shell
 f mqtrigger create --name weather-split\
-   --function bomsplit\
-   --mqtype redis\
+   --function splitter\
+   --mqtype kafka\
    --mqtkind keda\
-   --topic weather-bom-topic\
-   --resptopic weather-split-topic\
-   --errortopic weather-error-topic\
+   --topic weather\
+   --resptopic documents\
+   --errortopic errors\
    --maxretries 3\
-   --metadata address=redis-headless.ot-operators.svc.cluster.local:6379\
-   --metadata listLength=10\
-   --metadata listName=weather-bom-topic
+   --metadata bootstrapServers=my-cluster-kafka-bootstrap.kafka.svc:9092\
+   --metadata consumerGroup=my-group\
+   --cooldownperiod=30\
+   --pollinginterval=5
 
 f mqtrigger create --name weather-ingest\
-   --function adddoc\
-   --mqtype redis\
+   --function addobservation\
+   --mqtype kafka\
    --mqtkind keda\
-   --topic weather-split-topic\
-   --errortopic weather-error-topic\
+   --topic documents\
+   --errortopic errors\
    --maxretries 3\
-   --metadata address=redis-headless.ot-operators.svc.cluster.local:6379\
-   --metadata listLength=10\
-   --metadata listName=weather-split-topic
+   --metadata bootstrapServers=my-cluster-kafka-bootstrap.kafka.svc:9092\
+   --metadata consumerGroup=my-group\
+   --cooldownperiod=30\
+   --pollinginterval=5
 ```
 
 
