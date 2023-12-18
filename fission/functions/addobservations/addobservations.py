@@ -9,16 +9,13 @@ def main():
         basic_auth=('elastic', 'elastic')
     )
 
-    current_app.logger.info(f'Array of observations read')
-
-    #return json.dumps(client.get(index='observations', id='1').body)
     for obs in request.get_json(force=True):
         res = client.index(
             index='observations',
-            id=f'{obs["wmo"]}-{obs["local_date_time_full"]}',
+            id=f'{obs["stationid"]}-{obs["timestamp"]}',
             body=obs
         )
-        current_app.logger.info(f'Observation added: {res["result"]}')
+        current_app.logger.info(f'Indexed observation {obs["stationid"]}-{obs["timestamp"]}')
 
-    return 'OK'
+    return res["result"]
 

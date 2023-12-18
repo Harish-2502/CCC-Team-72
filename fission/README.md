@@ -8,6 +8,8 @@
 * RC file (with password inserted) read (see above)
 * "KUBECONFIG" environment variable set (see above)
 
+NOTE: the code used here is for illustrative purposes only. It has no error handling, no testing and is not production ready.
+
 
 ## Software stack
 
@@ -151,19 +153,19 @@ curl "http://${IP}/health" | jq '.'
 ````
 
 
-## Create a Fission Function that harvests Data from the Bureau of Meteorology and stores them in ElasticSearch
+## Create a Fission Function that harvests Data from the Bureau of Meteorology 
 
 ```shell
-f function create --name bom --env python --code ./functions/bom.py
-f function test --name bom | jq '.' 
+f function create --name wharvester --env python --code ./functions/wharvester.py
+f function test --name wharvester | jq '.' 
 ```
 
 
 ## Call the function at interval using a timer trigger
 
 ```shell
-f timer create --name everyminute --function bom --cron "@every 1m"
-f function log -f --name bom
+f timer create --name everyminute --function wharvester --cron "@every 1m"
+f function log -f --name wharvester
 ```
 
 Delete the timer:
@@ -174,44 +176,9 @@ f timer delete --name everyminute
 
 ## Create a function that uses additional Python libraries
 
-The function used so far are very simple and do not require any additional Python libraries: let's
-see how we can pack libraries together with a function source code.
+### Build an index to hold weather observations
 
-In order to do so, a `requirements.txt` file must be created in the same directory as the function, then
-a `build.sh` command must be created to install the libraries and finally the function must be packaged in a ZIP file.
-
-```shell
-zip -jr addobservation.zip functions/addobservation/
-```
-
-Creation of a function with dependencies:
-```shell
-f package create --sourcearchive addobservation.zip\
-  --env python\
-  --name addobservation\
-  --buildcmd './build.sh'
-```
-
-Check the package has been created:
-```shell
-f package list | grep addobservation 
-```
-
-Function creation:
-```shell
-f fn create --name addobservation\
-  --pkg addobservation\
-  --entrypoint "addobservation.main" # Function name and entrypoint
-```
-
-Test the function:
-```shell
-f function test --name addobservation | jq '.'
-```
-
-## Build an index to hold weather observations
-
-Start a port redirct in a shell:
+Start a port redirect in a shell:
 ```shell
 curl -k 'https://0.0.0.0:9200' --user 'elastic:elastic' | jq '.'
 
@@ -230,88 +197,163 @@ curl -XPUT -k 'https://0.0.0.0:9200/observations'\
     },
     "mappings": {
         "properties": {
-            "id": {
+            "stationid": {
                 "type": "text"
             },
-            "wmo": {
-                "type": "integer"
+            "timestamp": {
+                "type": "date"
+            },
+            "geo": {
+                "type": "geo_point"
             },
             "name": {
                 "type": "text"
             },
-            "geo": {
-                "type": "point"
-            },
             "local_date_time": {
                 "type": "text"
             },
-            "local_date_time_full": {
-                "type": "text"
-            },
             "air_temp": {
-                "type": "short"
+                "type": "float"
             },
             "rel_hum": {
-                "type": "short"
-            }
+                "type": "float"
+            },
+            "pm10": {
+                "type": "float"
+            },           
+            "pm2p5": {
+                "type": "float"
+            },           
+            "ozone": {
+                "type": "float"
+            }           
         }
     }
 }'\
    --user 'elastic:elastic' | jq '.'
-
 ```
+
+
+### Create a function that stores data in ElasticSearch
+
+The function used so far are very simple and do not require any additional Python libraries: let's
+see how we can pack libraries together with a function source code.
+
+In order to do so, a `requirements.txt` file must be created in the same directory as the function, then
+a `build.sh` command must be created to install the libraries and finally the function must be packaged in a ZIP file.
+
+```shell
+zip -jr addobservations.zip functions/addobservations/
+```
+
+Creation of a function with dependencies (this function depends on the ElasticSearch client package to add data to ElasticSearch):
+```shell
+f package create --sourcearchive addobservations.zip\
+  --env python\
+  --name addobservations\
+  --buildcmd './build.sh'
+```
+
+Check that the package has been created:
+```shell
+f package list | grep addobservations 
+```
+
+Function creation:
+```shell
+f fn create --name addobservations\
+  --pkg addobservations\
+  --env python\
+  --entrypoint "addobservations.main" # Function name and entrypoint
+```
+
+Test the function:
+```shell
+f function test --name addobservations | jq '.' 
+```
+
 
 
 ## Function composition using message queues
 
-Functions can be composed for added flexibility and reuse. For example, let's create a function that
-reads a BOM weather report and extracts the meteorological data for a given day at am individual location, 
-then another that splits each observation as single document, then another that adds the documents to ElasticSearch.
+Functions can be composed for added flexibility and reuse (message queues are used to bind them together). 
 
-To do this, we need to create three topics (queues) in Kafka:
-* a `weather` topic that contains the raw data from the BOM;
-* a `documents` topic that contains the documents to be added to ElasticSearch;
-* an `errors` topic that contains possible errors.
+Let's create a mini-application that:
+* harvest meteorological data from the Bureau of Meteorology;
+* harvest pollution from the Air Quality project;
+* store the data in ElasticSearch.
+
+Since AIRQ and BoM data have different structures, we need to have an intermediate function that filters and splits the data
+into a standardized structure that can be added to ElasticSearch.
+
+### Functions
+
+We would reuse the `wharvester` and `addobservation` functions we introduced earlier, but have also to add:
+* an `aharvester` function to get data from the Air Quality project;
+* a `Wprocessor` function to filter, convert, and split the BoM data into a simpler structure;
+* an `aprocessor` function to filter, convert, and split the AIRQ data into a simpler structure;
+* an `enqueue` function to add data to a queue (Kafka topic).
+
+```shell
+f function create --name aharvester --env nodejs --code ./functions/aharvester.js
+f function create --name wprocessor --env nodejs --code ./functions/wprocessor.js
+f function create --name aprocessor s --code ./functions/aprocessor.js
+zip -jr enqueue.zip functions/enqueue/
+f package create --sourcearchive enqueue.zip\
+  --env python\
+  --name enqueue\
+  --buildcmd './build.sh'
+f fn create --name enqueue\
+  --pkg enqueue\
+  --env python\
+  --entrypoint "enqueue.main"
+```
+
+
+### Message queues
+
+These functions communicate amongst them by storing and reading messages in queues. In Kafka queues are called "topics",
+and for this application we need to create the following topics: 
+* a `weather` topic that contains the raw data from the BoM;
+* an `airquality` topic that contains raw data from the Air Quality project;
+* a `observations` topic that contains the documents to be added to ElasticSearch;
+* an `errors` topic that contains possible queueing errors.
 
 ```shell
 k apply -f ./topics/weather.yaml -n kafka
-k apply -f ./topics/documents.yaml -n kafka
+k apply -f ./topics/airquality.yaml -n kafka
+k apply -f ./topics/observations.yaml -n kafka
 k apply -f ./topics/errors.yaml -n kafka
 ```
 
-Let's start be defining a function that transform BOM weather observation JSON into s simpler document that 
-retains only temperature, location (in a format ElasticSearch can digest), and time data in an array:
+To list all the Kafka topic just created:
+```shell
+k get kafkatopic -n kafka
+````
+
+
+### Triggers
+
+To bind all these functions and queues together, we have now to create triggers:
+* a `weather-ingest` timer trigger to capture BoM data;
+* an `airquality-ingest` timer trigger to capture pollution data;
+* an `enqueue` HTTP trigger to add data to a message queue;
+* a `weather-processing` queue trigger to process meteorological data from a message queue;
+* an `airquality-processing` queue trigger to process pollution data from a message queue;
+* an `add-observations` queue trigger to add observations to ElasticSearch. 
 
 ```shell
-f function create --name splitter --code functions/splitter.js --env nodejs
-f function test --name splitter
-f route create --url /splitter --function splitter --createingress 
-```
+f timer create --name weather-ingest --function wharvester --cron "@every 1m"
+f timer create --name airquality-ingest --function aharvester --cron "@every 1m"
 
-```shell
-zip -jr wharvester.zip functions/wharvester/
-f package create --sourcearchive wharvester.zip\
-  --env python\
-  --name wharvester\
-  --buildcmd './build.sh'
-  
-f fn create --name wharvester\
-  --pkg wharvester\
-  --entrypoint "wharvester.main" # Function name and entrypoint
+f httptrigger create --name enqueue --url "/enqueue/{topic}" --method POST --function enqueue
 
-f function test --name wharvester | jq '.'
-```
-
-Let's create a workflow than connects the functions that grabs data from the BOM, the one that splits and
-simplifies, and the one that stores the data in ElasticSearch:
-
-```shell
-f mqtrigger create --name weather-split\
-   --function splitter\
+f mqtrigger create --name weather-processing\
+   --function wprocessor\
    --mqtype kafka\
    --mqtkind keda\
    --topic weather\
-   --resptopic documents\
+   --resptopic observations\
    --errortopic errors\
    --maxretries 3\
    --metadata bootstrapServers=my-cluster-kafka-bootstrap.kafka.svc:9092\
@@ -319,17 +361,30 @@ f mqtrigger create --name weather-split\
    --cooldownperiod=30\
    --pollinginterval=5
 
-f mqtrigger create --name weather-ingest\
-   --function addobservation\
+f mqtrigger create --name airquality-processing\
+   --function aprocessor\
    --mqtype kafka\
    --mqtkind keda\
-   --topic documents\
+   --topic airquality\
+   --resptopic observations\
    --errortopic errors\
    --maxretries 3\
    --metadata bootstrapServers=my-cluster-kafka-bootstrap.kafka.svc:9092\
    --metadata consumerGroup=my-group\
    --cooldownperiod=30\
    --pollinginterval=5
+   
+f mqtrigger create --name add-observations\
+   --function addobservations\
+   --mqtype kafka\
+   --mqtkind keda\
+   --topic observations\
+   --errortopic errors\
+   --maxretries 3\
+   --metadata bootstrapServers=my-cluster-kafka-bootstrap.kafka.svc:9092\
+   --metadata consumerGroup=my-group\
+   --cooldownperiod=30\
+   --pollinginterval=5  
 ```
 
 
@@ -341,7 +396,9 @@ kubectl delete -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
 ```
 
 
-## Harvest Data from the Bureau of Meteorology
+## Harvesting requests
+
+### Harvest Data from the Bureau of Meteorology
 
 List of stations:
 http://reg.bom.gov.au/vic/observations/melbourne.shtml
@@ -350,7 +407,7 @@ Single station observations:
 http://reg.bom.gov.au/fwo/IDV60901/IDV60901.95936.json
 
 
-## Air Quality observations:
+### Harvest data from the Air Quality Project
 
 ```shell
 curl -XGET -G "https://naqd.eresearch.unimelb.edu.au/geoserver/wfs"\

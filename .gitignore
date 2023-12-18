@@ -81,3 +81,6 @@ typings/
 /fission/functions/splitter.zip
 /fission/functions/wharvester.zip
 /fission/functions/addobservation.zip
+/fission/addobservations.zip
+/fission/enqueue.zip
+__pycache__
