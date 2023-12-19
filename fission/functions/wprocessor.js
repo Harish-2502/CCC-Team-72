@@ -1,4 +1,5 @@
 module.exports = async function (context) {
+  console.log(`Processed a weather observation`);
   return {
     status: 200,
     body: JSON.stringify (context.request.body.observations.data.map ((obs) => {

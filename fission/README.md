@@ -40,9 +40,9 @@ k get pods -n keda --watch
 k get pods -n kafka --watch
 ```
 
-Wait for the external IP address to be assigned (wait until is no longer "pending"):
+Wait for the external IP address to be assigned (wait until teh router is no longer "pending"):
 ```shell
-k get svc -n fission | grep router
+k get svc -n fission --watch
 ```
 
 
@@ -59,7 +59,6 @@ k get pods -n kafka --watch
 
 The Kafka cluster `my-cluster` is now ready to be used; it has a single broker and a single Zookeeper node.
 ```shell
-k get pods -n kafka
 k get kafka -n kafka
 k get kafkatopic -n kafka
 ```
@@ -70,25 +69,15 @@ k get kafkatopic -n kafka
 ```shell
 helm repo add kafka-ui https://provectus.github.io/kafka-ui-charts
 helm repo update
-helm upgrade kafka-ui kafka-ui/kafka-ui --install --namespace kafka -f kafka-ui-config.yaml
+helm upgrade kafka-ui kafka-ui/kafka-ui --install --namespace default -f kafka-ui-config.yaml
 ```
 
-Forward the pod port to the localhost:
+Forward the pod port to the localhost (in a different shell):
 ```shell
-export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=kafka-ui,app.kubernetes.io/instance=kafka-ui" -o jsonpath="{.items[0].metadata.name}")
+export POD_NAME=$(k get pods --namespace default -l "app.kubernetes.io/name=kafka-ui,app.kubernetes.io/instance=kafka-ui" -o jsonpath="{.items[0].metadata.name}")
 k --namespace default port-forward $POD_NAME 8080:8080
 ````
 Point your browser to `http://localhost:8080`
-
-
-### Un-installation of the software stack
-
-```shell
-helm uninstall fission --namespace fission 
-helm uninstall keda --namespace keda
-helm uninstall kafka-ui --namespace kafka 
-helm uninstall kafka --namespace kafka
-```
 
 
 ## Install Fission FaaS Client on your Laptop
@@ -143,7 +132,7 @@ f function test --name health | jq '.'
 
 Create an ingress so that the function can be accessed from outside the cluster:
 ```shell
-f route create --url /health --function health --createingress
+f route create --url /health --function health --name health --createingress
 ```
 
 Grab the IP address of the router and send a request:
@@ -157,7 +146,7 @@ curl "http://${IP}/health" | jq '.'
 
 ```shell
 f function create --name wharvester --env python --code ./functions/wharvester.py
-f function test --name wharvester | jq '.' 
+f function test --name wharvester  
 ```
 
 
@@ -167,6 +156,7 @@ f function test --name wharvester | jq '.'
 f timer create --name everyminute --function wharvester --cron "@every 1m"
 f function log -f --name wharvester
 ```
+(Every minute a new log line should appear.)
 
 Delete the timer:
 ```shell
@@ -187,6 +177,7 @@ curl -k 'https://0.0.0.0:9200' --user 'elastic:elastic' | jq '.'
 Create the index:
 ```shell
 curl -XPUT -k 'https://0.0.0.0:9200/observations'\
+   --user 'elastic:elastic'\
    --header 'Content-Type: application/json'\
    --data '{
     "settings": {
@@ -229,8 +220,7 @@ curl -XPUT -k 'https://0.0.0.0:9200/observations'\
             }           
         }
     }
-}'\
-   --user 'elastic:elastic' | jq '.'
+}'  | jq '.'
 ```
 
 
@@ -267,12 +257,6 @@ f fn create --name addobservations\
   --entrypoint "addobservations.main" # Function name and entrypoint
 ```
 
-Test the function:
-```shell
-f function test --name addobservations | jq '.' 
-```
-
-
 
 ## Function composition using message queues
 
@@ -295,9 +279,9 @@ We would reuse the `wharvester` and `addobservation` functions we introduced ear
 * an `enqueue` function to add data to a queue (Kafka topic).
 
 ```shell
-f function create --name aharvester --env nodejs --code ./functions/aharvester.js
+f function create --name aharvester --env python --code ./functions/aharvester.py
 f function create --name wprocessor --env nodejs --code ./functions/wprocessor.js
-f function create --name aprocessor s --code ./functions/aprocessor.js
+f function create --name aprocessor --env nodejs --code ./functions/aprocessor.js
 zip -jr enqueue.zip functions/enqueue/
 f package create --sourcearchive enqueue.zip\
   --env python\
@@ -320,10 +304,10 @@ and for this application we need to create the following topics:
 * an `errors` topic that contains possible queueing errors.
 
 ```shell
-k apply -f ./topics/weather.yaml -n kafka
-k apply -f ./topics/airquality.yaml -n kafka
-k apply -f ./topics/observations.yaml -n kafka
-k apply -f ./topics/errors.yaml -n kafka
+k apply -f ./topics/weather.yaml --namespace kafka
+k apply -f ./topics/airquality.yaml --namespace kafka
+k apply -f ./topics/observations.yaml --namespace kafka
+k apply -f ./topics/errors.yaml --namespace kafka
 ```
 
 To list all the Kafka topic just created:
@@ -388,14 +372,6 @@ f mqtrigger create --name add-observations\
 ```
 
 
-## Remove Fission FaaS from the Cluster
-
-```shell
-helm uninstall fission
-kubectl delete -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
-```
-
-
 ## Harvesting requests
 
 ### Harvest Data from the Bureau of Meteorology
@@ -419,3 +395,41 @@ curl -XGET -G "https://naqd.eresearch.unimelb.edu.au/geoserver/wfs"\
   --data-urlencode cql_filter="site_name='Mildura' and time_stamp>=2023-07-11T00:00:00Z and time_stamp<2023-07-12T00:00:00Z"\
   | jq '.'
 ```
+
+## Un-installation of the software stack
+
+```shell
+for e in $(k get function -o=name) ; do
+    k delete ${e} 
+done
+
+for e in $(k get package -o=name) ; do
+    k delete ${e} 
+done
+
+for e in $(k get environment -o=name) ; do
+    k delete ${e} 
+done
+
+for crd in $(k get crd --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep fission) ; do
+    k delete crd ${crd} 
+done
+
+helm uninstall fission --namespace fission
+
+for p in $(k get pods -o=name) ; do
+    k delete ${p} 
+done
+
+for p in $(k get kafkatopic -n kafka -o=name) ; do
+    k delete ${p} -n kafka
+done
+
+k delete -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
+helm uninstall keda --namespace keda
+helm uninstall kafka-ui
+k delete kafka my-cluster --namespace kafka
+helm uninstall kafka --namespace kafka
+```
+
+

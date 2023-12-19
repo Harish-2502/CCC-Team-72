@@ -67,6 +67,7 @@ It may be convenient to use a script to automate all necessary steps to interact
 alias o='/snap/bin/openstack'
 alias k=$(which kubectl)
 export KUBECONFIG="${PWD}/config"
+export ES_VERSION="8.5.1"
 . ./<your project name>-openrc.sh
 ```
 
@@ -85,7 +86,7 @@ k create namespace elastic
 helm repo add elastic https://helm.elastic.co
 helm repo update
 helm upgrade --install \
-  --version=8.5.1 \
+  --version=${ES_VERSION} \
   --namespace elastic \
   -f ./elastic-values.yaml \
   --set replicas=3 \
@@ -95,7 +96,7 @@ helm upgrade --install \
 
 Check all ElasticSearch pods are running before proceeding:
 ```shell
-k get pods -l release=elasticsearch -n elastic
+k get pods -l release=elasticsearch -n elastic --watch
 ```
 
 
@@ -103,7 +104,7 @@ k get pods -l release=elasticsearch -n elastic
 
 ```shell
 helm upgrade --install \
-  --version=8.5.1 \
+  --version=${ES_VERSION} \
   --namespace elastic \
   -f ./kibana-values.yaml \
   kibana elastic/kibana
@@ -111,7 +112,7 @@ helm upgrade --install \
 
 Check all ElasticSearch pods are running before proceeding:
 ```shell
-k get pods -l release=kibana -n elastic
+k get pods -l release=kibana -n elastic --watch
 ```
 
 Check all services are running before proceeding:
@@ -130,12 +131,12 @@ kibana-kibana                   ClusterIP   10.254.50.97   <none>        5601/TC
 
 ## Accessing the ElasticSearch API and the Kibana User Interface
 
-To access services on the cluster, one has to use the `port-forward` command of `kubectl`:
+To access services on the cluster, one has to use the `port-forward` command of `kubectl` in a different shell:
 ```shell 
 k port-forward service/elasticsearch-master -n elastic 9200:9200
 ```
 
-To access the Kibana user interface, one has to use the `port-forward` command of `kubectl`:
+To access the Kibana user interface, one has to use the `port-forward` command of `kubectl` (another shell):
 ```shell
 k port-forward service/kibana-kibana -n elastic 5601:5601
 ```
@@ -223,7 +224,7 @@ curl -XGET -k "https://localhost:9200/students/_search"\
   }'\
   --user 'elastic:elastic' | jq '.'
 ```
-(The use of a body in a GET request is not RESTful, but it is allowed by ElasticSearch).
+(The use of a body in a GET request is not ReSTful, but it is allowed by ElasticSearch).
 
 
 ## Crete a data view from Kibana

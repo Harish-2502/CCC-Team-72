@@ -1,4 +1,5 @@
 module.exports = async function (context) {
+  console.log(`Processed an air quality observation`);
   return {
     status: 200,
     body: JSON.stringify (context.request.body.features.map ((feat) => {
