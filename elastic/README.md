@@ -1,6 +1,6 @@
 # ElasticSearch
 
-## Pre-requireemnts
+## Pre-requirements
 
 * OpenStack clients (`sudo snap install openstackclients`) 5.4.x
 * JQ 1.6.x (`apt install jq`)
@@ -27,7 +27,6 @@ export KUBECONFIG="${PWD}/config"
 . ./<your project name>-openrc.sh
 ```
 * Create a Kubernetes cluster named "elastic" using the MRC Dashboard with template `kubernetes-melbourne-v1.23.8` (1 master node of a `r3.small` flavor, at least 3 worker nodes of `r3.medium`);
-* NOTE: how a single student can have enough resources for the whole team?
 * Check whether the cluster has been created healthy (it may take several minutes):
 ```shell
 o coe cluster show elastic --fit-width
