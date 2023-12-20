@@ -73,6 +73,7 @@ export ES_VERSION="8.5.1"
 
 ## ElasticSearch Storage Class creation 
 
+To retain the disk volumes after the cluster deletion, a storage class has to be created that set the reclaim policy to "retain".
 ```shell
 k apply -f ./storage-class.yaml
 ```
@@ -188,19 +189,17 @@ The index should now be shown in the Kibana dashboard.
 
 Let's try to add a document to the newly created index:
 ```shell
-curl -XPUT -k "https://localhost:9200/students/_doc/1"\
+curl -XPUT -k "https://localhost:9200/students/_doc/1234567"\
   --header 'Content-Type: application/json'\
   --data '{
-       "id": "1",
         "name": "John Smith",
         "course": "Cloud Computing",
         "mark": 80
   }'\
   --user 'elastic:elastic' | jq '.'
-curl -XPUT -k "https://localhost:9200/students/_doc/2"\
+curl -XPUT -k "https://localhost:9200/students/_doc/0123456"\
   --header 'Content-Type: application/json'\
   --data '{
-       "id": "2",
         "name": "Jane Doe",
         "course": "Cloud Computing",
         "mark": 90
@@ -215,23 +214,146 @@ Let's do a search via the API:
 curl -XGET -k "https://localhost:9200/students/_search"\
   --header 'Content-Type: application/json'\
   --data '{
-    "query": { 
-      "match": { 
-        "course": "cloud*" 
-      } 
-    }
-  }'\
+      "query": { 
+        "match": { 
+          "course": "cloud*" 
+        } 
+      }
+    }'\
   --user 'elastic:elastic' | jq '.'
 ```
-(The use of a body in a GET request is not ReSTful, but it is allowed by ElasticSearch).
+(The use of a body in a GET request is not ReSTful, and hardly supported by HTTP... but it is allowed by ElasticSearch.)
 
 
-## Crete a data view from Kibana
+## Create a data view from Kibana
 
 Go to Kibana, create a data view named "students" with pattern "student*", and check that the documents have been
 added to the index by going to "Analysis / Discover".
 
-Now Kibana can be used to test search queries or to have a look at data..
+Now Kibana can be used to test search queries or to have a look at data.
+
+
+## ElasticSearch parent-child join
+
+To avoid repeating data about the course, it is possible to create a parent-child relationship between the student and the course.
+with some limitations.
+
+Let's first delete the `students` index:
+```shell
+curl -XDELETE -k 'https://0.0.0.0:9200/students'\
+   --user 'elastic:elastic' | jq '.'
+```
+
+Then let's re-create the database with a mapping that defines the parent-child relationship:
+```shell
+curl -XPUT -k 'https://0.0.0.0:9200/students' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "settings": {
+        "index": {
+            "number_of_shards": 3,
+            "number_of_replicas": 2
+        }
+    },
+    "mappings": {
+        "properties": {
+            "uomid": {
+                "type": "text"
+            },
+            "name": {
+                "type": "text"
+            },
+            "mark": {
+                "type": "short"
+            },
+            "coursedescription": {
+                "type": "text"
+            },
+            "relation_type": {
+                "type": "join",
+                "relations": {
+                    "parent": "child"
+                }
+            }
+        }
+    }
+}' \
+  --user 'elastic:elastic' | jq '.'
+```
+
+Let's insert some data about courses and students that use the parent-child relationship:
+```shell
+curl -XPUT -k "https://localhost:9200/students/_doc/1?routing=comp90024"\
+  --header 'Content-Type: application/json'\
+  --data '{
+        "name": "COMP90024",
+        "coursedescription": "Cloud Computing",
+        "relation_type": {
+          "name": "parent"
+        }
+    }'\
+  --user 'elastic:elastic' | jq '.' 
+curl -XPUT -k "https://localhost:9200/students/_doc/2?routing=comp90024"\
+  --header 'Content-Type: application/json'\
+  --data '{
+        "name": "John Smith",
+        "uomid": "1234567",
+        "mark": 80,
+        "relation_type": {
+          "name": "child",
+          "parent": 1
+        }
+  }'\
+  --user 'elastic:elastic' | jq '.'
+curl -XPUT -k "https://localhost:9200/students/_doc/3?routing=comp90024"\
+  --header 'Content-Type: application/json'\
+  --data '{
+        "name": "Jane Doe",
+        "uomid": "0123456",
+        "mark": 90,
+        "relation_type": {
+          "name": "child",
+          "parent": 1
+        }
+      }'\
+  --user 'elastic:elastic' | jq '.' 
+```
+
+Example of a query that returns all students of a give course that have a mark greater than 80:
+```shell
+curl -XGET -k "https://localhost:9200/students/_search"\
+  --header 'Content-Type: application/json'\
+  --data '{
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "range": {
+                        "mark": {
+                            "gt": 80
+                        }
+                    }
+                },
+                {
+                    "has_parent": {
+                        "parent_type": "parent",
+                        "query": {
+                            "match": {
+                                "name": "comp90024"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}'\
+  --user 'elastic:elastic' | jq '.'
+```
+
+
+## Use of ElasticSearch as a vector DBMS
+
 
 
 ## ElasticSearch Cluster Removal
@@ -241,3 +363,4 @@ helm uninstall kibana -n elastic
 helm uninstall elasticsearch -n elastic
 ``` 
 
+The cluster can then be removed using the MRC dashboard (some volumes may have to be removed manually after the cluster removal).
