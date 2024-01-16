@@ -4,12 +4,13 @@
 
 * OpenStack clients (`sudo snap install openstackclients`) 5.4.x
 * JQ 1.6.x (`apt install jq`)
-* NeCTAR project with enough resources to create a Kubernetes cluster
+* MRC project with enough resources to create a Kubernetes cluster
 * Kubectl 1.28.x (installation instructions)[https://kubernetes.io/docs/tasks/tools/]
 * Helm 3.6.x (installation instructions)[https://helm.sh/docs/intro/install/]
+* Have the University of Melbourne VPN client installed and connected to the VPN
 
 
-## Kubernetes Cluster Provisioning
+## Client Configuration
 
 * Download the OpenStack RC file from the MRC Dashboard the directory you are in;
 * Add an alias to simplify typing
@@ -17,24 +18,93 @@
 alias o='/snap/bin/openstack'
 alias k=$(which kubectl)
 ```
-* Set the Kubernetes configuration file:
-```shell
-export KUBECONFIG="${PWD}/config"
-```
-* Insert the OpenStack password  in the `./<your project name>-openrc.sh` file 
-* Read in the RC file;
+* Insert the OpenStack password  in the `./<your project name>-openrc.sh` file
+* Read in the RC file in your shell:
 ```shell
 . ./<your project name>-openrc.sh
 ```
-* Create a Kubernetes cluster named "elastic" using the MRC Dashboard with template `kubernetes-melbourne-v1.23.8` (1 master node of a `r3.small` flavor, at least 3 worker nodes of `r3.medium`);
+
+
+## Cluster Template Creation
+
+```shell
+o coe cluster template create\
+  --keypair "lmorandiniATisenbrandt2"\
+  --labels "container_infra_prefix=registry.rc.nectar.org.au/nectarmagnum/;\
+master_lb_floating_ip_enabled=false;\
+cinder_csi_enabled=true;\
+docker_volume_type=standard;\
+ingress_controller=octavia;\
+container_runtime=containerd;\
+containerd_version=1.6.20;\
+containerd_tarball_sha256=1d86b534c7bba51b78a7eeb1b67dd2ac6c0edeb01c034cc5f590d5ccd824b416;\
+kube_tag=v1.26.8;\
+flannel_tag=v0.21.5;\
+cloud_provider_tag=v1.26.3;\
+cinder_csi_plugin_tag=v1.26.3;\
+k8s_keystone_auth_tag=v1.26.3;\
+octavia_ingress_controller_tag=v1.26.3;\
+coredns_tag=1.10.1;\
+csi_snapshotter_tag=v6.2.1;\
+csi_attacher_tag=v4.2.0;\
+csi_resizer_tag=v1.7.0;\
+csi_provisioner_tag=v3.4.1;\
+csi_node_driver_registrar_tag=v2.8.0;\
+availability_zone=melbourne-qh2-uom;\
+fixed_subnet_cidr=192.168.10.0/24"\
+  --floating-ip-disabled\
+  --master-lb-enabled\
+  --master-flavor='5d8b8337-dc22-4ac7-9d4c-fda749d364bf'\
+  --flavor='5d8b8337-dc22-4ac7-9d4c-fda749d364bf'\
+  --server-type='vm'\
+  --external-network='melbourne'\
+  --image='fedora-coreos-37'\
+  --volume-driver='cinder'\
+  --docker-storage-driver='overlay2'\
+  --network-driver='flannel'\
+  --coe='kubernetes'\
+  --dns-nameserver='128.250.201.5,128.250.66.5'\
+kubernetes-melbourne-qh2-uom-nofloat-v1.26.8
+```
+
+
+## Kubernetes Cluster Provisioning
+
+* Create a Kubernetes cluster named "elastic" with the newlt created template (1 master node and 3 worker nodes):
+```shell
+o coe cluster create\
+  --keypair "<your keypair from the MRC dashboard>"\
+  --cluster-template "kubernetes-melbourne-qh2-uom-nofloat-v1.26.8"\
+  --flavor "uom.mse.2c9g"\
+  --master-flavor "uom.mse.2c9g"\
+  --node-count 3\
+  --master-count 1\
+  --floating-ip-disabled\
+  elastic
+```
 * Check whether the cluster has been created healthy (it may take several minutes):
 ```shell
 o coe cluster show elastic --fit-width
 ```
-(`health_status` should be 'HEALTHY' and `coe_version` should be `1.23.8`);
-* Create the configuration:
+(`health_status` should be 'HEALTHY' and `coe_version` should be `1.26.8`);
+* Create a VM named "bastion" with the following features (the VM can be created using the MRC Dashboard)):
+    - Flavor: `uom.mse.1c4g`;
+    - Image: `NeCTAR Ubuntu 22.04 LTS (Jammy) amd64 (with Docker)`;
+    - Networks: `qh2-uom-internal` and `elatic` (the Kubernetes cluster network);
+    - Security group: `default` and `ssh`.
+* Once the VM has been created successfully, open an SSH tunnel that allows the connection of your laptop to the Kubernetes cluster:
+```shell
+ssh -N -L 6443:<ip addres of the kubernetes master node>:6443 ubuntu@<bastion vm ip address>
+```
+(the tunnel must run throughout the session, in case of malfunctions it has to be restarted.)
+* Create the Kubernetes configuration file to access the cluster:
 ```shell
 o coe cluster config elastic
+```
+* Modify the `config` file by changing the IP address os the server to `127.0.0.1` (as in `server: https://127.0.0.1:6443`)
+* Set the Kubernetes configuration file environment variable
+```shell
+export KUBECONFIG="${PWD}/config"
 ```
 * Check the cluster nodes:
 ```shell
@@ -42,15 +112,16 @@ k get nodes
 ```
 it should return a master node and the required number of nodes:
 ```
-NAME                            STATUS   ROLES    AGE   VERSION
-elastic-kgzzr5zed2xj-master-0   Ready    master   5m40s   v1.23.8
-elastic-kgzzr5zed2xj-node-0     Ready    <none>   2m29s   v1.23.8
-elastic-kgzzr5zed2xj-node-1     Ready    <none>   2m31s   v1.23.8
-elastic-kgzzr5zed2xj-node-2     Ready    <none>   2m30s   v1.23.8
+NAME                            STATUS   ROLES    AGE     VERSION
+elastic-4spknhuyv5bf-master-0   Ready    master   6m16s   v1.26.8
+elastic-4spknhuyv5bf-node-0     Ready    <none>   3m27s   v1.26.8
+elastic-4spknhuyv5bf-node-1     Ready    <none>   3m9s    v1.26.8
+elastic-4spknhuyv5bf-node-2     Ready    <none>   3m31s   v1.26.8
 ```
 
 Sometimes the overlay network component is not started correctly, hence it is better to drop and recreate it:
-```shell script
+FIXME: ????
+```shell
 k delete pod -l app=flannel -n kube-system
 ```
 
@@ -66,13 +137,14 @@ It may be convenient to use a script to automate all necessary steps to interact
 alias o='/snap/bin/openstack'
 alias k=$(which kubectl)
 export KUBECONFIG="${PWD}/config"
-export ES_VERSION="8.5.1"
 . ./<your project name>-openrc.sh
 ```
+The script above has to be executed (`. ./<script name>`) whenever a new shell is opened.
 
 
 ## ElasticSearch Storage Class creation 
 
+FIXME: ????
 To retain the disk volumes after the cluster deletion, a storage class has to be created that set the reclaim policy to "retain".
 ```shell
 k apply -f ./storage-class.yaml
@@ -81,6 +153,7 @@ k apply -f ./storage-class.yaml
 
 ## ElasticSearch cluster deployment
 
+Set the ElasticSearch version to be used `export ES_VERSION="8.5.1"`, then install ElasticSearch:
 ```shell
 k create namespace elastic
 helm repo add elastic https://helm.elastic.co
@@ -88,11 +161,11 @@ helm repo update
 helm upgrade --install \
   --version=${ES_VERSION} \
   --namespace elastic \
-  -f ./elastic-values.yaml \
-  --set replicas=3 \
+  --set replicas=2 \
   --set secret.password="elastic"\
   elasticsearch elastic/elasticsearch
 ```
+(By default every ElasticSearch node has 30GB of storage.)
 
 Check all ElasticSearch pods are running before proceeding:
 ```shell
@@ -354,13 +427,25 @@ curl -XGET -k "https://localhost:9200/students/_search"\
 
 ## Use of ElasticSearch as a vector DBMS
 
+TODO.
 
 
-## ElasticSearch Cluster Removal
+
+## Removal
+
+### ElasticSearch Cluster Removal
 
 ```shell
 helm uninstall kibana -n elastic
 helm uninstall elasticsearch -n elastic
 ``` 
 
-The cluster can then be removed using the MRC dashboard (some volumes may have to be removed manually after the cluster removal).
+
+### Kubernetes Cluster Removal
+
+
+```shell
+o coe cluster delete elastic
+```
+
+

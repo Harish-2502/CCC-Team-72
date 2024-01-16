@@ -1,6 +1,6 @@
 # Fission FaaS
 
-## Pre-requireemnts
+## Pre-requirements
 
 * A cluster on NeCTAR (see the "elastic" directory)
 * ElasticSearch already installed (see above)
@@ -23,12 +23,12 @@ k create -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
 helm repo add fission-charts https://fission.github.io/fission-charts/
 helm repo add kedacore https://kedacore.github.io/charts
 helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
-helm repo add strimzi https://strimzi.io/charts/
+helm repo add Strimzi https://strimzi.io/charts/
 helm repo update
-helm upgrade fission fission-charts/fission-all --install --version v${FISSION_VERSION} --namespace fission --create-namespace 
+helm upgrade fission fission-charts/fission-all --install --version v${FISSION_VERSION} --namespace fission\
+  --create-namespace --set routerServiceType='ClusterIP' 
 helm upgrade keda kedacore/keda --install --namespace keda --create-namespace --version ${KEDA_VERSION}
-helm upgrade kafka strimzi/strimzi-kafka-operator --install --namespace kafka --create-namespace --version ${STRIMZI_VERSION}
- 
+helm upgrade kafka strimzi/strimzi-kafka-operator --install --namespace kafka --create-namespace --version ${STRIMZI_VERSION} 
 ```
 
 [Detailed instructions](https://fission.io/docs/installation/)
@@ -40,7 +40,7 @@ k get pods -n keda --watch
 k get pods -n kafka --watch
 ```
 
-Wait for the external IP address to be assigned (wait until teh router is no longer "pending"):
+Wait for the external IP address to be assigned (wait until the router is no longer "pending" -it may take several minutes):
 ```shell
 k get svc -n fission --watch
 ```
@@ -49,7 +49,8 @@ k get svc -n fission --watch
 ### Creation of a Kafka cluster and topics
 
 ```shell
-k apply -f https://strimzi.io/examples/latest/kafka/kafka-persistent-single.yaml -n kafka
+k apply -f  "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/${STRIMZI_VERSION}/examples/kafka/kafka-persistent-single.yaml"\
+  -n kafka
 ```
 
 Wait for all pods to have started:
@@ -60,7 +61,6 @@ k get pods -n kafka --watch
 The Kafka cluster `my-cluster` is now ready to be used; it has a single broker and a single Zookeeper node.
 ```shell
 k get kafka -n kafka
-k get kafkatopic -n kafka
 ```
 
 
@@ -70,6 +70,11 @@ k get kafkatopic -n kafka
 helm repo add kafka-ui https://provectus.github.io/kafka-ui-charts
 helm repo update
 helm upgrade kafka-ui kafka-ui/kafka-ui --install --namespace default -f kafka-ui-config.yaml
+```
+
+Wait for the pod to start:
+```shell
+k get pods --watch
 ```
 
 Forward the pod port to the localhost (in a different shell):
@@ -122,7 +127,7 @@ The name of the service is `elasticsearch-master` and the port is `9200`; to thi
 namespace and the suffix that the Kubernetes DNS uses to route services within the cluster.
 `elasticsearch-master` becomes `elasticsearch-master.elastic.svc.cluster.local`.
 
-The `health.py` source code checks the stato of thee ElasticSearch cluster and returns it:
+The `health.py` source code checks the state of the ElasticSearch cluster and returns it:
 
 Test the function:
 ```shell
@@ -135,11 +140,16 @@ Create an ingress so that the function can be accessed from outside the cluster:
 f route create --url /health --function health --name health --createingress
 ```
 
-Grab the IP address of the router and send a request:
+Start a port forward from the Fission router in different shell:
 ```shell
-IP=$(k get svc -n fission | grep router | tr -s " " | cut -f 4 -d' ')
-curl "http://${IP}/health" | jq '.'
+k port-forward service/router -n fission 9090:80
+```
+
+Invoke the function from port `9090` of your laptop:
+```shell
+curl "http://127.0.0.1:9090/health" | jq '.'
 ````
+(You can have a look at the function log with `f function log --name health`.)
 
 
 ## Create a Fission Function that harvests Data from the Bureau of Meteorology 
@@ -168,10 +178,9 @@ f timer delete --name everyminute
 
 ### Build an index to hold weather observations
 
-Start a port redirect in a shell:
+Start a port forward from ElasticSearch in different shell:
 ```shell
-curl -k 'https://0.0.0.0:9200' --user 'elastic:elastic' | jq '.'
-
+k port-forward service/elasticsearch-master -n elastic 9200:9200
 ```
 
 Create the index:
@@ -269,6 +278,7 @@ Let's create a mini-application that:
 
 Since AIRQ and BoM data have different structures, we need to have an intermediate function that filters and splits the data
 into a standardized structure that can be added to ElasticSearch.
+
 
 ### Functions
 
@@ -370,6 +380,19 @@ f mqtrigger create --name add-observations\
    --cooldownperiod=30\
    --pollinginterval=5  
 ```
+
+From the logs you should now be able to see the data flowing from the harvesters to the processors and finally to ElasticSearch
+(you can also have a look at the queues with the Kafka-UI).
+
+After a while enough data would be harvested to be able to query ElasticSearch.
+
+
+### Create a data view from Kibana
+
+Go to Kibana, create a data view named "observations" with pattern "observation*" and timestamp field "timestamp", and check that the documents have been
+added to the index by going to "Analysis / Discover".
+
+Now Kibana can be used to test search queries or to have a look at the data.
 
 
 ## Harvesting requests

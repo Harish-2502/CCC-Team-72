@@ -17,5 +17,4 @@ def main():
         )
         current_app.logger.info(f'Indexed observation {obs["stationid"]}-{obs["timestamp"]}')
 
-    return res["result"]
-
+    return 'ok'
