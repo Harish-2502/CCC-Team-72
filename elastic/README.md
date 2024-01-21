@@ -29,7 +29,7 @@
 source ./<your project name>-openrc.sh
 ```
 
-5. Click `Project` -> `Compute` -> `Key Pairs` -> `Create Key Pair` and create a new key pair named `mykeypair` (replace `mykeypair` with the name you prefer ).
+5. Click `Project` -> `Compute` -> `Key Pairs` -> `Create Key Pair` and create a new key pair named `mykeypair` (replace `mykeypair` with the name you prefer). Keep the private key file downloaded (e.g. `mykeypair.pem`) in a safe place.
    ![Create Key Pair (1/2)](./screenshots/mrc_04.jpg)
    ![Create Key Pair (2/2)](./screenshots/mrc_05.jpg)
 
@@ -37,45 +37,45 @@ source ./<your project name>-openrc.sh
 
 - Run the following command to create a cluster template named `kubernetes-melbourne-qh2-uom-nofloat-v1.26.8`
 
-> Note: Replace the `mykeypair` and `uom.general.2c8g` with the key pairyou created in the previous step, and the flavor you want to use for the master and worker nodes respectively.
+> Note: Replace the `mykeypair` and `uom.mse.2c9g` with the key pairyou created in the previous step, and the flavor you want to use for the master and worker nodes respectively.
 
 ```shell
-openstack coe cluster template create\
-  --keypair mykeypair\
-  --labels "container_infra_prefix=registry.rc.nectar.org.au/nectarmagnum/;\
-master_lb_floating_ip_enabled=false;\
-cinder_csi_enabled=true;\
-docker_volume_type=standard;\
-ingress_controller=octavia;\
-container_runtime=containerd;\
-containerd_version=1.6.20;\
-containerd_tarball_sha256=1d86b534c7bba51b78a7eeb1b67dd2ac6c0edeb01c034cc5f590d5ccd824b416;\
-kube_tag=v1.26.8;\
-flannel_tag=v0.21.5;\
-cloud_provider_tag=v1.26.3;\
-cinder_csi_plugin_tag=v1.26.3;\
-k8s_keystone_auth_tag=v1.26.3;\
-octavia_ingress_controller_tag=v1.26.3;\
-coredns_tag=1.10.1;\
-csi_snapshotter_tag=v6.2.1;\
-csi_attacher_tag=v4.2.0;\
-csi_resizer_tag=v1.7.0;\
-csi_provisioner_tag=v3.4.1;\
-csi_node_driver_registrar_tag=v2.8.0;\
-availability_zone=melbourne-qh2-uom;\
-fixed_subnet_cidr=192.168.10.0/24"\
-  --floating-ip-disabled\
-  --master-lb-enabled\
-  --master-flavor=$(openstack flavor list | grep 'uom.general.2c8g' | awk '{print $2}' | grep '[0-9]')\
-  --flavor=$(openstack flavor list | grep 'uom.general.2c8g' | awk '{print $2}' | grep '[0-9]')\
+openstack coe cluster template create \
+  --keypair mykeypair \
+  --labels "container_infra_prefix=registry.rc.nectar.org.au/nectarmagnum/; \
+master_lb_floating_ip_enabled=false; \
+cinder_csi_enabled=true; \
+docker_volume_type=standard; \
+ingress_controller=octavia; \
+container_runtime=containerd; \
+containerd_version=1.6.20; \
+containerd_tarball_sha256=1d86b534c7bba51b78a7eeb1b67dd2ac6c0edeb01c034cc5f590d5ccd824b416; \
+kube_tag=v1.26.8; \
+flannel_tag=v0.21.5; \
+cloud_provider_tag=v1.26.3; \
+cinder_csi_plugin_tag=v1.26.3; \
+k8s_keystone_auth_tag=v1.26.3; \
+octavia_ingress_controller_tag=v1.26.3; \
+coredns_tag=1.10.1; \
+csi_snapshotter_tag=v6.2.1; \
+csi_attacher_tag=v4.2.0; \
+csi_resizer_tag=v1.7.0; \
+csi_provisioner_tag=v3.4.1; \
+csi_node_driver_registrar_tag=v2.8.0; \
+availability_zone=melbourne-qh2-uom; \
+fixed_subnet_cidr=192.168.10.0/24" \
+  --floating-ip-disabled \
+  --master-lb-enabled \
+  --master-flavor=$(openstack flavor list | grep 'uom.mse.2c9g' | awk '{print $2}') \
+  --flavor=$(openstack flavor list | grep 'uom.mse.2c9g' | awk '{print $2}') \
   --server-type='vm'\
-  --external-network='melbourne'\
-  --image='fedora-coreos-37'\
-  --volume-driver='cinder'\
-  --docker-storage-driver='overlay2'\
-  --network-driver='flannel'\
-  --coe='kubernetes'\
-  --dns-nameserver='128.250.201.5,128.250.66.5'\
+  --external-network='melbourne' \
+  --image='fedora-coreos-37' \
+  --volume-driver='cinder' \
+  --docker-storage-driver='overlay2' \
+  --network-driver='flannel' \
+  --coe='kubernetes' \
+  --dns-nameserver='128.250.201.5,128.250.66.5' \
   kubernetes-melbourne-qh2-uom-nofloat-v1.26.8
 ```
 
@@ -91,33 +91,52 @@ openstack coe cluster template show $(openstack coe cluster template list | grep
 
 ```shell
 openstack coe cluster create\
-  --cluster-template "kubernetes-melbourne-qh2-uom-nofloat-v1.26.8"\
-  --node-count 3\
-  --master-count 1\
+  --cluster-template "kubernetes-melbourne-qh2-uom-nofloat-v1.26.8" \
+  --node-count 3 \
+  --master-count 1 \
   elastic
 ```
 
-- Check whether the cluster has been created healthy (it may take several minutes):
+- Check whether the cluster has been created healthy (it may take more than 15 minutes).
 
 ```shell
-o coe cluster show elastic --fit-width
+openstack coe cluster show elastic --fit-width
 ```
 
 (`health_status` should be 'HEALTHY' and `coe_version` should be `1.26.8`);
 
-- Create a VM named "bastion" with the following features (the VM can be created using the MRC Dashboard)):
+- Create a security group named 'elastic-ssh' that allows SSH access from the University of Melbourne network.
+
+```shell
+openstack security group create elastic-ssh
+openstack security group rule create --proto tcp --dst-port 22 --remote-ip 0.0.0.0/0 elastic-ssh
+```
+
+- Create a VM named "bastion" with the following features (the VM can be created using the MRC Dashboard).
   - Flavor: `uom.mse.1c4g`;
   - Image: `NeCTAR Ubuntu 22.04 LTS (Jammy) amd64 (with Docker)`;
   - Networks: `qh2-uom-internal` and `elatic` (the Kubernetes cluster network);
   - Security group: `default` and `ssh`.
-- Once the VM has been created successfully, open an SSH tunnel that allows the connection of your laptop to the Kubernetes cluster:
 
 ```shell
-ssh -N -L 6443:<ip addres of the kubernetes master node>:6443 ubuntu@<bastion vm ip address>
+openstack server create \
+  --flavor uom.mse.1c4g \
+  --availability-zone melbourne-qh2-uom \
+  --image $(openstack image list --name "NeCTAR Ubuntu 22.04 LTS (Jammy) amd64 (with Docker)" -c ID -f value) \
+  --nic net-id=$(openstack network show elastic -f value -c id) \
+  --nic net-id=$(openstack network show qh2-uom-internal -f value -c id) \
+  --security-group "elastic-ssh" \
+  --key-name mykeypair \
+  bastion
 ```
-(To get a list of the IP addresses of the `bastion` node. type `o server show bastion -f value -c addresses`.)
 
-(The tunnel must run throughout the session, in case of malfunctions it has to be restarted.)
+- Once the VM has been created successfully, open an SSH tunnel that allows the connection of your laptop to the Kubernetes cluster.
+
+```shell
+ssh -i mykeypair.pem -N -L 6443:$(openstack coe cluster show elastic -f json | jq -r '.master_addresses[]'):6443 ubuntu@$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
+```
+
+(the tunnel must run throughout the session, in case of malfunctions it has to be restarted.)
 
 - Create the Kubernetes configuration file to access the cluster:
 
