@@ -115,8 +115,9 @@ o coe cluster show elastic --fit-width
 ```shell
 ssh -N -L 6443:<ip addres of the kubernetes master node>:6443 ubuntu@<bastion vm ip address>
 ```
+(To get a list of the IP addresses of the `bastion` node. type `o server show bastion -f value -c addresses`.)
 
-(the tunnel must run throughout the session, in case of malfunctions it has to be restarted.)
+(The tunnel must run throughout the session, in case of malfunctions it has to be restarted.)
 
 - Create the Kubernetes configuration file to access the cluster:
 
