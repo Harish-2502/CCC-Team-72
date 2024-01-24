@@ -112,6 +112,12 @@ openstack security group create elastic-ssh
 openstack security group rule create --proto tcp --dst-port 22 --remote-ip 0.0.0.0/0 elastic-ssh
 ```
 
+- Create a network port named 'elastic-bastion'.
+
+```shell
+openstack port create --network elastic elastic-bastion
+```
+
 - Create a VM named "bastion" with the following features (the VM can be created using the MRC Dashboard).
   - Flavor: `uom.mse.1c4g`;
   - Image: `NeCTAR Ubuntu 22.04 LTS (Jammy) amd64 (with Docker)`;
@@ -123,43 +129,59 @@ openstack server create \
   --flavor uom.mse.1c4g \
   --availability-zone melbourne-qh2-uom \
   --image $(openstack image list --name "NeCTAR Ubuntu 22.04 LTS (Jammy) amd64 (with Docker)" -c ID -f value) \
-  --nic net-id=$(openstack network show elastic -f value -c id) \
   --nic net-id=$(openstack network show qh2-uom-internal -f value -c id) \
+  --nic port-id=$(openstack port show elastic-bastion -f value -c id) \
   --security-group "elastic-ssh" \
   --key-name mykeypair \
   bastion
 ```
 
-- Once the VM has been created successfully, open an SSH tunnel that allows the connection of your laptop to the Kubernetes cluster.
+## Accessing the Kubernetes Cluster
+
+- Once the VM has been created successfully, open an SSH tunnel that allows the connection of your computer to the Kubernetes cluster. Please replace the `<path-to-private-key>` with the path to the private key file downloaded in the previous step.
 
 ```shell
-ssh -i mykeypair.pem -N -L 6443:$(openstack coe cluster show elastic -f json | jq -r '.master_addresses[]'):6443 ubuntu@$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
+chmod 600 <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem)
+
+ssh -i <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem) -L 6443:$(openstack coe cluster show elastic -f json | jq -r '.master_addresses[]'):6443 ubuntu@$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
 ```
 
-(the tunnel must run throughout the session, in case of malfunctions it has to be restarted.)
+> Note: The SSH command may take up to 1 minute to complete. And you will see a shell prompt. Please do not close the terminal window once the command has been executed.
 
-- Create the Kubernetes configuration file to access the cluster:
+![SSH tunneling](./screenshots/terminal_01.jpg)
+
+- Create the Kubernetes configuration file to access the cluster. This command will create a file named `config` in the current directory.
 
 ```shell
-o coe cluster config elastic
+openstack coe cluster config elastic
 ```
 
 - Modify the `config` file by changing the IP address os the server to `127.0.0.1` (as in `server: https://127.0.0.1:6443`)
-- Set the Kubernetes configuration file environment variable
 
 ```shell
-export KUBECONFIG="${PWD}/config"
+awk '
+    /^    server:/ { sub(/https:\/\/[^:]+/, "https://127.0.0.1") }
+    { print }
+' config > temp && mv temp config
+```
+
+- Move the config file to `~/.kube/config`.
+
+> Note: If you already have a `~/.kube/config` file, please back it up before executing the following command.
+
+```shell
+mv config ~/.kube/config
 ```
 
 - Check the cluster nodes:
 
 ```shell
-k get nodes
+kubectl get nodes
 ```
 
-it should return a master node and the required number of nodes:
+This command should return one master node and the required number of worker nodes.
 
-```
+```shell
 NAME                            STATUS   ROLES    AGE     VERSION
 elastic-4spknhuyv5bf-master-0   Ready    master   6m16s   v1.26.8
 elastic-4spknhuyv5bf-node-0     Ready    <none>   3m27s   v1.26.8
@@ -167,39 +189,34 @@ elastic-4spknhuyv5bf-node-1     Ready    <none>   3m9s    v1.26.8
 elastic-4spknhuyv5bf-node-2     Ready    <none>   3m31s   v1.26.8
 ```
 
-Sometimes the overlay network component is not started correctly, hence it is better to drop and recreate it:
-FIXME: ????
+> Note: After creating the cluster, check the overlay network component is running correctly:
 
 ```shell
-k delete pod -l app=flannel -n kube-system
+kubectl get pod -l app=flannel -n kube-system
 ```
 
-Check that all Flannel pods are back running:
+This command should return a number of pods named `flannel-xxxxx` with status `Running`.
 
 ```shell
-k get pod -l app=flannel -n kube-system
+NAME                    READY   STATUS    RESTARTS   AGE
+kube-flannel-ds-9pvdl   1/1     Running   0          31h
+kube-flannel-ds-gzvfk   1/1     Running   0          31h
+kube-flannel-ds-nx6mg   1/1     Running   0          31h
+kube-flannel-ds-sx8dp   1/1     Running   0          31h
 ```
 
-It may be convenient to use a script to automate all necessary steps to interact with the cluster:
+If any of the pods is not in running state, to drop and recreate the pod.
 
 ```shell
-#!/bin/bash
-
-alias o='/snap/bin/openstack'
-alias k=$(which kubectl)
-export KUBECONFIG="${PWD}/config"
-. ./<your project name>-openrc.sh
+kubectl delete pod -l app=flannel -n kube-system
 ```
-
-The script above has to be executed (`. ./<script name>`) whenever a new shell is opened.
 
 ## ElasticSearch Storage Class creation
 
-FIXME: ????
 To retain the disk volumes after the cluster deletion, a storage class has to be created that set the reclaim policy to "retain".
 
 ```shell
-k apply -f ./storage-class.yaml
+kubectl apply -f ./storage-class.yaml
 ```
 
 ## ElasticSearch cluster deployment
@@ -207,9 +224,10 @@ k apply -f ./storage-class.yaml
 Set the ElasticSearch version to be used `export ES_VERSION="8.5.1"`, then install ElasticSearch:
 
 ```shell
-k create namespace elastic
+kubectl create namespace elastic
 helm repo add elastic https://helm.elastic.co
 helm repo update
+export ES_VERSION="8.5.1"
 helm upgrade --install \
   --version=${ES_VERSION} \
   --namespace elastic \
@@ -223,7 +241,21 @@ helm upgrade --install \
 Check all ElasticSearch pods are running before proceeding:
 
 ```shell
-k get pods -l release=elasticsearch -n elastic --watch
+kubectl get pods -l release=elasticsearch -n elastic --watch
+```
+
+This command will watch the pods' status. You can use `Ctrl + C` to stop watching once you see the pods are in `Running` state.
+
+```shell
+NAME                     READY   STATUS     RESTARTS   AGE
+elasticsearch-master-0   0/1     Init:0/1   0          20s
+elasticsearch-master-1   0/1     Init:0/1   0          20s
+elasticsearch-master-0   0/1     Init:0/1   0          59s
+elasticsearch-master-1   0/1     Init:0/1   0          59s
+elasticsearch-master-1   0/1     PodInitializing   0          60s
+elasticsearch-master-0   0/1     PodInitializing   0          61s
+elasticsearch-master-1   0/1     Running           0          61s
+elasticsearch-master-0   0/1     Running           0          62s
 ```
 
 ## Kibana deployment
@@ -239,16 +271,18 @@ helm upgrade --install \
 Check all ElasticSearch pods are running before proceeding:
 
 ```shell
-k get pods -l release=kibana -n elastic --watch
+kubectl get pods -l release=kibana -n elastic --watch
 ```
 
-Check all services are running before proceeding:
+This command will watch the pods' status. You can use `Ctrl + C` to stop watching once you see the pods are in `Running` state.
+
+Check all services are created before proceeding.
 
 ```shell
-k get service -n elastic
+kubectl get service -n elastic
 ```
 
-It should show something like:
+This command will list all service in the Kubernetes cluster.
 
 ```shell
 NAME                            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)             AGE
@@ -259,34 +293,49 @@ kibana-kibana                   ClusterIP   10.254.50.97   <none>        5601/TC
 
 ## Accessing the ElasticSearch API and the Kibana User Interface
 
-To access services on the cluster, one has to use the `port-forward` command of `kubectl` in a different shell:
+To access services on the cluster, one has to use the `port-forward` command of `kubectl` in a new terminal window.
 
 ```shell
-k port-forward service/elasticsearch-master -n elastic 9200:9200
+kubectl port-forward service/elasticsearch-master -n elastic 9200:9200
 ```
 
-To access the Kibana user interface, one has to use the `port-forward` command of `kubectl` (another shell):
+> Note: This command will start the port forwarding so please keep this terminal open and do not close it.
 
 ```shell
-k port-forward service/kibana-kibana -n elastic 5601:5601
+kubectl port-forward service/elasticsearch-master -n elastic 9200:9200
+Forwarding from 127.0.0.1:9200 -> 9200
+Forwarding from [::1]:9200 -> 9200
 ```
 
-The port forwarding can be stopped by pressing `Ctrl-C` (each has to start in a different terminal window) and
-when not used it stops and has to be restarted.
+To access the Kibana user interface, one has to use the `port-forward` command of `kubectl` (another terminal window):
+
+```shell
+kubectl port-forward service/kibana-kibana -n elastic 5601:5601
+```
+
+> Note: This command will start the port forwarding so please keep this terminal open and do not close it.
+
+```shell
+kubectl port-forward service/kibana-kibana -n elastic 5601:5601
+Forwarding from 127.0.0.1:5601 -> 5601
+Forwarding from [::1]:5601 -> 5601
+```
+
+> Note: The port forwarding can be stopped by pressing `Ctrl + C` and closing the terminal window. The port forwarding is only active when the terminal window is open. Once it is stopped, you need to re-run the command to start the port forwarding again.
 
 Test the ElasticSearch API:
 
 ```shell
-curl -k 'https://0.0.0.0:9200' --user 'elastic:elastic' | jq '.'
-curl -k 'https://0.0.0.0:9200/_cluster/health' --user 'elastic:elastic' | jq '.'
+curl -k 'https://127.0.0.1:9200' --user 'elastic:elastic' | jq '.'
+curl -k 'https://127.0.0.1:9200/_cluster/health' --user 'elastic:elastic' | jq '.'
 ```
 
-Test the Kibana user interface by pointing the browser to: `http://0.0.0.0:5601/` (the default credentials are `elastic:elastic`).
+Test the Kibana user interface by pointing the browser to: `http://127.0.0.1:5601/` (the default credentials are `elastic:elastic`).
 
 ## Create an ElasticSearch Index
 
 ```shell
-curl -XPUT -k 'https://0.0.0.0:9200/students'\
+curl -XPUT -k 'https://127.0.0.1:9200/students'\
    --header 'Content-Type: application/json'\
    --data '{
     "settings": {
@@ -320,7 +369,7 @@ The index should now be shown in the Kibana dashboard.
 Let's try to add a document to the newly created index:
 
 ```shell
-curl -XPUT -k "https://localhost:9200/students/_doc/1234567"\
+curl -XPUT -k "https://127.0.0.1:9200/students/_doc/1234567"\
   --header 'Content-Type: application/json'\
   --data '{
         "name": "John Smith",
@@ -328,7 +377,8 @@ curl -XPUT -k "https://localhost:9200/students/_doc/1234567"\
         "mark": 80
   }'\
   --user 'elastic:elastic' | jq '.'
-curl -XPUT -k "https://localhost:9200/students/_doc/0123456"\
+
+curl -XPUT -k "https://127.0.0.1:9200/students/_doc/0123456"\
   --header 'Content-Type: application/json'\
   --data '{
         "name": "Jane Doe",
@@ -343,7 +393,7 @@ You can now do a full text search by just typing "John" in the search box and pr
 Let's do a search via the API:
 
 ```shell
-curl -XGET -k "https://localhost:9200/students/_search"\
+curl -XGET -k "https://127.0.0.1:9200/students/_search"\
   --header 'Content-Type: application/json'\
   --data '{
       "query": {
@@ -372,14 +422,14 @@ with some limitations.
 Let's first delete the `students` index:
 
 ```shell
-curl -XDELETE -k 'https://0.0.0.0:9200/students'\
+curl -XDELETE -k 'https://127.0.0.1:9200/students'\
    --user 'elastic:elastic' | jq '.'
 ```
 
 Then let's re-create the database with a mapping that defines the parent-child relationship:
 
 ```shell
-curl -XPUT -k 'https://0.0.0.0:9200/students' \
+curl -XPUT -k 'https://127.0.0.1:9200/students' \
   --header 'Content-Type: application/json' \
   --data '{
     "settings": {
@@ -417,7 +467,7 @@ curl -XPUT -k 'https://0.0.0.0:9200/students' \
 Let's insert some data about courses and students that use the parent-child relationship:
 
 ```shell
-curl -XPUT -k "https://localhost:9200/students/_doc/1?routing=comp90024"\
+curl -XPUT -k "https://127.0.0.1:9200/students/_doc/1?routing=comp90024"\
   --header 'Content-Type: application/json'\
   --data '{
         "name": "COMP90024",
@@ -427,7 +477,8 @@ curl -XPUT -k "https://localhost:9200/students/_doc/1?routing=comp90024"\
         }
     }'\
   --user 'elastic:elastic' | jq '.'
-curl -XPUT -k "https://localhost:9200/students/_doc/2?routing=comp90024"\
+
+curl -XPUT -k "https://127.0.0.1:9200/students/_doc/2?routing=comp90024"\
   --header 'Content-Type: application/json'\
   --data '{
         "name": "John Smith",
@@ -439,7 +490,8 @@ curl -XPUT -k "https://localhost:9200/students/_doc/2?routing=comp90024"\
         }
   }'\
   --user 'elastic:elastic' | jq '.'
-curl -XPUT -k "https://localhost:9200/students/_doc/3?routing=comp90024"\
+
+curl -XPUT -k "https://127.0.0.1:9200/students/_doc/3?routing=comp90024"\
   --header 'Content-Type: application/json'\
   --data '{
         "name": "Jane Doe",
@@ -456,7 +508,7 @@ curl -XPUT -k "https://localhost:9200/students/_doc/3?routing=comp90024"\
 Example of a query that returns all students of a give course that have a mark greater than 80:
 
 ```shell
-curl -XGET -k "https://localhost:9200/students/_search"\
+curl -XGET -k "https://127.0.0.1:9200/students/_search"\
   --header 'Content-Type: application/json'\
   --data '{
     "query": {
@@ -502,5 +554,5 @@ helm uninstall elasticsearch -n elastic
 ### Kubernetes Cluster Removal
 
 ```shell
-o coe cluster delete elastic
+openstack coe cluster delete elastic
 ```
