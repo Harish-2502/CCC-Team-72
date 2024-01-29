@@ -4,7 +4,6 @@
 
 * A cluster on NeCTAR (see the "elastic" directory)
 * ElasticSearch already installed (see above)
-* "k" and "o" aliases defined (see above)
 * RC file (with password inserted) read (see above)
 * "KUBECONFIG" environment variable set (see above)
 
@@ -19,7 +18,7 @@ NOTE: the code used here is for illustrative purposes only. It has no error hand
 export FISSION_VERSION='1.20.0'
 export KEDA_VERSION='2.9'
 export STRIMZI_VERSION='0.38.0'
-k create -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
+kubectl create -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
 helm repo add fission-charts https://fission.github.io/fission-charts/
 helm repo add kedacore https://kedacore.github.io/charts
 helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
@@ -35,32 +34,32 @@ helm upgrade kafka strimzi/strimzi-kafka-operator --install --namespace kafka --
 
 Wait for all pods to have started:
 ```shell
-k get pods -n fission --watch
-k get pods -n keda --watch
-k get pods -n kafka --watch
+kubectl get pods -n fission --watch
+kubectl get pods -n keda --watch
+kubectl get pods -n kafka --watch
 ```
 
 Wait for the external IP address to be assigned (wait until the router is no longer "pending" -it may take several minutes):
 ```shell
-k get svc -n fission --watch
+kubectl get svc -n fission --watch
 ```
 
 
 ### Creation of a Kafka cluster and topics
 
 ```shell
-k apply -f  "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/${STRIMZI_VERSION}/examples/kafka/kafka-persistent-single.yaml"\
+kubectl apply -f  "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/${STRIMZI_VERSION}/examples/kafka/kafka-persistent-single.yaml"\
   -n kafka
 ```
 
 Wait for all pods to have started:
 ```shell
-k get pods -n kafka --watch
+kubectl get pods -n kafka --watch
 ```
 
 The Kafka cluster `my-cluster` is now ready to be used; it has a single broker and a single Zookeeper node.
 ```shell
-k get kafka -n kafka
+kubectl get kafka -n kafka
 ```
 
 
@@ -74,13 +73,13 @@ helm upgrade kafka-ui kafka-ui/kafka-ui --install --namespace default -f kafka-u
 
 Wait for the pod to start:
 ```shell
-k get pods --watch
+kubectl get pods --watch
 ```
 
 Forward the pod port to the localhost (in a different shell):
 ```shell
-export POD_NAME=$(k get pods --namespace default -l "app.kubernetes.io/name=kafka-ui,app.kubernetes.io/instance=kafka-ui" -o jsonpath="{.items[0].metadata.name}")
-k --namespace default port-forward $POD_NAME 8080:8080
+export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=kafka-ui,app.kubernetes.io/instance=kafka-ui" -o jsonpath="{.items[0].metadata.name}")
+kubectl --namespace default port-forward $POD_NAME 8080:8080
 ````
 Point your browser to `http://localhost:8080`
 
@@ -114,13 +113,13 @@ alias f=$(which fission)
 Create the Python environment on the cluster with the Python builder (it allows to extend the base Python image),
 and the Node.js environment and builder:
 ```shell
-f env create --name python --image fission/python-env --builder fission/python-builder
-f env create --name nodejs --image fission/node-env --builder fission/node-builder
+fission env create --name python --image fission/python-env --builder fission/python-builder
+fission env create --name nodejs --image fission/node-env --builder fission/node-builder
 ```
 
 Find the Kubernetes ElasticSearch service:
 ```shell
-k get svc -n elastic
+kubectl get svc -n elastic
 ```
 
 The name of the service is `elasticsearch-master` and the port is `9200`; to this we have to add the
@@ -131,46 +130,46 @@ The `health.py` source code checks the state of the ElasticSearch cluster and re
 
 Test the function:
 ```shell
-f function create --name health --env python --code ./functions/health.py
-f function test --name health | jq '.' 
+fission function create --name health --env python --code ./functions/health.py
+fission function test --name health | jq '.' 
 ```
 
 Create an ingress so that the function can be accessed from outside the cluster:
 ```shell
-f route create --url /health --function health --name health --createingress
+fission route create --url /health --function health --name health --createingress
 ```
 
 Start a port forward from the Fission router in different shell:
 ```shell
-k port-forward service/router -n fission 9090:80
+kubectl port-forward service/router -n fission 9090:80
 ```
 
 Invoke the function from port `9090` of your laptop:
 ```shell
 curl "http://127.0.0.1:9090/health" | jq '.'
 ````
-(You can have a look at the function log with `f function log --name health`.)
+(You can have a look at the function log with `fission function log --name health`.)
 
 
 ## Create a Fission Function that harvests Data from the Bureau of Meteorology 
 
 ```shell
-f function create --name wharvester --env python --code ./functions/wharvester.py
-f function test --name wharvester  
+fission function create --name wharvester --env python --code ./functions/wharvester.py
+fission function test --name wharvester  
 ```
 
 
 ## Call the function at interval using a timer trigger
 
 ```shell
-f timer create --name everyminute --function wharvester --cron "@every 1m"
-f function log -f --name wharvester
+fission timer create --name everyminute --function wharvester --cron "@every 1m"
+fission function log -f --name wharvester
 ```
 (Every minute a new log line should appear.)
 
 Delete the timer:
 ```shell
-f timer delete --name everyminute
+fission timer delete --name everyminute
 ```
 
 
@@ -180,7 +179,7 @@ f timer delete --name everyminute
 
 Start a port forward from ElasticSearch in different shell:
 ```shell
-k port-forward service/elasticsearch-master -n elastic 9200:9200
+kubectl port-forward service/elasticsearch-master -n elastic 9200:9200
 ```
 
 Create the index:
@@ -247,7 +246,7 @@ zip -jr addobservations.zip functions/addobservations/
 
 Creation of a function with dependencies (this function depends on the ElasticSearch client package to add data to ElasticSearch):
 ```shell
-f package create --sourcearchive addobservations.zip\
+fission package create --sourcearchive addobservations.zip\
   --env python\
   --name addobservations\
   --buildcmd './build.sh'
@@ -255,16 +254,18 @@ f package create --sourcearchive addobservations.zip\
 
 Check that the package has been created:
 ```shell
-f package list | grep addobservations 
+fission package list | grep addobservations 
 ```
 
 Function creation:
 ```shell
-f fn create --name addobservations\
+fission fn create --name addobservations\
   --pkg addobservations\
   --env python\
   --entrypoint "addobservations.main" # Function name and entrypoint
 ```
+
+(Use `function update` to update a function or a package.)
 
 
 ## Function composition using message queues
@@ -289,15 +290,15 @@ We would reuse the `wharvester` and `addobservation` functions we introduced ear
 * an `enqueue` function to add data to a queue (Kafka topic).
 
 ```shell
-f function create --name aharvester --env python --code ./functions/aharvester.py
-f function create --name wprocessor --env nodejs --code ./functions/wprocessor.js
-f function create --name aprocessor --env nodejs --code ./functions/aprocessor.js
+fission function create --name aharvester --env python --code ./functions/aharvester.py
+fission function create --name wprocessor --env nodejs --code ./functions/wprocessor.js
+fission function create --name aprocessor --env nodejs --code ./functions/aprocessor.js
 zip -jr enqueue.zip functions/enqueue/
-f package create --sourcearchive enqueue.zip\
+fission package create --sourcearchive enqueue.zip\
   --env python\
   --name enqueue\
   --buildcmd './build.sh'
-f fn create --name enqueue\
+fission fn create --name enqueue\
   --pkg enqueue\
   --env python\
   --entrypoint "enqueue.main"
@@ -314,15 +315,15 @@ and for this application we need to create the following topics:
 * an `errors` topic that contains possible queueing errors.
 
 ```shell
-k apply -f ./topics/weather.yaml --namespace kafka
-k apply -f ./topics/airquality.yaml --namespace kafka
-k apply -f ./topics/observations.yaml --namespace kafka
-k apply -f ./topics/errors.yaml --namespace kafka
+kubectl apply -f ./topics/weather.yaml --namespace kafka
+kubectl apply -f ./topics/airquality.yaml --namespace kafka
+kubectl apply -f ./topics/observations.yaml --namespace kafka
+kubectl apply -f ./topics/errors.yaml --namespace kafka
 ```
 
 To list all the Kafka topic just created:
 ```shell
-k get kafkatopic -n kafka
+kubectl get kafkatopic -n kafka
 ````
 
 
@@ -337,12 +338,12 @@ To bind all these functions and queues together, we have now to create triggers:
 * an `add-observations` queue trigger to add observations to ElasticSearch. 
 
 ```shell
-f timer create --name weather-ingest --function wharvester --cron "@every 1m"
-f timer create --name airquality-ingest --function aharvester --cron "@every 1m"
+fission timer create --name weather-ingest --function wharvester --cron "@every 1m"
+fission timer create --name airquality-ingest --function aharvester --cron "@every 1m"
 
-f httptrigger create --name enqueue --url "/enqueue/{topic}" --method POST --function enqueue
+fission httptrigger create --name enqueue --url "/enqueue/{topic}" --method POST --function enqueue
 
-f mqtrigger create --name weather-processing\
+fission mqtrigger create --name weather-processing\
    --function wprocessor\
    --mqtype kafka\
    --mqtkind keda\
@@ -355,7 +356,7 @@ f mqtrigger create --name weather-processing\
    --cooldownperiod=30\
    --pollinginterval=5
 
-f mqtrigger create --name airquality-processing\
+fission mqtrigger create --name airquality-processing\
    --function aprocessor\
    --mqtype kafka\
    --mqtkind keda\
@@ -368,7 +369,7 @@ f mqtrigger create --name airquality-processing\
    --cooldownperiod=30\
    --pollinginterval=5
    
-f mqtrigger create --name add-observations\
+fission mqtrigger create --name add-observations\
    --function addobservations\
    --mqtype kafka\
    --mqtkind keda\
@@ -385,6 +386,9 @@ From the logs you should now be able to see the data flowing from the harvesters
 (you can also have a look at the queues with the Kafka-UI).
 
 After a while enough data would be harvested to be able to query ElasticSearch.
+
+NOTE: depending on how we define the document ID in the `addpbservations` function, the same document may be added multiple times
+(if we were to omit the document Id a new one will be generated automatically by ElstiCSearch).
 
 
 ### Create a data view from Kibana
@@ -422,36 +426,36 @@ curl -XGET -G "https://naqd.eresearch.unimelb.edu.au/geoserver/wfs"\
 ## Un-installation of the software stack
 
 ```shell
-for e in $(k get function -o=name) ; do
-    k delete ${e} 
+for e in $(kubectl get function -o=name) ; do
+    kubectl delete ${e} 
 done
 
-for e in $(k get package -o=name) ; do
-    k delete ${e} 
+for e in $(kubectl get package -o=name) ; do
+    kubectl delete ${e} 
 done
 
-for e in $(k get environment -o=name) ; do
-    k delete ${e} 
+for e in $(kubectl get environment -o=name) ; do
+    kubectl delete ${e} 
 done
 
-for crd in $(k get crd --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep fission) ; do
-    k delete crd ${crd} 
+for crd in $(kubectl get crd --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep fission) ; do
+    kubectl delete crd ${crd} 
 done
 
 helm uninstall fission --namespace fission
 
-for p in $(k get pods -o=name) ; do
-    k delete ${p} 
+for p in $(kubectl get pods -o=name) ; do
+    kubectl delete ${p} 
 done
 
-for p in $(k get kafkatopic -n kafka -o=name) ; do
-    k delete ${p} -n kafka
+for p in $(kubectl get kafkatopic -n kafka -o=name) ; do
+    kubectl delete ${p} -n kafka
 done
 
-k delete -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
+kubectl delete -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
 helm uninstall keda --namespace keda
 helm uninstall kafka-ui
-k delete kafka my-cluster --namespace kafka
+kubectl delete kafka my-cluster --namespace kafka
 helm uninstall kafka --namespace kafka
 ```
 
