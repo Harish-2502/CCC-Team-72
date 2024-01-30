@@ -1,7 +1,5 @@
-from flask import request
-from flask import current_app
-import requests
-import logging
+from flask import request, current_app
+import requests, logging
 
 def main():
     current_app.logger.info(f'Received request: ${request.headers}')

@@ -1,5 +1,6 @@
 # Fission FaaS
 
+
 ## Pre-requirements
 
 * A cluster on NeCTAR (see the "elastic" directory)
@@ -7,27 +8,19 @@
 * RC file (with password inserted) read (see above)
 * "KUBECONFIG" environment variable set (see above)
 
-NOTE: the code used here is for illustrative purposes only. It has no error handling, no testing and is not production ready.
+NOTE: the code used here is for didactic purposes only. It has no error handling, no testing,
+and is not production-ready.
 
 
-## Software stack
-
-## Installation of the software stack
+## Installation of Fission FaaS
 
 ```shell
 export FISSION_VERSION='1.20.0'
-export KEDA_VERSION='2.9'
-export STRIMZI_VERSION='0.38.0'
 kubectl create -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
 helm repo add fission-charts https://fission.github.io/fission-charts/
-helm repo add kedacore https://kedacore.github.io/charts
-helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
-helm repo add Strimzi https://strimzi.io/charts/
 helm repo update
 helm upgrade fission fission-charts/fission-all --install --version v${FISSION_VERSION} --namespace fission\
   --create-namespace --set routerServiceType='ClusterIP' 
-helm upgrade keda kedacore/keda --install --namespace keda --create-namespace --version ${KEDA_VERSION}
-helm upgrade kafka strimzi/strimzi-kafka-operator --install --namespace kafka --create-namespace --version ${STRIMZI_VERSION} 
 ```
 
 [Detailed instructions](https://fission.io/docs/installation/)
@@ -35,8 +28,6 @@ helm upgrade kafka strimzi/strimzi-kafka-operator --install --namespace kafka --
 Wait for all pods to have started:
 ```shell
 kubectl get pods -n fission --watch
-kubectl get pods -n keda --watch
-kubectl get pods -n kafka --watch
 ```
 
 Wait for the external IP address to be assigned (wait until the router is no longer "pending" -it may take several minutes):
@@ -45,46 +36,7 @@ kubectl get svc -n fission --watch
 ```
 
 
-### Creation of a Kafka cluster and topics
-
-```shell
-kubectl apply -f  "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/${STRIMZI_VERSION}/examples/kafka/kafka-persistent-single.yaml"\
-  -n kafka
-```
-
-Wait for all pods to have started:
-```shell
-kubectl get pods -n kafka --watch
-```
-
-The Kafka cluster `my-cluster` is now ready to be used; it has a single broker and a single Zookeeper node.
-```shell
-kubectl get kafka -n kafka
-```
-
-
-### Kafka web-admin installation
-
-```shell
-helm repo add kafka-ui https://provectus.github.io/kafka-ui-charts
-helm repo update
-helm upgrade kafka-ui kafka-ui/kafka-ui --install --namespace default -f kafka-ui-config.yaml
-```
-
-Wait for the pod to start:
-```shell
-kubectl get pods --watch
-```
-
-Forward the pod port to the localhost (in a different shell):
-```shell
-export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=kafka-ui,app.kubernetes.io/instance=kafka-ui" -o jsonpath="{.items[0].metadata.name}")
-kubectl --namespace default port-forward $POD_NAME 8080:8080
-````
-Point your browser to `http://localhost:8080`
-
-
-## Install Fission FaaS Client on your Laptop
+## Fission FaaS Client installation
 
 Mac:
 ```shell
@@ -103,14 +55,12 @@ For Windows, you can use the linux binary on WSL, or you can download this windo
 https://github.com/fission/fission/releases/download/v${FISSION_VERSION}/fission-v${FISSION_VERSION}-windows-amd64.exe
 
 
-## Create a Fission Function and Expose it as a Service
+## Basic Fission 
 
-* Add an alias to simplify typing
-```shell
-alias f=$(which fission)
-```
 
-Create the Python environment on the cluster with the Python builder (it allows to extend the base Python image),
+### Create a Fission Function and Expose it as a Service
+
+First, let's create the Python environment on the cluster with the Python builder (it allows to extend the base Python image),
 and the Node.js environment and builder:
 ```shell
 fission env create --name python --image fission/python-env --builder fission/python-builder
@@ -151,7 +101,7 @@ curl "http://127.0.0.1:9090/health" | jq '.'
 (You can have a look at the function log with `fission function log --name health`.)
 
 
-## Create a Fission Function that harvests Data from the Bureau of Meteorology 
+### Create a Fission Function that harvests Data from the Bureau of Meteorology 
 
 ```shell
 fission function create --name wharvester --env python --code ./functions/wharvester.py
@@ -159,7 +109,7 @@ fission function test --name wharvester
 ```
 
 
-## Call the function at interval using a timer trigger
+### Call the function at interval using a timer trigger
 
 ```shell
 fission timer create --name everyminute --function wharvester --cron "@every 1m"
@@ -173,9 +123,13 @@ fission timer delete --name everyminute
 ```
 
 
-## Create a function that uses additional Python libraries
+## Fission with advanced functions
 
-### Build an index to hold weather observations
+
+### Create a function that uses additional Python libraries
+
+
+#### Build an index to hold weather observations
 
 Start a port forward from ElasticSearch in different shell:
 ```shell
@@ -232,7 +186,7 @@ curl -XPUT -k 'https://0.0.0.0:9200/observations'\
 ```
 
 
-### Create a function that stores data in ElasticSearch
+#### Create a function that stores data in ElasticSearch
 
 The function used so far are very simple and do not require any additional Python libraries: let's
 see how we can pack libraries together with a function source code.
@@ -252,9 +206,11 @@ fission package create --sourcearchive addobservations.zip\
   --buildcmd './build.sh'
 ```
 
+(Use `package update` to update a package that already exists.)
+
 Check that the package has been created:
 ```shell
-fission package list | grep addobservations 
+fission package list 
 ```
 
 Function creation:
@@ -265,10 +221,185 @@ fission fn create --name addobservations\
   --entrypoint "addobservations.main" # Function name and entrypoint
 ```
 
-(Use `function update` to update a function or a package.)
+(Use `function update` to update a function that already exists.)
+
+The addition of observations can be tested by looking at the Kibana WebAdmin.
 
 
-## Function composition using message queues
+## Use of YAML specifications to deploy functions
+
+
+### Re-creation of functions with YAML specifications
+
+Let's start by deleting functions, packages, triggers, and even the environments we have created so far:
+```shell
+fission httptrigger delete --name health
+fission function delete --name addobservations
+fission function delete --name health
+fission package delete --name addobservations
+fission environment delete --name python
+fission environment delete --name nodejs
+```
+
+Creation of a directory to hold our specifications (by default it is named `specs`):
+```shell
+fission specs init
+```
+
+From now on our actions will add YAML files under the `specs` directory (not the `spec` argument), 
+and the YAML files will then be applied to the cluster with the `kubectl apply` command.
+
+Let's start by creating the specs for the Python and Node.js environments:
+```shell
+fission env create --spec --name python --image fission/python-env --builder fission/python-builder
+fission env create --spec --name nodejs --image fission/node-env --builder fission/node-builder
+```
+
+Let's create the specification file for a function:
+```shell
+fission function create --spec --name health --env python --code ./functions/health.py
+```
+A file named `function-health.yaml` will be created under the `specs` directory, but so far no actions
+has been taken on the cluster.
+
+Let's create the spec for a route to this function:
+```shell
+fission route create --spec --url /health --function health --name health --createingress
+```
+
+Let's check everything is fine with our specs:
+```shell
+fission spec validate
+```
+
+Provided no errors are reported, we can now apply the specs to the cluster:
+```shell
+fission spec apply --wait
+```
+
+`health` function and related route test:
+```shell
+curl "http://127.0.0.1:9090/health" | jq '.'
+```
+
+
+### Passing of parameters to functions with environments
+
+Parameters (such as username and passwords) can be passed to functions through the environment
+rather than be hard-coded in the source code (which has to be avoided, especially for sensitive information).
+
+In Fission, environment variables can be set per-environment, but not per-function. 
+Therefore we need to modify the spec of the
+environment that hosts the function we want to pass environment variables to.
+
+For instance, if we want to pass the ElasticSearch username and password to the `health` function, we
+have to modify the `python` environment spec (file `env-python.yaml`):
+```yaml
+  runtime:
+    podspec:
+      containers:
+        - name: python
+          env:
+            - name: ES_USERNAME
+              value: elastic
+            - name: ES_PASSWORD
+              value: elastic
+    image: fission/python-env
+```
+(Every environment has a number of containers that make up the runtime pod, hence we have to specify which
+container we want to add the environment variables to.)
+
+To use these values we have to modify the `health.py` file to read the environment variables:
+```python
+import requests, logging, os
+...
+        auth=(os.environ['ES_USERNAME'], os.environ['ES_PASSWORD']))
+```
+
+To apply the changes we have to run the following command:
+```shell
+fission spec apply --wait
+```
+
+We can now test the function (after waiting for all the pods to have been updated) to see if the environment variables
+have been passed correctly:
+```shell
+fission fn log -f --name health
+```
+  
+And (in another shell):
+```shell
+curl "http://127.0.0.1:9090/health"  | jq '.'
+```
+
+
+### Creation of a RestFUL API with YAML specifications
+
+TODO
+
+
+## Development of an Event-driven architecture with Fission
+
+
+### Installation of Kafka and Keda
+
+```shell
+export KEDA_VERSION='2.9'
+export STRIMZI_VERSION='0.38.0'
+helm repo add kedacore https://kedacore.github.io/charts
+helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
+helm repo add Strimzi https://strimzi.io/charts/
+helm repo update
+helm upgrade keda kedacore/keda --install --namespace keda --create-namespace --version ${KEDA_VERSION}
+helm upgrade kafka strimzi/strimzi-kafka-operator --install --namespace kafka --create-namespace --version ${STRIMZI_VERSION} 
+```
+
+Wait for all pods to have started:
+```shell
+kubectl get pods -n keda --watch
+kubectl get pods -n kafka --watch
+```
+
+### Creation of a Kafka cluster and topics
+
+```shell
+kubectl apply -f  "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/${STRIMZI_VERSION}/examples/kafka/kafka-persistent-single.yaml"\
+  -n kafka
+```
+
+Wait for all pods to have started:
+```shell
+kubectl get pods -n kafka --watch
+```
+
+The Kafka cluster `my-cluster` is now ready to be used; it has a single broker and a single Zookeeper node.
+```shell
+kubectl get kafka -n kafka
+```
+
+
+### Kafka web-admin installation
+
+```shell
+helm repo add kafka-ui https://provectus.github.io/kafka-ui-charts
+helm repo update
+helm upgrade kafka-ui kafka-ui/kafka-ui --install --namespace default -f kafka-ui-config.yaml
+```
+
+Wait for the pod to start:
+```shell
+kubectl get pods --watch
+```
+
+Forward the pod port to the localhost (in a different shell):
+```shell
+export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=kafka-ui,app.kubernetes.io/instance=kafka-ui" -o jsonpath="{.items[0].metadata.name}")
+kubectl --namespace default port-forward $POD_NAME 8080:8080
+````
+Point your browser to `http://localhost:8080`
+
+
+### Development of an event-driven application
 
 Functions can be composed for added flexibility and reuse (message queues are used to bind them together). 
 
@@ -281,7 +412,7 @@ Since AIRQ and BoM data have different structures, we need to have an intermedia
 into a standardized structure that can be added to ElasticSearch.
 
 
-### Functions
+#### Functions
 
 We would reuse the `wharvester` and `addobservation` functions we introduced earlier, but have also to add:
 * an `aharvester` function to get data from the Air Quality project;
@@ -305,7 +436,7 @@ fission fn create --name enqueue\
 ```
 
 
-### Message queues
+#### Message queues
 
 These functions communicate amongst them by storing and reading messages in queues. In Kafka queues are called "topics",
 and for this application we need to create the following topics: 
@@ -327,7 +458,7 @@ kubectl get kafkatopic -n kafka
 ````
 
 
-### Triggers
+#### Triggers
 
 To bind all these functions and queues together, we have now to create triggers:
 * a `weather-ingest` timer trigger to capture BoM data;
@@ -391,7 +522,7 @@ NOTE: depending on how we define the document ID in the `addpbservations` functi
 (if we were to omit the document Id a new one will be generated automatically by ElstiCSearch).
 
 
-### Create a data view from Kibana
+#### Create a data view from Kibana
 
 Go to Kibana, create a data view named "observations" with pattern "observation*" and timestamp field "timestamp", and check that the documents have been
 added to the index by going to "Analysis / Discover".
@@ -422,6 +553,7 @@ curl -XGET -G "https://naqd.eresearch.unimelb.edu.au/geoserver/wfs"\
   --data-urlencode cql_filter="site_name='Mildura' and time_stamp>=2023-07-11T00:00:00Z and time_stamp<2023-07-12T00:00:00Z"\
   | jq '.'
 ```
+
 
 ## Un-installation of the software stack
 
