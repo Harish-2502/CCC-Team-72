@@ -288,32 +288,48 @@ curl "http://127.0.0.1:9090/health" | jq '.'
 Parameters (such as username and passwords) can be passed to functions through the environment
 rather than be hard-coded in the source code (which has to be avoided, especially for sensitive information).
 
-In Fission, environment variables can be set per-environment, but not per-function. 
-Therefore we need to modify the spec of the
-environment that hosts the function we want to pass environment variables to.
+A common to share parameters in Kubernetes is through `config maps`, which are key-value pairs that can be
+accessed by all pods within a namespace.
+Fission functions can read configmaps as files, so we can create a configmap with the ElasticSearch username and password.
 
-For instance, if we want to pass the ElasticSearch username and password to the `health` function, we
-have to modify the `python` environment spec (file `env-python.yaml`):
+Let's start by creating a configmap as `shared-data.yaml` file under `specs`:
 ```yaml
-  runtime:
-    podspec:
-      containers:
-        - name: python
-          env:
-            - name: ES_USERNAME
-              value: elastic
-            - name: ES_PASSWORD
-              value: elastic
-    image: fission/python-env
-```
-(Every environment has a number of containers that make up the runtime pod, hence we have to specify which
-container we want to add the environment variables to.)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: default
+  name: shared-data
+data:
+  ES_USERNAME: elastic
+  ES_PASSWORD: elastic
+```  
 
-To use these values we have to modify the `health.py` file to read the environment variables:
+Since config maps are not directly managed by Fission, we have to apply it to the cluster with `kubectl`:
+```shell
+kubectl apply -f specs/shared-data.yaml
+```
+
+To use these values we have to modify the `health.py` file to read the config map:
 ```python
-import requests, logging, os
-...
-        auth=(os.environ['ES_USERNAME'], os.environ['ES_PASSWORD']))
+from flask import request, current_app
+import requests, logging
+
+def config(k):
+    with open(f'/configs/default/shared-data/{k}', 'r') as f:
+        return f.read()
+
+def main():
+    current_app.logger.info(f'Received request: ${request.headers}')
+    r = requests.get('https://elasticsearch-master.elastic.svc.cluster.local:9200/_cluster/health',
+        verify=False,
+        auth=(config('ES_USERNAME'), config('ES_PASSWORD')))
+```
+
+In addition, we have to change the function definition (file `function-health.py`) so that the config map is mounted as volume `//configs/default/shared-data`:
+```yaml
+  configmaps:
+    - namesapce: default
+      name: shared-data
 ```
 
 To apply the changes we have to run the following command:
@@ -331,6 +347,8 @@ And (in another shell):
 ```shell
 curl "http://127.0.0.1:9090/health"  | jq '.'
 ```
+
+Fission can read secrets as well, which are better suited to hold sensitive information (such as passwords).
 
 
 ### Creation of a RestFUL API with YAML specifications
