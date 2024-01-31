@@ -25,14 +25,9 @@ helm upgrade fission fission-charts/fission-all --install --version v${FISSION_V
 
 [Detailed instructions](https://fission.io/docs/installation/)
 
-Wait for all pods to have started:
+Wait for all pods to start:
 ```shell
 kubectl get pods -n fission --watch
-```
-
-Wait for the external IP address to be assigned (wait until the router is no longer "pending" -it may take several minutes):
-```shell
-kubectl get svc -n fission --watch
 ```
 
 
@@ -283,7 +278,7 @@ curl "http://127.0.0.1:9090/health" | jq '.'
 ```
 
 
-### Passing of parameters to functions with environments
+### Passing of parameters to functions with config maps
 
 Parameters (such as username and passwords) can be passed to functions through the environment
 rather than be hard-coded in the source code (which has to be avoided, especially for sensitive information).
@@ -353,11 +348,65 @@ Fission can read secrets as well, which are better suited to hold sensitive info
 
 ### Creation of a RestFUL API with YAML specifications
 
-TODO
+Fission HTTPTrigger can be used to create a RESTful API that allows a further decoupling between the function and the
+way it is invoked.
+
+For insrance, let's suppose we want to query ElasticSearch for the average temperature on a given day for one station or
+for all stations.
+A ReSTful API may look like:
+```
+/temperature/{date}
+/temperature/{date}/{station}
+```
+
+
+#### Route creation
+
+We start by using the fission commands to create the YAML files defining the routes/HTTPTriggers:
+```shell
+fission route create --spec --name avgtempday --function avgtemp\
+  --method GET\
+  --url '/temperature/days/{date:[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]}'
+fission route create --spec --name avgtempdaystation --function avgtemp\
+  --method GET\
+  --url '/temperature/days/{date:[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]}/stations/{station:[a-zA-Z0-9]+}'
+```
+
+#### Function creation
+
+Let's create the function and related package specs:
+```shell
+fission package create --spec --name avgtemp\
+  --source ./functions/avgtemp/*.py\
+  --source ./functions/avgtemp/*.txt\
+  --source ./functions/avgtemp/*.sh\
+  --env python\
+  --buildcmd './build.sh'
+fission fn create --spec --name avgtemp\
+  --pkg avgtemp\
+  --env python\
+  --entrypoint "avgtemp.main" 
+```
+(From the function point of view the path parameters `date` and `station` are headers prefixed by `X-Fission-Params`.)
+
+Let's apply the specs to the cluster:
+```shell
+fission spec apply --wait
+```
+
+#### ReSTful API test
+
+```shell
+curl "http://localhost:9090/temperature/days/2024-01-25" | jq '.'
+curl "http://localhost:9090/temperature/days/2024-01-25/stations/95936" | jq '.'
+```
+
+(The port forwarding from the Fission router must be running.)
 
 
 ## Development of an Event-driven architecture with Fission
 
+TODO
 
 ### Installation of Kafka and Keda
 
