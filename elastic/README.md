@@ -303,8 +303,6 @@ kubectl port-forward service/elasticsearch-master -n elastic 9200:9200
 
 ```shell
 kubectl port-forward service/elasticsearch-master -n elastic 9200:9200
-Forwarding from 127.0.0.1:9200 -> 9200
-Forwarding from [::1]:9200 -> 9200
 ```
 
 To access the Kibana user interface, one has to use the `port-forward` command of `kubectl` (another terminal window):
@@ -314,13 +312,6 @@ kubectl port-forward service/kibana-kibana -n elastic 5601:5601
 ```
 
 > Note: This command will start the port forwarding so please keep this terminal open and do not close it.
-
-```shell
-kubectl port-forward service/kibana-kibana -n elastic 5601:5601
-Forwarding from 127.0.0.1:5601 -> 5601
-Forwarding from [::1]:5601 -> 5601
-```
-
 > Note: The port forwarding can be stopped by pressing `Ctrl + C` and closing the terminal window. The port forwarding is only active when the terminal window is open. Once it is stopped, you need to re-run the command to start the port forwarding again.
 
 Test the ElasticSearch API:
