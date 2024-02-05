@@ -236,7 +236,10 @@ helm upgrade --install \
   elasticsearch elastic/elasticsearch
 ```
 
-(By default every ElasticSearch node has 30GB of storage.)
+NOTES:
+* By default each ElasticSearch node has 30GB of storage;
+* The number of nodes is set by the `replicas` parameter. not to be confused with the "shard replicas" (copies of a shard);
+* The number of replicas (nodes) that can be used in the cluster is limited by the number of nodes in the cluster and by the Kibana deployment that needs a node for itself.
 
 Check all ElasticSearch pods are running before proceeding:
 
@@ -332,7 +335,7 @@ curl -XPUT -k 'https://127.0.0.1:9200/students'\
     "settings": {
         "index": {
             "number_of_shards": 3,
-            "number_of_replicas": 2
+            "number_of_replicas": 1
         }
     },
     "mappings": {
@@ -426,7 +429,7 @@ curl -XPUT -k 'https://127.0.0.1:9200/students' \
     "settings": {
         "index": {
             "number_of_shards": 3,
-            "number_of_replicas": 2
+            "number_of_replicas": 1
         }
     },
     "mappings": {
