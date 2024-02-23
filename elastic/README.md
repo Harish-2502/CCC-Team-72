@@ -534,8 +534,70 @@ curl -XGET -k "https://127.0.0.1:9200/students/_search"\
 
 ## Use of ElasticSearch as a vector DBMS
 
-TODO.
 
+### Data setup
+
+Create an ElasticSearch Index to hold temperatures
+
+```shell
+curl -XPUT -k 'https://127.0.0.1:9200/temperatures'\
+   --header 'Content-Type: application/json'\
+   --data '{
+    "settings": {
+        "index": {
+            "number_of_shards": 3,
+            "number_of_replicas": 1
+        }
+    },
+    "mappings": {
+        "properties": {
+            "date": {
+                "type": "keyword"
+            },
+            "temperature": {
+                "type": "dense_vector",
+                "dims": 24,
+                "index": true,
+                "similarity": "cosine",
+                "index_options": {
+                    "type": "hnsw",
+                    "m": 16,
+                    "ef_construction": 100
+                }
+            }
+        }
+    }
+}'\
+   --user 'elastic:elastic' | jq '.'
+```
+
+Load temperatures data
+
+```shell
+node loadTemperature.js
+```
+
+
+### Vector search
+
+Search for the most similar temperature vector to a vector of typical Vancouver temperatures in the month of January (expressed in Kelvin). 
+
+```shell
+curl -XGET -k "https://127.0.0.1:9200/temperatures/_search"\
+  --header 'Content-Type: application/json'\
+  --data '{
+  "knn": {
+    "field": "temperature",
+    "query_vector": [274.62,275.18,275.9,276.74,277.65,278.56,279.4,280.12,280.68,281.03,281.15,281.03,280.68,280.12,279.4,278.56,277.65,276.74,275.9,275.18,274.62,274.27,274.15,274.27],
+    "k": 10,
+    "num_candidates": 100
+  },
+  "fields": [ "date" ]
+}'\
+  --user 'elastic:elastic' | jq '.'
+```
+
+  
 ## Removal
 
 ### ElasticSearch Cluster Removal

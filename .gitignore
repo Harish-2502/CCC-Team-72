@@ -89,3 +89,4 @@ __pycache__
 .tool-versions
 /fission/specs/
 /elastic/tunnel.sh
+/elastic/temperature.js
