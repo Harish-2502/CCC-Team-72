@@ -8,5 +8,3 @@ def main():
         auth=('elastic', 'elastic'))
     current_app.logger.info(f'Status ES request: {r.status_code}')
     return r.json()
-
-

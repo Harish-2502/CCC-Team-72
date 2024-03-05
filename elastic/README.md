@@ -8,7 +8,7 @@
 - Kubectl 1.26.x ([Installation instructions](https://kubernetes.io/docs/tasks/tools/)).
 - Helm 3.6.x ([Installation instructions](https://helm.sh/docs/intro/install/)).
 - MRC project with enough resources to create a Kubernetes cluster.
-- Have the University of Melbourne VPN client installed and connected to the VPN.
+- Connect to [Campus network](https://studentit.unimelb.edu.au/wifi-vpn#uniwireless) if on-campus or [UniMelb Student VPN](https://studentit.unimelb.edu.au/wifi-vpn#vpn) if off-campus
 
 ## Client Configuration
 
@@ -37,7 +37,7 @@ source ./<your project name>-openrc.sh
 
 - Run the following command to create a cluster template named `kubernetes-melbourne-qh2-uom-nofloat-v1.26.8`
 
-> Note: Replace the `mykeypair` and `uom.mse.2c9g` with the key pairyou created in the previous step, and the flavor you want to use for the master and worker nodes respectively.
+> Note: Replace the `mykeypair` and `uom.mse.2c9g` with the key pair you created in the previous step, and the flavor you want to use for the master and worker nodes respectively.
 
 ```shell
 openstack coe cluster template create \
@@ -171,6 +171,7 @@ awk '
 
 ```shell
 mv config ~/.kube/config
+chmod 600 ~/.kube/config
 ```
 
 - Check the cluster nodes:
@@ -237,9 +238,10 @@ helm upgrade --install \
 ```
 
 NOTES:
-* By default each ElasticSearch node has 30GB of storage;
-* The number of nodes is set by the `replicas` parameter. not to be confused with the "shard replicas" (copies of a shard);
-* The number of replicas (nodes) that can be used in the cluster is limited by the number of nodes in the cluster and by the Kibana deployment that needs a node for itself.
+
+- By default each ElasticSearch node has 30GB of storage;
+- The number of nodes is set by the `replicas` parameter. not to be confused with the "shard replicas" (copies of a shard);
+- The number of replicas (nodes) that can be used in the cluster is limited by the number of nodes in the cluster and by the Kibana deployment that needs a node for itself.
 
 Check all ElasticSearch pods are running before proceeding:
 

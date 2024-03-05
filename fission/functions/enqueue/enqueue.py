@@ -19,4 +19,3 @@ def main():
         )
     )
     return 'OK'
-
