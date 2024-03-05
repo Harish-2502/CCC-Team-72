@@ -10,4 +10,3 @@ def main():
         data=json.dumps(requests.get('http://reg.bom.gov.au/fwo/IDV60901/IDV60901.95936.json').json())
     )
     return 'OK'
-
