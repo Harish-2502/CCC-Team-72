@@ -25,4 +25,3 @@ def main():
         data=json.dumps(requests.get("https://naqd.eresearch.unimelb.edu.au/geoserver/wfs", params=params).json())
     )
     return 'OK'
-
