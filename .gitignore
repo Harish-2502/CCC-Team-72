@@ -319,3 +319,6 @@ cython_debug/
 /fission/mharvester.zip
 /elastic/temperature.js
 /fission/functions/mharvester/mastodon/
+/fission/functions/mharvester.zip
+/fission/functions/enqueue.zip
+/fission/functions/addobservations.zip
