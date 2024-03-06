@@ -316,4 +316,6 @@ cython_debug/
 /fission/functions/wharvester.zip
 /fission/redisbug/
 /fission/specs/
-/fission/wharvester.zip
+/fission/mharvester.zip
+/elastic/temperature.js
+/fission/functions/mharvester/mastodon/

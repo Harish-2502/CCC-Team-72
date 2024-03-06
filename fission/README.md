@@ -190,7 +190,11 @@ In order to do so, a `requirements.txt` file must be created in the same directo
 a `build.sh` command must be created to install the libraries and finally the function must be packaged in a ZIP file.
 
 ```shell
-zip -jr addobservations.zip functions/addobservations/
+(
+  cd functions/addobservations
+  zip -r addobservations.zip .
+  mv addobservations.zip ../
+)   
 ```
 
 Creation of a function with dependencies (this function depends on the ElasticSearch client package to add data to ElasticSearch):
@@ -209,6 +213,8 @@ Check that the package has been created:
 ```shell
 fission package list
 ```
+
+Note: to check for errors during package creation, the `info` command can be used `fission package info --name <package name>`.
 
 Function creation:
 
@@ -521,9 +527,13 @@ fission function create --name aharvester --env python --code ./functions/aharve
 fission function create --name wprocessor --env nodejs --code ./functions/wprocessor.js
 fission function create --name aprocessor --env nodejs --code ./functions/aprocessor.js
 
-zip -jr enqueue.zip functions/enqueue/
+(
+  cd functions/enqueue
+  zip -r enqueue.zip .
+  mv enqueue.zip ../ 
+)
 
-fission package create --sourcearchive enqueue.zip \
+fission package create --sourcearchive functions/enqueue.zip \
   --env python \
   --name enqueue \
   --buildcmd './build.sh'
@@ -650,6 +660,52 @@ curl -XGET -G "https://naqd.eresearch.unimelb.edu.au/geoserver/wfs"\
   --data-urlencode cql_filter="site_name='Mildura' and time_stamp>=2023-07-11T00:00:00Z and time_stamp<2023-07-12T00:00:00Z"\
   | jq '.'
 ```
+
+
+### Mastodon harvester
+
+This is just a basic example of a Mastodon harvester. It is not meant to be used in production.
+
+The function takes the last status from the Mastodon server, wait for a few seconds, then harvests the
+statuses that have been posted in the meantime.
+
+A possible design for a Mastodon harvester could use a timer trigger to call the function at regular intervals and store the 
+statuses in ElasticSearch, with the `lastid` variable value taken from an ElasticSearch query looking for the latest status.
+
+Even better, the Mastodon harvester could use a WebSocket to communicate with Mastodon in streaming mode and have the function
+executed whenever there are new posts. 
+
+
+```python
+
+```shell
+
+Download the [Mastodon.py](https://mastodonpy.readthedocs.io/en/stable/) package as source code and put it in the `functions/mharvester` directory.
+
+Create the archive, the package, and the function:
+```shell
+(
+  cd functions/mharvester
+  zip -r mharvester.zip .
+  mv mharvester.zip ../ 
+)
+
+fission package create --sourcearchive functions/mharvester.zip \
+  --env python \
+  --name mharvester \
+  --buildcmd './build.sh'
+
+fission fn create --name mharvester \
+  --pkg mharvester \
+  --env python \
+  --entrypoint "mharvester.main"
+```
+
+Test the harvester:
+```shell
+fission fn test --name mharvester
+```
+
 
 ## Un-installation of the software stack
 
