@@ -301,11 +301,11 @@ cython_debug/
 /ado/mastodon/
 /ado/secrets.sh
 
-/elastic/*openrc.sh
-/elastic/config
-/elastic/secrets.sh
-/elastic/set.sh
-/elastic/tunnel.sh
+/installation/*openrc.sh
+/installation/config
+/installation/secrets.sh
+/installation/set.sh
+/installation/tunnel.sh
 
 /fission/adddoc.zip
 /fission/addobservations.zip
@@ -317,7 +317,7 @@ cython_debug/
 /fission/redisbug/
 /fission/specs/
 /fission/mharvester.zip
-/elastic/temperature.js
+/installation/temperature.js
 /fission/functions/mharvester/mastodon/
 /fission/functions/mharvester.zip
 /fission/functions/enqueue.zip
