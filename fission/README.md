@@ -1,50 +1,17 @@
-# Fission FaaS
+# Fission
 
 ## Pre-requirements
 
-- OpenStack RC file and API password obtained and sourced in current shell (see [here](../elastic/README.md#client-configuration))
-- A Kubernetes cluster created on NeCTAR (see [here](../elastic/README.md#elasticsearch))
+- OpenStack RC file and API password obtained and sourced in current shell (see [here](../installation/README.md#client-configuration))
+- A Kubernetes cluster created on NeCTAR (see [here](../installation/README.md#elasticsearch))
 - Connect to [Campus network](https://studentit.unimelb.edu.au/wifi-vpn#uniwireless) if on-campus or [UniMelb Student VPN](https://studentit.unimelb.edu.au/wifi-vpn#vpn) if off-campus
-- Kubernetes cluster is accessible (see [here](../elastic/README.md#accessing-the-kubernetes-cluster))
-- ElasticSearch installed (see [here](../elastic/README.md#elasticsearch))
+- Kubernetes cluster is accessible (see [here](../installation/README.md#accessing-the-kubernetes-cluster))
+- ElasticSearch is installed (see [here](../installation/README.md#elasticsearch))
+- Fission CLI is installed on the client (see [here](../installation/README.md#fission-client))
+- Fission is installed on the cluster (see [here](../installation/README.md#fission))
 
 > Note: the code used here is for didactic purposes only. It has no error handling, no testing, and is not production-ready.
 
-## Installation of Fission FaaS
-
-> Note: make sure the SSH tunnel has been established to the Kubernetes cluster (see [here](../elastic/README.md#accessing-the-kubernetes-cluster)).
-
-```shell
-export FISSION_VERSION='1.20.0'
-kubectl create -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
-
-helm repo add fission-charts https://fission.github.io/fission-charts/
-helm repo update
-helm upgrade fission fission-charts/fission-all --install --version v${FISSION_VERSION} --namespace fission \
-  --create-namespace --set routerServiceType='ClusterIP'
-```
-
-> Note: for detailed instructions see [here](https://fission.io/docs/installation/)
-
-After the installation, wait for all pods to have started. (This command will watch the pods' status. You can use `Ctrl + C` to stop watching once you see the pods are in `Running` state.)
-
-```shell
-kubectl get pods -n fission --watch
-```
-
-## Fission FaaS Client installation
-
-Mac & Linux:
-
-```shell
-OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-curl -Lo fission https://github.com/fission/fission/releases/download/v$FISSION_VERSION/fission-v$FISSION_VERSION-$OS-amd64 \
-   && chmod +x fission && sudo mv fission /usr/local/bin/
-```
-
-Windows:
-
-For Windows, you can use the linux binary on WSL, or you can download this windows executable: `https://github.com/fission/fission/releases/download/v$FISSION_VERSION/fission-v$FISSION_VERSION-windows-amd64.exe`
 
 ## Basic Fission
 
@@ -432,9 +399,11 @@ curl "http://localhost:9090/temperature/days/2024-01-25/stations/95936" | jq '.'
 
 (The port forwarding from the Fission router must be running.)
 
+
 ## Development of an Event-driven architecture with Fission
 
-TODO
+NOTE: This is not needed for Assignment 2, it is provided for didactic purposes only.
+
 
 ### Installation of Kafka and Keda
 
@@ -500,7 +469,8 @@ kubectl --namespace default port-forward $POD_NAME 8080:8080
 
 Point your browser to `http://localhost:8080`
 
-### Development of an event-driven application
+
+### Application development
 
 Functions can be composed for added flexibility and reuse (message queues are used to bind them together).
 
@@ -512,6 +482,7 @@ Let's create a mini-application that:
 
 Since AIRQ and BoM data have different structures, we need to have an intermediate function that filters and splits the data
 into a standardized structure that can be added to ElasticSearch.
+
 
 #### Functions
 
@@ -707,38 +678,3 @@ fission fn test --name mharvester
 ```
 
 
-## Un-installation of the software stack
-
-```shell
-for e in $(kubectl get function -o=name) ; do
-    kubectl delete ${e}
-done
-
-for e in $(kubectl get package -o=name) ; do
-    kubectl delete ${e}
-done
-
-for e in $(kubectl get environment -o=name) ; do
-    kubectl delete ${e}
-done
-
-for crd in $(kubectl get crd --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep fission) ; do
-    kubectl delete crd ${crd}
-done
-
-helm uninstall fission --namespace fission
-
-for p in $(kubectl get pods -o=name) ; do
-    kubectl delete ${p}
-done
-
-for p in $(kubectl get kafkatopic -n kafka -o=name) ; do
-    kubectl delete ${p} -n kafka
-done
-
-kubectl delete -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
-helm uninstall keda --namespace keda
-helm uninstall kafka-ui
-kubectl delete kafka my-cluster --namespace kafka
-helm uninstall kafka --namespace kafka
-```
