@@ -43,26 +43,26 @@ source ./<your project name>-openrc.sh
 openstack coe cluster template create \
   --keypair mykeypair \
   --labels "container_infra_prefix=registry.rc.nectar.org.au/nectarmagnum/; \
-master_lb_floating_ip_enabled=false; \
-cinder_csi_enabled=true; \
-docker_volume_type=standard; \
-ingress_controller=octavia; \
-container_runtime=containerd; \
-containerd_version=1.6.20; \
-containerd_tarball_sha256=1d86b534c7bba51b78a7eeb1b67dd2ac6c0edeb01c034cc5f590d5ccd824b416; \
-kube_tag=v1.26.8; \
-flannel_tag=v0.21.5; \
-cloud_provider_tag=v1.26.3; \
-cinder_csi_plugin_tag=v1.26.3; \
-k8s_keystone_auth_tag=v1.26.3; \
-octavia_ingress_controller_tag=v1.26.3; \
-coredns_tag=1.10.1; \
-csi_snapshotter_tag=v6.2.1; \
-csi_attacher_tag=v4.2.0; \
-csi_resizer_tag=v1.7.0; \
-csi_provisioner_tag=v3.4.1; \
-csi_node_driver_registrar_tag=v2.8.0; \
-availability_zone=melbourne-qh2-uom; \
+master_lb_floating_ip_enabled=false;\
+cinder_csi_enabled=true;\
+docker_volume_type=standard;\
+ingress_controller=octavia;\
+container_runtime=containerd;\
+containerd_version=1.6.20;\
+containerd_tarball_sha256=1d86b534c7bba51b78a7eeb1b67dd2ac6c0edeb01c034cc5f590d5ccd824b416;\
+kube_tag=v1.26.8;\
+flannel_tag=v0.21.5;\
+cloud_provider_tag=v1.26.3;\
+cinder_csi_plugin_tag=v1.26.3;\
+k8s_keystone_auth_tag=v1.26.3;\
+octavia_ingress_controller_tag=v1.26.3;\
+coredns_tag=1.10.1;\
+csi_snapshotter_tag=v6.2.1;\
+csi_attacher_tag=v4.2.0;\
+csi_resizer_tag=v1.7.0;\
+csi_provisioner_tag=v3.4.1;\
+csi_node_driver_registrar_tag=v2.8.0;\
+availability_zone=melbourne-qh2-uom;\
 fixed_subnet_cidr=192.168.10.0/24" \
   --floating-ip-disabled \
   --master-lb-enabled \
