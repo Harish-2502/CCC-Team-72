@@ -1,4 +1,5 @@
-# ElasticSearch
+# Software Stack Installation
+
 
 ## Pre-requirements
 
@@ -9,6 +10,9 @@
 - Helm 3.6.x ([Installation instructions](https://helm.sh/docs/intro/install/)).
 - MRC project with enough resources to create a Kubernetes cluster.
 - Connect to [Campus network](https://studentit.unimelb.edu.au/wifi-vpn#uniwireless) if on-campus or [UniMelb Student VPN](https://studentit.unimelb.edu.au/wifi-vpn#vpn) if off-campus
+
+Open a shell and move to the directory of the repository that contains this README file.
+
 
 ## Client Configuration
 
@@ -32,6 +36,9 @@ source ./<your project name>-openrc.sh
 5. Click `Project` -> `Compute` -> `Key Pairs` -> `Create Key Pair` and create a new key pair named `mykeypair` (replace `mykeypair` with the name you prefer). Keep the private key file downloaded (e.g. `mykeypair.pem`) in a safe place.
    ![Create Key Pair (1/2)](./screenshots/mrc_04.jpg)
    ![Create Key Pair (2/2)](./screenshots/mrc_05.jpg)
+
+6. All key members must have their key pairs created and the public key file added to the project (see the previous step).
+
 
 ## Cluster Template Creation
 
@@ -103,7 +110,7 @@ openstack coe cluster create\
 openstack coe cluster show elastic --fit-width
 ```
 
-(`health_status` should be 'HEALTHY' and `coe_version` should be `1.26.8`);
+(`health_status` should be 'UNKNOWN' and `coe_version` should be `v1.26.8`);
 
 - Create a security group named 'elastic-ssh' that allows SSH access from the University of Melbourne network.
 
@@ -118,7 +125,7 @@ openstack security group rule create --proto tcp --dst-port 22 --remote-ip 0.0.0
 openstack port create --network elastic elastic-bastion
 ```
 
-- Create a VM named "bastion" with the following features (the VM can be created using the MRC Dashboard).
+- Create a VM named "bastion" with the following features (the VM can be created using the MRC Dashboard or with the command below).
   - Flavor: `uom.mse.1c4g`;
   - Image: `NeCTAR Ubuntu 22.04 LTS (Jammy) amd64 (with Docker)`;
   - Networks: `qh2-uom-internal` and `elatic` (the Kubernetes cluster network);
@@ -136,6 +143,19 @@ openstack server create \
   bastion
 ```
 
+- Store the bastion node IP address in a variable.
+```shell
+bastion=$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
+```
+
+- Add your team members' public SSH keys to the bastion node
+ ```shell
+pubkey=$(cat ~/<public ssh key>)
+ssh ubuntu@bastion "echo ${pubkey} >> ~/.ssh/authorized_keys.bak"
+```
+(The command above will append the public key to the `authorized_keys` file and has to be executed for each member.
+The public SSH key file is the same as the key pair added to the project during the MRC project setup.)
+ 
 ## Accessing the Kubernetes Cluster
 
 - Once the VM has been created successfully, open an SSH tunnel that allows the connection of your computer to the Kubernetes cluster. Please replace the `<path-to-private-key>` with the path to the private key file downloaded in the previous step.
@@ -143,7 +163,7 @@ openstack server create \
 ```shell
 chmod 600 <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem)
 
-ssh -i <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem) -L 6443:$(openstack coe cluster show elastic -f json | jq -r '.master_addresses[]'):6443 ubuntu@$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
+ssh -N -i <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem) -L 6443:$(openstack coe cluster show elastic -f json | jq -r '.master_addresses[]'):6443 ubuntu@$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
 ```
 
 > Note: The SSH command may take up to 1 minute to complete. And you will see a shell prompt. Please do not close the terminal window once the command has been executed.
@@ -219,6 +239,7 @@ To retain the disk volumes after the cluster deletion, a storage class has to be
 ```shell
 kubectl apply -f ./storage-class.yaml
 ```
+
 
 ## ElasticSearch cluster deployment
 

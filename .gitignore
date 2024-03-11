@@ -322,3 +322,4 @@ cython_debug/
 /fission/functions/mharvester.zip
 /fission/functions/enqueue.zip
 /fission/functions/addobservations.zip
+/installation/config.test
