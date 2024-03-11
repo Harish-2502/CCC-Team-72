@@ -37,7 +37,7 @@ source ./<your project name>-openrc.sh
    ![Create Key Pair (1/2)](./screenshots/mrc_04.jpg)
    ![Create Key Pair (2/2)](./screenshots/mrc_05.jpg)
 
-6. All key members must have their key pairs created and the public key file added to the project (see the previous step).
+6. All team members must have their key pairs created and the public key file added to the project (see the previous step).
 
 
 ## Cluster Template Creation
@@ -151,10 +151,13 @@ bastion=$(openstack server show bastion -c addresses -f json | jq -r '.addresses
 - Add your team members' public SSH keys to the bastion node
  ```shell
 pubkey=$(cat ~/<public ssh key>)
-ssh ubuntu@bastion "echo ${pubkey} >> ~/.ssh/authorized_keys.bak"
+ssh -i <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem) ubuntu@${bastion} "echo ${pubkey} >> ~/.ssh/authorized_keys"
 ```
-(The command above will append the public key to the `authorized_keys` file and has to be executed for each member.
-The public SSH key file is the same as the key pair added to the project during the MRC project setup.)
+The command above will append the public key to the `authorized_keys` file and has to be executed for each member.
+The public SSH key file is the same as the keypair added to the project during the MRC project setup.
+Plese note that the private SSH key in the command above is the same as the one used to create the bastion node, while
+the public key file is the keypair for all the other team members.  
+
  
 ## Accessing the Kubernetes Cluster
 
