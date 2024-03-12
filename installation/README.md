@@ -52,7 +52,7 @@ openstack coe cluster template create \
   --labels "container_infra_prefix=registry.rc.nectar.org.au/nectarmagnum/; \
 master_lb_floating_ip_enabled=false;\
 cinder_csi_enabled=true;\
-docker_volume_type=standard;\
+docker_volume_type=performance;\
 ingress_controller=octavia;\
 container_runtime=containerd;\
 containerd_version=1.6.20;\
@@ -238,15 +238,6 @@ If any of the pods is not in running state, to drop and recreate the pod.
 kubectl delete pod -l app=flannel -n kube-system
 ```
 
-## ElasticSearch Storage Class creation
-
-To retain the disk volumes after the cluster deletion, a storage class has to be created that set the reclaim policy to "retain".
-
-```shell
-kubectl apply -f ./storage-class.yaml
-```
-
-
 ## ElasticSearch cluster deployment
 
 Set the ElasticSearch version to be used `export ES_VERSION="8.5.1"`, then install ElasticSearch:
@@ -261,6 +252,7 @@ helm upgrade --install \
   --namespace elastic \
   --set replicas=2 \
   --set secret.password="elastic"\
+  --set volumeClaimTemplate.resources.requests.storage="100Gi" \
   elasticsearch elastic/elasticsearch
 ```
 
@@ -269,6 +261,7 @@ NOTES:
 - By default each ElasticSearch node has 30GB of storage;
 - The number of nodes is set by the `replicas` parameter. not to be confused with the "shard replicas" (copies of a shard);
 - The number of replicas (nodes) that can be used in the cluster is limited by the number of nodes in the cluster and by the Kibana deployment that needs a node for itself.
+- Passing an unsafe password as `secret.password` to Helm is a security risk and it's done here for the sake of simplicity: in a production environment the password must be randomly generated and of suitable length (secure passwords can be generated with the Linux command `pwgen -n 32`).  
 
 Check all ElasticSearch pods are running before proceeding:
 
