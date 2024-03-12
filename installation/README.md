@@ -197,6 +197,9 @@ mv config ~/.kube/config
 chmod 600 ~/.kube/config
 ```
 
+Note: once the `~/.kube/config` file has been created by the team member that has created the Kubernetes cluster, it can be
+shared across the other team members.
+
 - Check the cluster nodes:
 
 ```shell
