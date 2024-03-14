@@ -52,7 +52,7 @@ openstack coe cluster template create \
   --labels "container_infra_prefix=registry.rc.nectar.org.au/nectarmagnum/; \
 master_lb_floating_ip_enabled=false;\
 cinder_csi_enabled=true;\
-docker_volume_type=performance;\
+docker_volume_type=standard;\
 ingress_controller=octavia;\
 container_runtime=containerd;\
 containerd_version=1.6.20;\
@@ -89,7 +89,7 @@ fixed_subnet_cidr=192.168.10.0/24" \
 - Verify that template has been created successfully.
 
 ```shell
-openstack coe cluster template show $(openstack coe cluster template list | grep "kubernetes-melbourne-qh2-uom-nofloat-v1.26.8" | awk '{print $2}') --max-width 132
+openstack coe cluster template show $(openstack coe cluster template list | grep "kubernetes-melbourne-qh2-uom-nofloat-v1.26.8" | awk '{print $2}') --fit-width
 ```
 
 ## Kubernetes Cluster Provisioning
@@ -115,8 +115,8 @@ openstack coe cluster show elastic --fit-width
 - Create a security group named 'elastic-ssh' that allows SSH access from the University of Melbourne network.
 
 ```shell
-openstack security group create elastic-ssh
-openstack security group rule create --proto tcp --dst-port 22 --remote-ip 0.0.0.0/0 elastic-ssh
+openstack security group create elastic-ssh --fit-width
+openstack security group rule create --proto tcp --dst-port 22 --remote-ip 0.0.0.0/0 elastic-ssh --fit-width
 ```
 
 - Create a network port named 'elastic-bastion'.
@@ -317,7 +317,7 @@ kibana-kibana                   ClusterIP   10.254.50.97   <none>        5601/TC
 ```
 
 
-## Fission
+## Fission Deployment
 
 > Note: make sure the SSH tunnel has been established to the Kubernetes cluster.
 
