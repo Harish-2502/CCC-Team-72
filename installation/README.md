@@ -169,7 +169,7 @@ chmod 600 <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem)
 ssh -N -i <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem) -L 6443:$(openstack coe cluster show elastic -f json | jq -r '.master_addresses[]'):6443 ubuntu@$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
 ```
 
-> Note: The SSH command may take up to 1 minute to complete. And you will see a shell prompt. Please do not close the terminal window once the command has been executed.
+> Note: The SSH command may take up to 1 minute to complete. If it works, you will not see a shell prompt or any other output since the tunnel works in the background. Please do not close the terminal window once the command has been executed.
 
 ![SSH tunneling](./screenshots/terminal_01.jpg)
 
