@@ -1,4 +1,5 @@
-# ElasticSearch
+# Software Stack Installation
+
 
 ## Pre-requirements
 
@@ -9,6 +10,9 @@
 - Helm 3.6.x ([Installation instructions](https://helm.sh/docs/intro/install/)).
 - MRC project with enough resources to create a Kubernetes cluster.
 - Connect to [Campus network](https://studentit.unimelb.edu.au/wifi-vpn#uniwireless) if on-campus or [UniMelb Student VPN](https://studentit.unimelb.edu.au/wifi-vpn#vpn) if off-campus
+
+Open a shell and move to the directory of the repository that contains this README file.
+
 
 ## Client Configuration
 
@@ -32,6 +36,9 @@ source ./<your project name>-openrc.sh
 5. Click `Project` -> `Compute` -> `Key Pairs` -> `Create Key Pair` and create a new key pair named `mykeypair` (replace `mykeypair` with the name you prefer). Keep the private key file downloaded (e.g. `mykeypair.pem`) in a safe place.
    ![Create Key Pair (1/2)](./screenshots/mrc_04.jpg)
    ![Create Key Pair (2/2)](./screenshots/mrc_05.jpg)
+
+6. All team members must have their key pairs created and the public key file added to the project (see the previous step).
+
 
 ## Cluster Template Creation
 
@@ -82,7 +89,7 @@ fixed_subnet_cidr=192.168.10.0/24" \
 - Verify that template has been created successfully.
 
 ```shell
-openstack coe cluster template show $(openstack coe cluster template list | grep "kubernetes-melbourne-qh2-uom-nofloat-v1.26.8" | awk '{print $2}') --max-width 132
+openstack coe cluster template show $(openstack coe cluster template list | grep "kubernetes-melbourne-qh2-uom-nofloat-v1.26.8" | awk '{print $2}') --fit-width
 ```
 
 ## Kubernetes Cluster Provisioning
@@ -103,13 +110,13 @@ openstack coe cluster create\
 openstack coe cluster show elastic --fit-width
 ```
 
-(`health_status` should be 'HEALTHY' and `coe_version` should be `1.26.8`);
+(`health_status` should be 'UNKNOWN' and `coe_version` should be `v1.26.8`);
 
 - Create a security group named 'elastic-ssh' that allows SSH access from the University of Melbourne network.
 
 ```shell
-openstack security group create elastic-ssh
-openstack security group rule create --proto tcp --dst-port 22 --remote-ip 0.0.0.0/0 elastic-ssh
+openstack security group create elastic-ssh --fit-width
+openstack security group rule create --proto tcp --dst-port 22 --remote-ip 0.0.0.0/0 elastic-ssh --fit-width
 ```
 
 - Create a network port named 'elastic-bastion'.
@@ -118,10 +125,10 @@ openstack security group rule create --proto tcp --dst-port 22 --remote-ip 0.0.0
 openstack port create --network elastic elastic-bastion
 ```
 
-- Create a VM named "bastion" with the following features (the VM can be created using the MRC Dashboard).
+- Create a VM named "bastion" with the following features (the VM can be created using the MRC Dashboard or with the command below).
   - Flavor: `uom.mse.1c4g`;
   - Image: `NeCTAR Ubuntu 22.04 LTS (Jammy) amd64 (with Docker)`;
-  - Networks: `qh2-uom-internal` and `elatic` (the Kubernetes cluster network);
+  - Networks: `qh2-uom-internal` and `elastic` (the Kubernetes cluster network);
   - Security group: `default` and `ssh`.
 
 ```shell
@@ -136,6 +143,22 @@ openstack server create \
   bastion
 ```
 
+- Store the bastion node IP address in a variable.
+```shell
+bastion=$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
+```
+
+- Add your team members' public SSH keys to the bastion node
+ ```shell
+pubkey=$(cat ~/<public ssh key>)
+ssh -i <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem) ubuntu@${bastion} "echo ${pubkey} >> ~/.ssh/authorized_keys"
+```
+The command above will append the public key to the `authorized_keys` file and has to be executed for each member.
+The public SSH key file is the same as the keypair added to the project during the MRC project setup.
+Plese note that the private SSH key in the command above is the same as the one used to create the bastion node, while
+the public key file is the keypair for all the other team members.  
+
+ 
 ## Accessing the Kubernetes Cluster
 
 - Once the VM has been created successfully, open an SSH tunnel that allows the connection of your computer to the Kubernetes cluster. Please replace the `<path-to-private-key>` with the path to the private key file downloaded in the previous step.
@@ -143,10 +166,10 @@ openstack server create \
 ```shell
 chmod 600 <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem)
 
-ssh -i <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem) -L 6443:$(openstack coe cluster show elastic -f json | jq -r '.master_addresses[]'):6443 ubuntu@$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
+ssh -N -i <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem) -L 6443:$(openstack coe cluster show elastic -f json | jq -r '.master_addresses[]'):6443 ubuntu@$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
 ```
 
-> Note: The SSH command may take up to 1 minute to complete. And you will see a shell prompt. Please do not close the terminal window once the command has been executed.
+> Note: The SSH command may take up to 1 minute to complete. If it works, you will not see a shell prompt or any other output since the tunnel works in the background. Please do not close the terminal window once the command has been executed.
 
 ![SSH tunneling](./screenshots/terminal_01.jpg)
 
@@ -173,6 +196,9 @@ awk '
 mv config ~/.kube/config
 chmod 600 ~/.kube/config
 ```
+
+Note: once the `~/.kube/config` file has been created by the team member that has created the Kubernetes cluster, it can be
+shared across the other team members.
 
 - Check the cluster nodes:
 
@@ -212,14 +238,6 @@ If any of the pods is not in running state, to drop and recreate the pod.
 kubectl delete pod -l app=flannel -n kube-system
 ```
 
-## ElasticSearch Storage Class creation
-
-To retain the disk volumes after the cluster deletion, a storage class has to be created that set the reclaim policy to "retain".
-
-```shell
-kubectl apply -f ./storage-class.yaml
-```
-
 ## ElasticSearch cluster deployment
 
 Set the ElasticSearch version to be used `export ES_VERSION="8.5.1"`, then install ElasticSearch:
@@ -234,6 +252,7 @@ helm upgrade --install \
   --namespace elastic \
   --set replicas=2 \
   --set secret.password="elastic"\
+  --set volumeClaimTemplate.resources.requests.storage="100Gi" \
   elasticsearch elastic/elasticsearch
 ```
 
@@ -242,6 +261,7 @@ NOTES:
 - By default each ElasticSearch node has 30GB of storage;
 - The number of nodes is set by the `replicas` parameter. not to be confused with the "shard replicas" (copies of a shard);
 - The number of replicas (nodes) that can be used in the cluster is limited by the number of nodes in the cluster and by the Kibana deployment that needs a node for itself.
+- Passing an unsafe password as `secret.password` to Helm is a security risk and it's done here for the sake of simplicity: in a production environment the password must be randomly generated and of suitable length (secure passwords can be generated with the Linux command `pwgen -n 32`).  
 
 Check all ElasticSearch pods are running before proceeding:
 
@@ -269,7 +289,7 @@ elasticsearch-master-0   0/1     Running           0          62s
 helm upgrade --install \
   --version=${ES_VERSION} \
   --namespace elastic \
-  -f ./kibana-values.yaml \
+  -f ./installation/kibana-values.yaml \
   kibana elastic/kibana
 ```
 
@@ -297,7 +317,7 @@ kibana-kibana                   ClusterIP   10.254.50.97   <none>        5601/TC
 ```
 
 
-## Fission
+## Fission Deployment
 
 > Note: make sure the SSH tunnel has been established to the Kubernetes cluster.
 
@@ -333,8 +353,30 @@ Windows:
 
 For Windows, you can use the linux binary on WSL, or you can download this windows executable: `https://github.com/fission/fission/releases/download/v$FISSION_VERSION/fission-v$FISSION_VERSION-windows-amd64.exe`
 
-  
+
+## Stack installation test
+
+The following command creates and test a function named `health` that returns the status of the ElasticSearch cluster:
+
+```shell
+fission env create --name python --image fission/python-env --builder fission/python-builder
+fission function create --name health --env python --code ./fission/functions/health.py
+fission function test --name health | jq '.'
+```
+
+If the above command returns a JSON object with the ElasticSearch cluster status, the installation is successful, and
+the Fission function and environment can be deleted:
+
+```shell
+fission function delete --name health
+fission env delete --name python
+```
+
+
 ## Removal of the software stack
+
+THIS SHOULD BE DONE ONLY IN CASE OF A SERIOUS MISTAKE THAT PREVENTS USE OF THE CLUSTER.
+
 
 ## Fission removal
 
@@ -384,5 +426,6 @@ helm uninstall elasticsearch -n elastic
 ### Kubernetes Cluster Removal
 
 ```shell
+openstack port delete $(openstack port show -f value -c id elastic-bastion)
 openstack coe cluster delete elastic
 ```
