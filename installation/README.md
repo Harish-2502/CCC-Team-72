@@ -289,7 +289,7 @@ elasticsearch-master-0   0/1     Running           0          62s
 helm upgrade --install \
   --version=${ES_VERSION} \
   --namespace elastic \
-  -f ./kibana-values.yaml \
+  -f ./installation/kibana-values.yaml \
   kibana elastic/kibana
 ```
 
@@ -353,7 +353,15 @@ Windows:
 
 For Windows, you can use the linux binary on WSL, or you can download this windows executable: `https://github.com/fission/fission/releases/download/v$FISSION_VERSION/fission-v$FISSION_VERSION-windows-amd64.exe`
 
-  
+
+## Stack installation test
+
+The following command creates and test a function named `health` that returns the status of the ElasticSearch cluster:
+```shell
+fission function create --name health --env python --code ./functions/health.py
+fission function test --name health | jq '.'
+```
+
 ## Removal of the software stack
 
 ## Fission removal
