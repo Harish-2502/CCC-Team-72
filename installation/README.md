@@ -128,7 +128,7 @@ openstack port create --network elastic elastic-bastion
 - Create a VM named "bastion" with the following features (the VM can be created using the MRC Dashboard or with the command below).
   - Flavor: `uom.mse.1c4g`;
   - Image: `NeCTAR Ubuntu 22.04 LTS (Jammy) amd64 (with Docker)`;
-  - Networks: `qh2-uom-internal` and `elatic` (the Kubernetes cluster network);
+  - Networks: `qh2-uom-internal` and `elastic` (the Kubernetes cluster network);
   - Security group: `default` and `ssh`.
 
 ```shell
@@ -357,12 +357,26 @@ For Windows, you can use the linux binary on WSL, or you can download this windo
 ## Stack installation test
 
 The following command creates and test a function named `health` that returns the status of the ElasticSearch cluster:
+
 ```shell
-fission function create --name health --env python --code ./functions/health.py
+fission env create --name python --image fission/python-env --builder fission/python-builder
+fission function create --name health --env python --code ./fission/functions/health.py
 fission function test --name health | jq '.'
 ```
 
+If the above command returns a JSON object with the ElasticSearch cluster status, the installation is successful, and
+the Fission function and environment can be deleted:
+
+```shell
+fission function delete --name health
+fission env delete --name python
+```
+
+
 ## Removal of the software stack
+
+THIS SHOULD BE DONE ONLY IN CASE OF A SERIOUS MISTAKE THAT PREVENTS USE OF THE CLUSTER.
+
 
 ## Fission removal
 
@@ -412,5 +426,6 @@ helm uninstall elasticsearch -n elastic
 ### Kubernetes Cluster Removal
 
 ```shell
+openstack port delete $(openstack port show -f value -c id elastic-bastion)
 openstack coe cluster delete elastic
 ```
