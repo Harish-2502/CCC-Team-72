@@ -333,6 +333,8 @@ And (in another shell):
 curl "http://127.0.0.1:9090/health"  | jq '.'
 ```
 
+When ConfigMaps are changed, the specs have to be re-applied.
+
 Fission can read secrets as well, which are better suited to hold sensitive information (such as passwords).
 
 ### Creation of a RestFUL API with YAML specifications
