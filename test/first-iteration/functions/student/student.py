@@ -4,4 +4,4 @@ import requests, logging, json
 def main():
 
     current_app.logger.debug(f'Received request: {request.method}')
-    return 'OK', 200
+    return 'student', 200

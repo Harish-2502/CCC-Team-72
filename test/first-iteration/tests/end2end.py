@@ -23,22 +23,36 @@ class HTTPSession:
 class TestEnd2End(unittest.TestCase):
     def test_student(self):
         self.assertEqual(test_request.get('/students/111').status_code, 200)
+        self.assertEqual(test_request.get('/students/111').text, 'student')
+
         self.assertEqual(test_request.put('/students/111', {}).status_code, 200)
+        self.assertEqual(test_request.put('/students/111', {}).text, 'student')
+
         self.assertEqual(test_request.delete('/students/111').status_code, 200)
+        self.assertEqual(test_request.delete('/students/111').text, 'student')
 
     def test_students(self):
         self.assertEqual(test_request.get('/students').status_code, 200)
+        self.assertEqual(test_request.get('/students').text, 'students')
 
-    def test_courses(self):
+    def test_course(self):
         self.assertEqual(test_request.get('/courses/111').status_code, 200)
+        self.assertEqual(test_request.get('/courses/111').text, 'course')
+
         self.assertEqual(test_request.put('/courses/111', {}).status_code, 200)
+        self.assertEqual(test_request.put('/courses/111', {}).text, 'course')
+
         self.assertEqual(test_request.delete('/courses/111').status_code, 200)
+        self.assertEqual(test_request.delete('/courses/111').text, 'course')
 
     def test_courses(self):
         self.assertEqual(test_request.get('/courses').status_code, 200)
-        self.assertEqual(test_request.get('/courses/111/students').status_code, 200)
+        self.assertEqual(test_request.get('/courses').text, 'courses')
 
-test_request = HTTPSession('http', 'localhost', 9090)
+        self.assertEqual(test_request.get('/courses/111/students').status_code, 200)
+        self.assertEqual(test_request.get('/courses/111/students').text, 'coursesstudents')
 
 if __name__ == '__main__':
+
+    test_request = HTTPSession('http', 'localhost', 9090)
     unittest.main()

@@ -114,7 +114,7 @@ curl -XPUT -k 'https://127.0.0.1:9200/observations' \
     "mappings": {
         "properties": {
             "stationid": {
-                "type": "text"
+                "type": "keyword"
             },
             "timestamp": {
                 "type": "date"
@@ -126,7 +126,7 @@ curl -XPUT -k 'https://127.0.0.1:9200/observations' \
                 "type": "text"
             },
             "local_date_time": {
-                "type": "text"
+                "type": "date"
             },
             "air_temp": {
                 "type": "float"
