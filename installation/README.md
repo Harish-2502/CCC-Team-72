@@ -353,7 +353,17 @@ curl -Lo fission https://github.com/fission/fission/releases/download/v$FISSION_
 
 Windows:
 
-For Windows, you can use the linux binary on WSL, or you can download this windows executable: `https://github.com/fission/fission/releases/download/v$FISSION_VERSION/fission-v$FISSION_VERSION-windows-amd64.exe`
+For Windows, please use the Linux binary on WSL.
+
+asdf:
+
+Alternatively, you can install the Fission CLI using asdf:
+
+```shell
+asdf plugin add fission
+asdf install fission $FISSION_VERSION
+asdf local fission $FISSION_VERSION
+```
 
 ## Stack installation test
 
