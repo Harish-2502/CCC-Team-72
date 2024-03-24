@@ -158,6 +158,10 @@ The public SSH key file is the same as the keypair added to the project during t
 Plese note that the private SSH key in the command above is the same as the one used to create the bastion node, while
 the public key file is the keypair for all the other team members.
 
+- Add staff's public SSH keys to the bastion node
+Use the instructions above to add the staff's public SSH keys. The two public SSH keys are
+contained in the `yaopan_pubkey.pem` and `lmorandini_pubkey.pem` files of the `installation` directory.
+ 
 ## Accessing the Kubernetes Cluster
 
 - Once the VM has been created successfully, open an SSH tunnel that allows the connection of your computer to the Kubernetes cluster. Please replace the `<path-to-private-key>` with the path to the private key file downloaded in the previous step.
@@ -376,6 +380,8 @@ THIS SHOULD BE DONE ONLY IN CASE OF A SERIOUS MISTAKE THAT PREVENTS USE OF THE C
 ## Fission removal
 
 ```shell
+export FISSION_VERSION='1.20.0'
+
 for e in $(kubectl get function -o=name) ; do
     kubectl delete ${e}
 done
@@ -421,4 +427,6 @@ helm uninstall elasticsearch -n elastic
 ```shell
 openstack port delete $(openstack port show -f value -c id elastic-bastion)
 openstack coe cluster delete elastic
+openstack server delete bastion
+openstack volume list -f value -c ID | xargs -i openstack volume delete {}
 ```

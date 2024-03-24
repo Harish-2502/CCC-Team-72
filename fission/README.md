@@ -114,7 +114,7 @@ curl -XPUT -k 'https://127.0.0.1:9200/observations' \
     "mappings": {
         "properties": {
             "stationid": {
-                "type": "text"
+                "type": "keyword"
             },
             "timestamp": {
                 "type": "date"
@@ -126,7 +126,7 @@ curl -XPUT -k 'https://127.0.0.1:9200/observations' \
                 "type": "text"
             },
             "local_date_time": {
-                "type": "text"
+                "type": "date"
             },
             "air_temp": {
                 "type": "float"
@@ -332,6 +332,8 @@ And (in another shell):
 ```shell
 curl "http://127.0.0.1:9090/health"  | jq '.'
 ```
+
+When ConfigMaps are changed, the specs have to be re-applied.
 
 Fission can read secrets as well, which are better suited to hold sensitive information (such as passwords).
 
