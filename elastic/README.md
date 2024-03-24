@@ -2,13 +2,11 @@
 
 ## Pre-requirements
 
-- Node.js 12.x or newer is installed
 - OpenStack RC file and API password obtained and sourced in current shell (see [here](../installation/README.md#client-configuration))
 - A Kubernetes cluster created on NeCTAR (see [here](../installation/README.md#elasticsearch))
 - Connect to [Campus network](https://studentit.unimelb.edu.au/wifi-vpn#uniwireless) if on-campus or [UniMelb Student VPN](https://studentit.unimelb.edu.au/wifi-vpn#vpn) if off-campus
 - Kubernetes cluster is accessible (see [here](../installation/README.md#accessing-the-kubernetes-cluster))
 - ElasticSearch is installed (see [here](../installation/README.md#elasticsearch))
- 
 
 > Note: the code used here is for didactic purposes only. It has no error handling, no testing, and is not production-ready.
 
@@ -252,7 +250,6 @@ curl -XGET -k "https://127.0.0.1:9200/students/_search"\
 
 ## Use of ElasticSearch as a vector DBMS
 
-
 ### Data setup
 
 Create an ElasticSearch Index to hold temperatures
@@ -294,7 +291,6 @@ Load temperatures data
 ```shell
 node loadTemperature.js
 ```
-
 
 ### Vector search
 

@@ -12,7 +12,6 @@
 
 > Note: the code used here is for didactic purposes only. It has no error handling, no testing, and is not production-ready.
 
-
 ## Basic Fission
 
 ### Create a Fission Function and Expose it as a Service
@@ -161,7 +160,7 @@ a `build.sh` command must be created to install the libraries and finally the fu
   cd functions/addobservations
   zip -r addobservations.zip .
   mv addobservations.zip ../
-)   
+)
 ```
 
 Creation of a function with dependencies (this function depends on the ElasticSearch client package to add data to ElasticSearch):
@@ -401,11 +400,9 @@ curl "http://localhost:9090/temperature/days/2024-01-25/stations/95936" | jq '.'
 
 (The port forwarding from the Fission router must be running.)
 
-
 ## Development of an Event-driven architecture with Fission
 
 NOTE: This is not needed for Assignment 2, it is provided for didactic purposes only.
-
 
 ### Installation of Kafka and Keda
 
@@ -471,7 +468,6 @@ kubectl --namespace default port-forward $POD_NAME 8080:8080
 
 Point your browser to `http://localhost:8080`
 
-
 ### Application development
 
 Functions can be composed for added flexibility and reuse (message queues are used to bind them together).
@@ -484,7 +480,6 @@ Let's create a mini-application that:
 
 Since AIRQ and BoM data have different structures, we need to have an intermediate function that filters and splits the data
 into a standardized structure that can be added to ElasticSearch.
-
 
 #### Functions
 
@@ -503,7 +498,7 @@ fission function create --name aprocessor --env nodejs --code ./functions/aproce
 (
   cd functions/enqueue
   zip -r enqueue.zip .
-  mv enqueue.zip ../ 
+  mv enqueue.zip ../
 )
 
 fission package create --sourcearchive functions/enqueue.zip \
@@ -634,7 +629,6 @@ curl -XGET -G "https://naqd.eresearch.unimelb.edu.au/geoserver/wfs"\
   | jq '.'
 ```
 
-
 ### Mastodon harvester
 
 This is just a basic example of a Mastodon harvester. It is not meant to be used in production.
@@ -642,14 +636,13 @@ This is just a basic example of a Mastodon harvester. It is not meant to be used
 The function takes the last status from the Mastodon server, wait for a few seconds, then harvests the
 statuses that have been posted in the meantime.
 
-A possible design for a Mastodon harvester could use a timer trigger to call the function at regular intervals and store the 
+A possible design for a Mastodon harvester could use a timer trigger to call the function at regular intervals and store the
 statuses in ElasticSearch, with the `lastid` variable value taken from an ElasticSearch query looking for the latest status.
 
 Even better, the Mastodon harvester could use a WebSocket to communicate with Mastodon in streaming mode and have the function
-executed whenever there are new posts. 
+executed whenever there are new posts.
 
-
-```python
+````python
 
 ```shell
 
@@ -660,7 +653,7 @@ Create the archive, the package, and the function:
 (
   cd functions/mharvester
   zip -r mharvester.zip .
-  mv mharvester.zip ../ 
+  mv mharvester.zip ../
 )
 
 fission package create --sourcearchive functions/mharvester.zip \
@@ -672,11 +665,10 @@ fission fn create --name mharvester \
   --pkg mharvester \
   --env python \
   --entrypoint "mharvester.main"
-```
+````
 
 Test the harvester:
+
 ```shell
 fission fn test --name mharvester
 ```
-
-
