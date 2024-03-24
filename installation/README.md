@@ -141,7 +141,6 @@ openstack server create \
 ```
 
 - Store the bastion node IP address in a variable.
-
 ```shell
 bastion=$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
 ```
@@ -354,6 +353,7 @@ curl -Lo fission https://github.com/fission/fission/releases/download/v$FISSION_
 Windows:
 
 For Windows, you can use the linux binary on WSL, or you can download this windows executable: `https://github.com/fission/fission/releases/download/v$FISSION_VERSION/fission-v$FISSION_VERSION-windows-amd64.exe`
+
 
 ## Stack installation test
 
