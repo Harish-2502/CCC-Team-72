@@ -1,18 +1,16 @@
 # Software Stack Installation
 
-
 ## Pre-requirements
 
-- OpenStack clients 5.4.x ([Installation instructions](https://docs.openstack.org/newton/user-guide/common/cli-install-openstack-command-line-clients.html)).
+- OpenStack clients 6.3.x ([Installation instructions](https://docs.openstack.org/newton/user-guide/common/cli-install-openstack-command-line-clients.html)).
   > Note: Please ensure the following Openstack clients are installed: `python-cinderclient`, `python-keystoneclient`, `python-magnumclient`, `python-neutronclient`, `python-novaclient`, `python-octaviaclient`. See: [Install the OpenStack client](https://docs.openstack.org/newton/user-guide/common/cli-install-openstack-command-line-clients.html).
 - JQ 1.6.x ([Installation instructions](https://jqlang.github.io/jq/download/)).
-- Kubectl 1.26.x ([Installation instructions](https://kubernetes.io/docs/tasks/tools/)).
-- Helm 3.6.x ([Installation instructions](https://helm.sh/docs/intro/install/)).
+- Kubectl 1.26.8 ([Installation instructions](https://kubernetes.io/docs/tasks/tools/)).
+- Helm 3.6.3 ([Installation instructions](https://helm.sh/docs/intro/install/)).
 - MRC project with enough resources to create a Kubernetes cluster.
 - Connect to [Campus network](https://studentit.unimelb.edu.au/wifi-vpn#uniwireless) if on-campus or [UniMelb Student VPN](https://studentit.unimelb.edu.au/wifi-vpn#vpn) if off-campus
 
 Open a shell and move to the directory of the repository that contains this README file.
-
 
 ## Client Configuration
 
@@ -38,7 +36,6 @@ source ./<your project name>-openrc.sh
    ![Create Key Pair (2/2)](./screenshots/mrc_05.jpg)
 
 6. All team members must have their key pairs created and the public key file added to the project (see the previous step).
-
 
 ## Cluster Template Creation
 
@@ -144,21 +141,23 @@ openstack server create \
 ```
 
 - Store the bastion node IP address in a variable.
+
 ```shell
 bastion=$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
 ```
 
 - Add your team members' public SSH keys to the bastion node
- ```shell
+
+```shell
 pubkey=$(cat ~/<public ssh key>)
 ssh -i <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem) ubuntu@${bastion} "echo ${pubkey} >> ~/.ssh/authorized_keys"
 ```
+
 The command above will append the public key to the `authorized_keys` file and has to be executed for each member.
 The public SSH key file is the same as the keypair added to the project during the MRC project setup.
 Plese note that the private SSH key in the command above is the same as the one used to create the bastion node, while
-the public key file is the keypair for all the other team members.  
+the public key file is the keypair for all the other team members.
 
- 
 ## Accessing the Kubernetes Cluster
 
 - Once the VM has been created successfully, open an SSH tunnel that allows the connection of your computer to the Kubernetes cluster. Please replace the `<path-to-private-key>` with the path to the private key file downloaded in the previous step.
@@ -166,10 +165,10 @@ the public key file is the keypair for all the other team members.
 ```shell
 chmod 600 <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem)
 
-ssh -N -i <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem) -L 6443:$(openstack coe cluster show elastic -f json | jq -r '.master_addresses[]'):6443 ubuntu@$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
+ssh -i <path-to-private-key> (e.g. ~/Downloads/mykeypair.pem) -L 6443:$(openstack coe cluster show elastic -f json | jq -r '.master_addresses[]'):6443 ubuntu@$(openstack server show bastion -c addresses -f json | jq -r '.addresses["qh2-uom-internal"][]')
 ```
 
-> Note: The SSH command may take up to 1 minute to complete. If it works, you will not see a shell prompt or any other output since the tunnel works in the background. Please do not close the terminal window once the command has been executed.
+> Note: The SSH command may take up to 1 minute to complete.
 
 ![SSH tunneling](./screenshots/terminal_01.jpg)
 
@@ -261,7 +260,7 @@ NOTES:
 - By default each ElasticSearch node has 30GB of storage;
 - The number of nodes is set by the `replicas` parameter. not to be confused with the "shard replicas" (copies of a shard);
 - The number of replicas (nodes) that can be used in the cluster is limited by the number of nodes in the cluster and by the Kibana deployment that needs a node for itself.
-- Passing an unsafe password as `secret.password` to Helm is a security risk and it's done here for the sake of simplicity: in a production environment the password must be randomly generated and of suitable length (secure passwords can be generated with the Linux command `pwgen -n 32`).  
+- Passing an unsafe password as `secret.password` to Helm is a security risk and it's done here for the sake of simplicity: in a production environment the password must be randomly generated and of suitable length (secure passwords can be generated with the Linux command `pwgen -n 32`).
 
 Check all ElasticSearch pods are running before proceeding:
 
@@ -316,7 +315,6 @@ elasticsearch-master-headless   ClusterIP   None           <none>        9200/TC
 kibana-kibana                   ClusterIP   10.254.50.97   <none>        5601/TCP            17h
 ```
 
-
 ## Fission Deployment
 
 > Note: make sure the SSH tunnel has been established to the Kubernetes cluster.
@@ -353,7 +351,6 @@ Windows:
 
 For Windows, you can use the linux binary on WSL, or you can download this windows executable: `https://github.com/fission/fission/releases/download/v$FISSION_VERSION/fission-v$FISSION_VERSION-windows-amd64.exe`
 
-
 ## Stack installation test
 
 The following command creates and test a function named `health` that returns the status of the ElasticSearch cluster:
@@ -372,11 +369,9 @@ fission function delete --name health
 fission env delete --name python
 ```
 
-
 ## Removal of the software stack
 
 THIS SHOULD BE DONE ONLY IN CASE OF A SERIOUS MISTAKE THAT PREVENTS USE OF THE CLUSTER.
-
 
 ## Fission removal
 
@@ -414,14 +409,12 @@ kubectl delete kafka my-cluster --namespace kafka
 helm uninstall kafka --namespace kafka
 ```
 
-
 ### ElasticSearch Cluster Removal
 
 ```shell
 helm uninstall kibana -n elastic
 helm uninstall elasticsearch -n elastic
 ```
-
 
 ### Kubernetes Cluster Removal
 
