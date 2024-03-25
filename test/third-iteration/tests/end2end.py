@@ -19,10 +19,11 @@ class HTTPSession:
 
 class TestEnd2End(unittest.TestCase):
 
-    def test_student(self):
+    def setUp(self):
         self.assertEqual(test_request.delete('/wipedatabase').status_code, 200)
         time.sleep(1)
 
+    def test_student(self):
         self.assertEqual(test_request.put('/students/1', {'name': 'John Doe', 'courses': '90024'}).status_code, 201)
         self.assertEqual(test_request.put('/students/2', {'name': 'Jane Doe', 'courses': ['90024', '90059']}).status_code, 201)
         time.sleep(1)
@@ -53,9 +54,6 @@ class TestEnd2End(unittest.TestCase):
         self.assertEqual(test_request.delete('/students/2').status_code, 200)
 
     def test_students(self):
-        self.assertEqual(test_request.delete('/wipedatabase').status_code, 200)
-        time.sleep(1)
-
         self.assertEqual(test_request.put('/courses/90024', {'name': 'Cloud Computing'}).status_code, 201)
         self.assertEqual(test_request.put('/courses/90059', {'name': 'Introduction to Programming'}).status_code, 201)
         self.assertEqual(test_request.put('/students/1', {'name': 'John Doe', 'courses': '90024'}).status_code, 201)
@@ -69,9 +67,6 @@ class TestEnd2End(unittest.TestCase):
         self.assertEqual(o[1]['fields']['name'][0], 'John Doe')
 
     def test_course(self):
-        self.assertEqual(test_request.delete('/wipedatabase').status_code, 200)
-        time.sleep(1)
-
         self.assertEqual(test_request.put('/courses/90024', {'name': 'Cloud x Computing'}).status_code, 201)
         self.assertEqual(test_request.put('/courses/90059', {'name': 'Introduction to Programming'}).status_code, 201)
         time.sleep(1)
@@ -99,9 +94,6 @@ class TestEnd2End(unittest.TestCase):
         self.assertEqual(test_request.delete('/courses/90059').status_code, 200)
 
     def test_courses(self):
-        self.assertEqual(test_request.delete('/wipedatabase').status_code, 200)
-        time.sleep(1)
-
         self.assertEqual(test_request.put('/courses/90024', {'name': 'Cloud Computing'}).status_code, 201)
         self.assertEqual(test_request.put('/courses/90059', {'name': 'Introduction to Programming'}).status_code, 201)
         time.sleep(1)
