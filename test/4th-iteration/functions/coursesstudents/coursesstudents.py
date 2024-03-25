@@ -1,12 +1,51 @@
 from flask import request, current_app
 import requests, logging, json
-
-def config(k):
-    with open(f'/configs/default/parameters/{k}', 'r') as f:
-       return f.read()
+from Commons import Commons
 
 def main():
-    r = requests.get(f'{config("ES_URL")}/{config("ES_DATABASE")}',
-            verify=False,
-            auth=(config("ES_USERNAME"), config("ES_PASSWORD")))
-    return r.json(), r.status_code
+    try:
+        r = requests.post(Commons.search_url(),
+                verify=False,
+                auth=Commons().auth(),
+                headers={'Content-type': 'application/json'},
+                data=json.dumps({'_source': False,
+                    'query': {
+                        'bool' : {
+                          'must' : [
+                            {
+                                'term' : {
+                                    'courses' : request.headers['X-Fission-Params-Courseid']
+                                }
+                            },
+                            {
+                                'term': {
+                                    'type': 'student'
+                                }
+                            }
+                          ]
+                        }
+                    },
+                    'fields':[
+                        {'field':'id'},
+                        {'field':'timestamp'},
+                        {'field':'name'}
+                    ],
+                    'sort': [
+                        {
+                          'name': {
+                            'order': 'asc',
+                            'missing': '_last',
+                            'unmapped_type': 'keyword'
+                         }
+                       }
+                    ]
+                    })
+                )
+        return r.json(), r.status_code
+
+    except Exception as e:
+        current_app.logger.error(e)
+        return {'message': f'Error {e}'}, 500
+
+
+

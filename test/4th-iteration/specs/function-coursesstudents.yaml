@@ -1,5 +1,6 @@
 include:
-- ./functions/coursesstudents/coursesstudents.py
+  - ./functions/coursesstudents/coursesstudents.py
+  - ./functions/library/Commons.py
 kind: ArchiveUploadSpec
 name: functions-coursesstudents-coursesstudents-py-OZr1
 
@@ -48,6 +49,7 @@ spec:
   functionTimeout: 60
   idletimeout: 120
   package:
+    functionName: coursesstudents.main
     packageref:
       name: coursesstudents-27bee01f-65ad-467b-a400-ddda156e25bf
       namespace: ""
