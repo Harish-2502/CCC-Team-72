@@ -41,4 +41,4 @@ def main():
         current_app.logger.error(e)
         return {'message': f'Error {e}'}, 500
 
-    return {'message':'Method not allowed'}, 405
+

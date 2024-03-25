@@ -6,7 +6,51 @@ def config(k):
        return f.read()
 
 def main():
-    r = requests.get(f'{config("ES_URL")}/{config("ES_DATABASE")}',
-            verify=False,
-            auth=(config("ES_USERNAME"), config("ES_PASSWORD")))
-    return r.json(), r.status_code
+    try:
+        r = requests.post(f'{config("ES_URL")}/{config("ES_DATABASE")}/_search',
+                verify=False,
+                auth=(config('ES_USERNAME'), config('ES_PASSWORD')),
+                headers={'Content-type': 'application/json'},
+                data=json.dumps({'_source': False,
+                    'query': {
+                        'bool' : {
+                          'must' : [
+                            {
+                                'term' : {
+                                    'courses' : request.headers['X-Fission-Params-Courseid']
+                                }
+                            },
+                            {
+                                'term': {
+                                    'type': 'student'
+                                }
+                            }
+                          ]
+                        }
+                    },
+                    'fields':[
+                        {'field':'id'},
+                        {'field':'timestamp'},
+                        {'field':'name'}
+                    ],
+                    'sort': [
+                        {
+                          'name': {
+                            'order': 'asc',
+                            'missing': '_last',
+                            'unmapped_type': 'keyword'
+                         }
+                       }
+                    ]
+                    })
+                )
+        return r.json(), r.status_code
+
+    except Exception as e:
+        current_app.logger.error(e)
+        return {'message': f'Error {e}'}, 500
+
+    return {'message':'Method not allowed'}, 405
+
+
+
