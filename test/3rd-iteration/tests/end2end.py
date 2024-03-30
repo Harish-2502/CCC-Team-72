@@ -19,10 +19,11 @@ class HTTPSession:
 
 class TestEnd2End(unittest.TestCase):
 
-    def test_student(self):
+    def setUp(self):
         self.assertEqual(test_request.delete('/wipedatabase').status_code, 200)
         time.sleep(1)
 
+    def test_student(self):
         self.assertEqual(test_request.put('/students/1', {'name': 'John Doe', 'courses': '90024'}).status_code, 201)
         self.assertEqual(test_request.put('/students/2', {'name': 'Jane Doe', 'courses': ['90024', '90059']}).status_code, 201)
         time.sleep(1)
@@ -53,9 +54,6 @@ class TestEnd2End(unittest.TestCase):
         self.assertEqual(test_request.delete('/students/2').status_code, 200)
 
     def test_students(self):
-        self.assertEqual(test_request.delete('/wipedatabase').status_code, 200)
-        time.sleep(1)
-
         self.assertEqual(test_request.put('/courses/90024', {'name': 'Cloud Computing'}).status_code, 201)
         self.assertEqual(test_request.put('/courses/90059', {'name': 'Introduction to Programming'}).status_code, 201)
         self.assertEqual(test_request.put('/students/1', {'name': 'John Doe', 'courses': '90024'}).status_code, 201)
@@ -69,9 +67,6 @@ class TestEnd2End(unittest.TestCase):
         self.assertEqual(o[1]['fields']['name'][0], 'John Doe')
 
     def test_course(self):
-        self.assertEqual(test_request.delete('/wipedatabase').status_code, 200)
-        time.sleep(1)
-
         self.assertEqual(test_request.put('/courses/90024', {'name': 'Cloud x Computing'}).status_code, 201)
         self.assertEqual(test_request.put('/courses/90059', {'name': 'Introduction to Programming'}).status_code, 201)
         time.sleep(1)
@@ -99,9 +94,6 @@ class TestEnd2End(unittest.TestCase):
         self.assertEqual(test_request.delete('/courses/90059').status_code, 200)
 
     def test_courses(self):
-        self.assertEqual(test_request.delete('/wipedatabase').status_code, 200)
-        time.sleep(1)
-
         self.assertEqual(test_request.put('/courses/90024', {'name': 'Cloud Computing'}).status_code, 201)
         self.assertEqual(test_request.put('/courses/90059', {'name': 'Introduction to Programming'}).status_code, 201)
         time.sleep(1)
@@ -111,6 +103,31 @@ class TestEnd2End(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(o[0]['fields']['name'][0], 'Cloud Computing')
         self.assertEqual(o[1]['fields']['name'][0], 'Introduction to Programming')
+
+    def test_courses_students(self):
+        self.assertEqual(test_request.put('/courses/90024', {'name': 'Cloud Computing'}).status_code, 201)
+        self.assertEqual(test_request.put('/courses/90059', {'name': 'Introduction to Programming'}).status_code, 201)
+        self.assertEqual(test_request.put('/students/1', {'name': 'John Doe', 'courses': '90024'}).status_code, 201)
+        self.assertEqual(test_request.put('/students/2', {'name': 'Jane Doe', 'courses': ['90024', '90059']}).status_code, 201)
+        time.sleep(1)
+
+        r= test_request.get('/courses/90024/students')
+        o= (r.json()['hits'])['hits']
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(o), 2)
+        self.assertEqual(o[0]['fields']['name'][0], 'Jane Doe')
+        self.assertEqual(o[1]['fields']['name'][0], 'John Doe')
+
+        r= test_request.get('/courses/90059/students')
+        o= (r.json()['hits'])['hits']
+        self.assertEqual(len(o), 1)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(o[0]['fields']['name'][0], 'Jane Doe')
+
+        r= test_request.get('/courses/99999/students')
+        o= (r.json()['hits'])['hits']
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(o), 0)
 
 if __name__ == '__main__':
 

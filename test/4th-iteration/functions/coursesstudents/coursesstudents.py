@@ -1,29 +1,34 @@
 from flask import request, current_app
 import requests, logging, json
-
-def config(k):
-    with open(f'/configs/default/parameters/{k}', 'r') as f:
-       return f.read()
+from Commons import Commons
 
 def main():
     try:
-        r = requests.post(f'{config("ES_URL")}/{config("ES_DATABASE")}/_search',
+        r = requests.post(Commons.search_url(),
                 verify=False,
-                auth=(config('ES_USERNAME'), config('ES_PASSWORD')),
+                auth=Commons().auth(),
                 headers={'Content-type': 'application/json'},
                 data=json.dumps({'_source': False,
                     'query': {
-                        'term': {
-                            'type': {
-                                'value': 'student'
+                        'bool' : {
+                          'must' : [
+                            {
+                                'term' : {
+                                    'courses' : request.headers['X-Fission-Params-Courseid']
+                                }
+                            },
+                            {
+                                'term': {
+                                    'type': 'student'
+                                }
                             }
+                          ]
                         }
                     },
                     'fields':[
                         {'field':'id'},
                         {'field':'timestamp'},
-                        {'field':'name'},
-                        {'field':'courses'}
+                        {'field':'name'}
                     ],
                     'sort': [
                         {
@@ -42,5 +47,5 @@ def main():
         current_app.logger.error(e)
         return {'message': f'Error {e}'}, 500
 
-    return {'message':'Method not allowed'}, 405
+
 
