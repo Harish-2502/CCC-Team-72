@@ -126,8 +126,9 @@ openstack port create --network elastic elastic-bastion
   - Flavor: `uom.mse.1c4g`;
   - Image: `NeCTAR Ubuntu 22.04 LTS (Jammy) amd64 (with Docker)`;
   - Networks: `qh2-uom-internal` and `elastic` (the Kubernetes cluster network);
-  - Security group: `default` and `ssh`.
-
+  - Security group: `default` and `ssh`;
+  - NOTE: remember to change the `myeypair` name to your keypair name.
+    
 ```shell
 openstack server create \
   --flavor uom.mse.1c4g \
@@ -243,13 +244,13 @@ kubectl delete pod -l app=flannel -n kube-system
 
 ## ElasticSearch cluster deployment
 
-Set the ElasticSearch version to be used `export ES_VERSION="8.5.1"`, then install ElasticSearch:
+Set the ElasticSearch version to be used, then install ElasticSearch:
 
 ```shell
+export ES_VERSION="8.5.1"
 kubectl create namespace elastic
 helm repo add elastic https://helm.elastic.co
 helm repo update
-export ES_VERSION="8.5.1"
 helm upgrade --install \
   --version=${ES_VERSION} \
   --namespace elastic \
@@ -260,7 +261,6 @@ helm upgrade --install \
 ```
 
 NOTES:
-
 - By default each ElasticSearch node has 30GB of storage;
 - The number of nodes is set by the `replicas` parameter. not to be confused with the "shard replicas" (copies of a shard);
 - The number of replicas (nodes) that can be used in the cluster is limited by the number of nodes in the cluster and by the Kibana deployment that needs a node for itself.
@@ -383,6 +383,14 @@ fission function delete --name health
 fission env delete --name python
 ```
 
+We now know that the ElasticSearch cluster is up and running, and the Fission installation is successful, let'd
+try Kibana :
+```shell
+kubectl port-forward service/kibana-kibana -n elastic 5601:5601
+```
+(It uses t a Kubernetes port-forward of a service to access the Kibana dashboard on `http://localhost:5601`.)
+
+
 ## Removal of the software stack
 
 THIS SHOULD BE DONE ONLY IN CASE OF A SERIOUS MISTAKE THAT PREVENTS USE OF THE CLUSTER.
@@ -438,5 +446,11 @@ helm uninstall elasticsearch -n elastic
 openstack port delete $(openstack port show -f value -c id elastic-bastion)
 openstack coe cluster delete elastic
 openstack server delete bastion
+```
+
+Wait untile the volumes became `available` and delete them:
+```shell
 openstack volume list -f value -c ID | xargs -i openstack volume delete {}
 ```
+
+From the MRC Dashboard, remove the `elastic-ssh` security group ("Network / Security Groups" panel).
