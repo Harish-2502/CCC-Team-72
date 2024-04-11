@@ -448,9 +448,12 @@ openstack coe cluster delete elastic
 openstack server delete bastion
 ```
 
-Wait untile the volumes became `available` and delete them:
+Wait until the volumes became `available` and delete them:
 ```shell
 openstack volume list -f value -c ID | xargs -i openstack volume delete {}
 ```
 
-From the MRC Dashboard, remove the `elastic-ssh` security group ("Network / Security Groups" panel).
+Remove the `elastic-ssh` security group:
+```shell
+openstack security group delete $(openstack security group show -f value -c id elastic-ssh)
+```
