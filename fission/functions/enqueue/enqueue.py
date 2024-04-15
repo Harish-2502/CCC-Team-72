@@ -18,4 +18,5 @@ def main():
             json.dumps(request.get_json()).encode('utf-8')
         )
     )
+    current_app.logger.info(f'Enqueued to topic {request.headers.get("X-Fission-Params-Topic")}')
     return 'OK'
