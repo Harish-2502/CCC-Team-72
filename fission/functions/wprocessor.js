@@ -8,7 +8,7 @@ module.exports = async function (context) {
         };
         const ts= `${f (0, 4)}-${f (4, 2)}-${f (6, 2)}T${f (8, 2)}:${f (10, 2)}:00Z`;
         return {
-          stationid: `${obs.wmo}-${ts}`,
+          stationid: `${obs.wmo}`,
           name: obs.name,
           geo: [obs.lon, obs.lat],
           local_date_time: obs.local_date_time,

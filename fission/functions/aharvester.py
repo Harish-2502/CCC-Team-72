@@ -18,10 +18,11 @@ def main():
         'cql_filter': cql_filter
     }
 
+    data= requests.get("https://naqd.eresearch.unimelb.edu.au/geoserver/wfs", params=params).json()
     current_app.logger.info(f'Harvested one airquality observation')
 
     requests.post(url='http://router.fission/enqueue/airquality',
         headers={'Content-Type': 'application/json'},
-        data=json.dumps(requests.get("https://naqd.eresearch.unimelb.edu.au/geoserver/wfs", params=params).json())
+        data=json.dumps(data)
     )
     return 'OK'

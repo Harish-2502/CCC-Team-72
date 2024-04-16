@@ -39,11 +39,11 @@ The `health.py` source code checks the state of the ElasticSearch cluster and re
 Test the function:
 
 ```shell
-fission function create --name health --env python --code ./functions/health.py
+fission function create --name health --env python --code ./fission/functions/health.py
 fission function test --name health | jq '.'
 ```
 
-Create an ingress so that the function can be accessed from outside the cluster:
+Create a route so that the function can be accessed from outside the cluster:
 
 ```shell
 fission route create --url /health --function health --name health --createingress
@@ -61,20 +61,21 @@ In a new terminal, invoke the function from port `9090` of your laptop:
 curl "http://127.0.0.1:9090/health" | jq '.'
 ```
 
-(You can have a look at the function log with `fission function log --name health`.)
+(You can have a look at the function log with `fission function log -f --name health` in another shell.)
 
 ### Create a Fission Function that harvests Data from the Bureau of Meteorology
 
 ```shell
-fission function create --name wharvester --env python --code ./functions/wharvester.py
-fission function test --name wharvester
+fission function create --name wharvestersimple --env python --code ./fission/functions/wharvestersimple.py
+fission function test --name wharvestersimple | jq '.'
 ```
+(The fission is calling a non-existing function with )
 
 ### Call the function at interval using a timer trigger
 
 ```shell
-fission timer create --name everyminute --function wharvester --cron "@every 1m"
-fission function log -f --name wharvester
+fission timer create --name everyminute --function wharvestersimple --cron "@every 1m"
+fission function log -f --name wharvestersimple
 ```
 
 (Every minute a new log line should appear.)
@@ -107,7 +108,7 @@ curl -XPUT -k 'https://127.0.0.1:9200/observations' \
     "settings": {
         "index": {
             "number_of_shards": 3,
-            "number_of_replicas": 2
+            "number_of_replicas": 1
         }
     },
     "mappings": {
@@ -123,9 +124,6 @@ curl -XPUT -k 'https://127.0.0.1:9200/observations' \
             },
             "name": {
                 "type": "text"
-            },
-            "local_date_time": {
-                "type": "date"
             },
             "air_temp": {
                 "type": "float"
@@ -150,14 +148,14 @@ curl -XPUT -k 'https://127.0.0.1:9200/observations' \
 #### Create a function that stores data in ElasticSearch
 
 The function used so far are very simple and do not require any additional Python libraries: let's
-see how we can pack libraries together with a function source code.
+see how we can pack libraries (such as the ElasticSearch Python client) together with a function source code.
 
 In order to do so, a `requirements.txt` file must be created in the same directory as the function, then
 a `build.sh` command must be created to install the libraries and finally the function must be packaged in a ZIP file.
 
 ```shell
 (
-  cd functions/addobservations
+  cd fission/functions/addobservations
   zip -r addobservations.zip .
   mv addobservations.zip ../
 )
@@ -166,7 +164,7 @@ a `build.sh` command must be created to install the libraries and finally the fu
 Creation of a function with dependencies (this function depends on the ElasticSearch client package to add data to ElasticSearch):
 
 ```shell
-fission package create --sourcearchive addobservations.zip\
+fission package create --sourcearchive ./fission/functions/addobservations.zip\
   --env python\
   --name addobservations\
   --buildcmd './build.sh'
@@ -193,8 +191,6 @@ fission fn create --name addobservations\
 
 (Use `function update` to update a function that already exists.)
 
-The addition of observations can be tested by looking at the Kibana WebAdmin.
-
 ## Use of YAML specifications to deploy functions
 
 ### Re-creation of functions with YAML specifications
@@ -205,7 +201,7 @@ Let's start by deleting functions, packages, triggers, and even the environments
 fission httptrigger delete --name health
 fission function delete --name addobservations
 fission function delete --name health
-fission function delete --name wharvester
+fission function delete --name wharvestersimple
 fission package delete --name addobservations
 fission environment delete --name python
 fission environment delete --name nodejs
@@ -214,7 +210,10 @@ fission environment delete --name nodejs
 Creation of a directory to hold our specifications (by default it is named `specs`):
 
 ```shell
-fission specs init
+(
+  cd fission
+  fission specs init
+)  
 ```
 
 From now on our actions will add YAML files under the `specs` directory (not the `spec` argument),
@@ -223,14 +222,20 @@ and the YAML files will then be applied to the cluster with the `kubectl apply` 
 Let's start by creating the specs for the Python and Node.js environments:
 
 ```shell
-fission env create --spec --name python --image fission/python-env --builder fission/python-builder
-fission env create --spec --name nodejs --image fission/node-env --builder fission/node-builder
+(
+  cd fission
+  fission env create --spec --name python --image fission/python-env --builder fission/python-builder
+  fission env create --spec --name nodejs --image fission/node-env --builder fission/node-builder
+)  
 ```
 
 Let's create the specification file for a function:
 
 ```shell
-fission function create --spec --name health --env python --code ./functions/health.py
+(
+  cd fission
+  fission function create --spec --name health --env python --code ./functions/health.py
+)
 ```
 
 A file named `function-health.yaml` will be created under the `specs` directory, but so far no actions
@@ -239,19 +244,24 @@ has been taken on the cluster.
 Let's create the spec for a route to this function:
 
 ```shell
-fission route create --spec --url /health --function health --name health --createingress
+(
+  cd fission
+  fission route create --spec --url /health --function health --name health --createingress
+)
 ```
 
 Let's check everything is fine with our specs:
 
 ```shell
-fission spec validate
+(
+  cd fission
+  fission spec validate
+)
 ```
 
 Provided no errors are reported, we can now apply the specs to the cluster:
-
 ```shell
-fission spec apply --wait
+fission spec apply --specdir fission/specs --wait
 ```
 
 `health` function and related route test:
@@ -285,51 +295,40 @@ data:
 Since config maps are not directly managed by Fission, we have to apply it to the cluster with `kubectl`:
 
 ```shell
-kubectl apply -f specs/shared-data.yaml
+kubectl apply -f ./fission/specs/shared-data.yaml
 ```
 
-To use these values we have to modify the `health.py` file to read the config map:
-
-```python
-from flask import request, current_app
-import requests, logging
-
-def config(k):
-    with open(f'/configs/default/shared-data/{k}', 'r') as f:
-        return f.read()
-
-def main():
-    r = requests.get('https://elasticsearch-master.elastic.svc.cluster.local:9200/_cluster/health',
-        verify=False,
-        auth=(config('ES_USERNAME'), config('ES_PASSWORD')))
-    current_app.logger.info(f'Status ES request: {r.status_code}')
-    return r.json()
-```
-
-In addition, we have to change the function definition (file `function-health.yaml`) so that the config map is mounted as volume `/configs/default/shared-data`:
+To use these values we have to change the function to make it use the ConfigMap, hence we create a `healthcm.py` file 
+to read the config map.
+In addition, we have to create the function definition so that the config map is mounted as volume `/configs/default/shared-data`.
+(we have to create a route to the `healthcm` function as well):
 
 ```shell
-rm specs/function-health.yaml
-fission function create --spec --name health --env python --code ./functions/health.py --configmap shared-data
+(
+  cd fission
+  fission httptrigger delete --name health
+  fission function create --spec --name healthcm --env python --code ./functions/healthcm.py --configmap shared-data
+  fission route create --spec --url /healthcm --function healthcm --name healthcm --createingress
+)
 ```
 
 To apply the changes we have to run the following command:
 
 ```shell
-fission spec apply --wait
+fission spec apply --specdir fission/specs --wait
 ```
 
 We can now test the function (after waiting for all the pods to have been updated) to see if the environment variables
 have been passed correctly:
 
+Let's open a log window in another shell:
 ```shell
-fission fn log -f --name health
+fission fn log -f --name healthcm
 ```
 
-And (in another shell):
-
+And try out the changed function
 ```shell
-curl "http://127.0.0.1:9090/health"  | jq '.'
+curl "http://127.0.0.1:9090/healthcm"  | jq '.'
 ```
 
 When ConfigMaps are changed, the specs have to be re-applied.
@@ -338,7 +337,7 @@ Fission can read secrets as well, which are better suited to hold sensitive info
 
 ### Creation of a RestFUL API with YAML specifications
 
-Fission HTTPTrigger can be used to create a RESTful API that allows a further decoupling between the function and the
+Fission HTTPTrigger can be used to create a ReSTful API that allows a further decoupling between the function and the
 way it is invoked.
 
 For instance, let's suppose we want to query ElasticSearch for the average temperature on a given day for one station or
@@ -356,81 +355,79 @@ A ReSTful API may look like:
 We start by using the fission commands to create the YAML files defining the routes/HTTPTriggers:
 
 ```shell
-fission route create --spec --name avgtempday --function avgtemp \
-  --method GET \
-  --url '/temperature/days/{date:[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]}'
-
-fission route create --spec --name avgtempdaystation --function avgtemp \
-  --method GET \
-  --url '/temperature/days/{date:[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]}/stations/{station:[a-zA-Z0-9]+}'
+(
+  cd fission
+  fission route create --spec --name avgtempday --function avgtemp \
+    --method GET \
+    --url '/temperature/days/{date:[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]}'
+  fission route create --spec --name avgtempdaystation --function avgtemp \
+    --method GET \
+    --url '/temperature/days/{date:[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]}/stations/{station:[a-zA-Z0-9]+}'
+)
 ```
 
 #### Function creation
 
-Let's create the function and related package specs:
+Let's create the function (`avgtemp.js`) and related package specs:
 
 ```shell
-fission package create --spec --name avgtemp \
-  --source ./functions/avgtemp/*.py \
-  --source ./functions/avgtemp/*.txt \
-  --source ./functions/avgtemp/*.sh \
-  --env python \
-  --buildcmd './build.sh'
-
-fission fn create --spec --name avgtemp \
-  --pkg avgtemp \
-  --env python \
-  --entrypoint "avgtemp.main"
+(
+  cd fission
+  fission package create --spec --name avgtemp \
+    --source ./functions/avgtemp/*.py \
+    --source ./functions/avgtemp/*.txt \
+    --source ./functions/avgtemp/*.sh \
+    --env python \
+    --buildcmd './build.sh'
+  fission fn create --spec --name avgtemp \
+    --pkg avgtemp \
+    --env python \
+    --entrypoint "avgtemp.main"
+)
 ```
 
 (From the function point of view the path parameters `date` and `station` are headers prefixed by `X-Fission-Params`.)
 
 Let's apply the specs to the cluster:
-
 ```shell
-fission spec apply --wait
+fission spec apply --specdir fission/specs --wait
 ```
-
-#### ReSTful API test
-
-```shell
-curl "http://localhost:9090/temperature/days/2024-01-25" | jq '.'
-curl "http://localhost:9090/temperature/days/2024-01-25/stations/95936" | jq '.'
-```
-
-(The port forwarding from the Fission router must be running.)
 
 ## Development of an Event-driven architecture with Fission
 
 NOTE: This is not needed for Assignment 2, it is provided for didactic purposes only.
 
-### Installation of Kafka and Keda
+### Installation of Keda and Kafka
 
 ```shell
 export KEDA_VERSION='2.9'
-export STRIMZI_VERSION='0.38.0'
 
 helm repo add kedacore https://kedacore.github.io/charts
 helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
+helm repo update
+helm upgrade keda kedacore/keda --install --namespace keda --create-namespace --version ${KEDA_VERSION}
+
+export STRIMZI_VERSION='0.38.0'
 helm repo add strimzi https://strimzi.io/charts/
 helm repo update
-
-helm upgrade keda kedacore/keda --install --namespace keda --create-namespace --version ${KEDA_VERSION}
-helm upgrade kafka strimzi/strimzi-kafka-operator --install --namespace kafka --create-namespace --version ${STRIMZI_VERSION}
+helm upgrade kafka strimzi/strimzi-kafka-operator --install --namespace kafka\
+   --create-namespace --version ${STRIMZI_VERSION}
 ```
 
 Wait for all pods to have started:
 
 ```shell
 kubectl get pods -n keda --watch
+```
+```shell
 kubectl get pods -n kafka --watch
 ```
 
 ### Creation of a Kafka cluster and topics
 
+(A topic is a message queue in Kafka.
 ```shell
-kubectl apply -f  "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/${STRIMZI_VERSION}/examples/kafka/kafka-persistent-single.yaml" \
-  -n kafka
+kubectl apply -f ./fission/kafka-cluster.yaml -n kafka
 ```
 
 Wait for all pods to have started:
@@ -444,29 +441,6 @@ The Kafka cluster `my-cluster` is now ready to be used; it has a single broker a
 ```shell
 kubectl get kafka -n kafka
 ```
-
-### Kafka web-admin installation
-
-```shell
-helm repo add kafka-ui https://provectus.github.io/kafka-ui-charts
-helm repo update
-helm upgrade kafka-ui kafka-ui/kafka-ui --install --namespace default -f kafka-ui-config.yaml
-```
-
-Wait for the pod to start:
-
-```shell
-kubectl get pods --watch
-```
-
-Forward the pod port to the localhost (in a different shell):
-
-```shell
-export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=kafka-ui,app.kubernetes.io/instance=kafka-ui" -o jsonpath="{.items[0].metadata.name}")
-kubectl --namespace default port-forward $POD_NAME 8080:8080
-```
-
-Point your browser to `http://localhost:8080`
 
 ### Application development
 
@@ -483,33 +457,62 @@ into a standardized structure that can be added to ElasticSearch.
 
 #### Functions
 
-We would reuse the `wharvester` and `addobservation` functions we introduced earlier, but have also to add:
+We would reuse the `addobservations` functions we introduced earlier, but have also to add:
 
 - an `aharvester` function to get data from the Air Quality project;
+- a `wharvester` function to get data from the BoM;
 - a `Wprocessor` function to filter, convert, and split the BoM data into a simpler structure;
 - an `aprocessor` function to filter, convert, and split the AIRQ data into a simpler structure;
 - an `enqueue` function to add data to a queue (Kafka topic).
 
 ```shell
-fission function create --name aharvester --env python --code ./functions/aharvester.py
-fission function create --name wprocessor --env nodejs --code ./functions/wprocessor.js
-fission function create --name aprocessor --env nodejs --code ./functions/aprocessor.js
+(
+  cd fission
+  fission function create --name aharvester --spec --env python --code ./functions/aharvester.py
+  fission function create --name wharvester --spec --env python --code ./functions/wharvester.py
+  fission function create --name wprocessor --spec --env nodejs --code ./functions/wprocessor.js
+  fission function create --name aprocessor --spec --env nodejs --code ./functions/aprocessor.js
+)  
 
 (
-  cd functions/enqueue
+  cd ./fission/functions/enqueue
   zip -r enqueue.zip .
   mv enqueue.zip ../
 )
 
-fission package create --sourcearchive functions/enqueue.zip \
-  --env python \
-  --name enqueue \
-  --buildcmd './build.sh'
+(
+  cd fission
+  fission package create --spec --sourcearchive ./functions/enqueue.zip \
+    --env python \
+    --name enqueue \
+    --buildcmd './build.sh'
 
-fission fn create --name enqueue \
-  --pkg enqueue \
-  --env python \
-  --entrypoint "enqueue.main"
+  fission function create --spec --name enqueue \
+    --pkg enqueue \
+    --env python \
+    --entrypoint "enqueue.main"
+)
+  
+(
+  cd fission/functions/addobservations
+  zip -r addobservations.zip .
+  mv addobservations.zip ../
+)
+
+(
+  cd fission
+  fission package create --sourcearchive ./functions/addobservations.zip\
+    --spec\
+    --env python\
+    --name addobservations\
+    --buildcmd './build.sh'
+    
+  fission fn create --name addobservations\
+    --spec\
+    --pkg addobservations\
+    --env python\
+    --entrypoint "addobservations.main" # Function name and entrypoint  
+)
 ```
 
 #### Message queues
@@ -523,10 +526,10 @@ and for this application we need to create the following topics:
 - an `errors` topic that contains possible queueing errors.
 
 ```shell
-kubectl apply -f ./topics/weather.yaml --namespace kafka
-kubectl apply -f ./topics/airquality.yaml --namespace kafka
-kubectl apply -f ./topics/observations.yaml --namespace kafka
-kubectl apply -f ./topics/errors.yaml --namespace kafka
+kubectl apply -f ./fission/topics/weather.yaml --namespace kafka
+kubectl apply -f ./fission/topics/airquality.yaml --namespace kafka
+kubectl apply -f ./fission/topics/observations.yaml --namespace kafka
+kubectl apply -f ./fission/topics/errors.yaml --namespace kafka
 ```
 
 To list all the Kafka topic just created:
@@ -547,64 +550,94 @@ To bind all these functions and queues together, we have now to create triggers:
 - an `add-observations` queue trigger to add observations to ElasticSearch.
 
 ```shell
-fission timer create --name weather-ingest --function wharvester --cron "@every 1m"
-fission timer create --name airquality-ingest --function aharvester --cron "@every 1m"
+(
+  cd fission
+  fission timer create --spec --name weather-ingest --function wharvester --cron "@every 1m"
+  fission timer create --spec --name airquality-ingest --function aharvester --cron "@every 1m"
 
-fission httptrigger create --name enqueue --url "/enqueue/{topic}" --method POST --function enqueue
+  fission httptrigger create --spec --name enqueue --url "/enqueue/{topic}" --method POST --function enqueue
 
-fission mqtrigger create --name weather-processing \
-   --function wprocessor \
-   --mqtype kafka \
-   --mqtkind keda \
-   --topic weather \
-   --resptopic observations \
-   --errortopic errors \
-   --maxretries 3 \
-   --metadata bootstrapServers=my-cluster-kafka-bootstrap.kafka.svc:9092 \
-   --metadata consumerGroup=my-group \
-   --cooldownperiod=30 \
-   --pollinginterval=5
+  fission mqtrigger create --name weather-processing \
+    --spec\
+    --function wprocessor \
+    --mqtype kafka \
+    --mqtkind keda \
+    --topic weather \
+    --resptopic observations \
+    --errortopic errors \
+    --maxretries 3 \
+    --metadata bootstrapServers=my-cluster-kafka-bootstrap.kafka.svc:9092 \
+    --metadata consumerGroup=my-group \
+    --cooldownperiod=30 \
+    --pollinginterval=5
 
-fission mqtrigger create --name airquality-processing \
-   --function aprocessor \
-   --mqtype kafka \
-   --mqtkind keda \
-   --topic airquality \
-   --resptopic observations \
-   --errortopic errors \
-   --maxretries 3 \
-   --metadata bootstrapServers=my-cluster-kafka-bootstrap.kafka.svc:9092 \
-   --metadata consumerGroup=my-group \
-   --cooldownperiod=30 \
-   --pollinginterval=5
+  fission mqtrigger create --name airquality-processing \
+    --spec\
+    --function aprocessor \
+    --mqtype kafka \
+    --mqtkind keda \
+    --topic airquality \
+    --resptopic observations \
+    --errortopic errors \
+    --maxretries 3 \
+    --metadata bootstrapServers=my-cluster-kafka-bootstrap.kafka.svc:9092 \
+    --metadata consumerGroup=my-group \
+    --cooldownperiod=30 \
+    --pollinginterval=5
 
-fission mqtrigger create --name add-observations \
-   --function addobservations \
-   --mqtype kafka \
-   --mqtkind keda \
-   --topic observations \
-   --errortopic errors \
-   --maxretries 3 \
-   --metadata bootstrapServers=my-cluster-kafka-bootstrap.kafka.svc:9092 \
-   --metadata consumerGroup=my-group \
-   --cooldownperiod=30 \
-   --pollinginterval=5
+  fission mqtrigger create --name add-observations \
+    --spec\
+    --function addobservations \
+    --mqtype kafka \
+    --mqtkind keda \
+    --topic observations \
+    --errortopic errors \
+    --maxretries 3 \
+    --metadata bootstrapServers=my-cluster-kafka-bootstrap.kafka.svc:9092 \
+    --metadata consumerGroup=my-group \
+    --cooldownperiod=30 \
+    --pollinginterval=5
+)   
 ```
+
+Apply the specs:
+```shell
+fission spec apply --specdir fission/specs --wait
+```
+
+NOTE: for `spec apply` to pick up changes to function that use packages the zipfile has to be updated first.
 
 From the logs you should now be able to see the data flowing from the harvesters to the processors and finally to ElasticSearch
 (you can also have a look at the queues with the Kafka-UI).
 
 After a while enough data would be harvested to be able to query ElasticSearch.
 
-NOTE: depending on how we define the document ID in the `addpbservations` function, the same document may be added multiple times
+NOTE: depending on how we define the document ID in the `addobservations` function, the same document may be added multiple times
 (if we were to omit the document Id a new one will be generated automatically by ElasticSearch).
 
 #### Create a data view from Kibana
 
-Go to Kibana, create a data view named "observations" with pattern "observation\*" and timestamp field "timestamp", and check that the documents have been
+In a different shell, start a port forward from Kibana:
+```shell
+kubectl port-forward service/kibana-kibana -n elastic 5601:5601
+```
+
+Open Kibana in your browser, create a data view named "observations" with pattern "observation\*" and timestamp field "timestamp", and check that the documents have been
 added to the index by going to "Analysis / Discover".
 
 Now Kibana can be used to test search queries or to have a look at the data.
+
+#### ReSTful API test
+
+date +"%Y-%m-%d"
+
+These requests return thelp same results because there is only one station in the data:
+```shell
+curl "http://localhost:9090/temperature/days/$(date +"%Y-%m-%d")" | jq '.'
+curl "http://localhost:9090/temperature/days/$(date +"%Y-%m-%d")/stations/95936" | jq '.'
+```
+(The port forwarding from the Fission router must be running.)
+
 
 ## Harvesting requests
 
@@ -642,33 +675,114 @@ statuses in ElasticSearch, with the `lastid` variable value taken from an Elasti
 Even better, the Mastodon harvester could use a WebSocket to communicate with Mastodon in streaming mode and have the function
 executed whenever there are new posts.
 
-````python
-
-```shell
-
 Download the [Mastodon.py](https://mastodonpy.readthedocs.io/en/stable/) package as source code and put it in the `functions/mharvester` directory.
 
 Create the archive, the package, and the function:
 ```shell
 (
-  cd functions/mharvester
+  cd ./functions/mharvester
   zip -r mharvester.zip .
   mv mharvester.zip ../
 )
 
-fission package create --sourcearchive functions/mharvester.zip \
-  --env python \
-  --name mharvester \
-  --buildcmd './build.sh'
+(
+  cd fission
+  fission package create --sourcearchive ./functions/mharvester.zip \
+    --spec\
+    --env python \
+    --name mharvester \
+    --buildcmd './build.sh'
 
-fission fn create --name mharvester \
-  --pkg mharvester \
-  --env python \
-  --entrypoint "mharvester.main"
-````
+  fission fn create --name mharvester \
+    --spec\
+    --pkg mharvester \
+    --env python \
+    --entrypoint "mharvester.main"
+)
+```
+
+```shell
+fission spec apply --specdir fission/specs --wait
+```
 
 Test the harvester:
 
 ```shell
-fission fn test --name mharvester
+fission fn test --name mharvester | jq '.'
+```
+
+## Uninstallation
+
+### Delete functions, triggers, and topics
+
+```shell
+fission httptrigger delete --name health
+fission httptrigger delete --name healthcm
+fission httptrigger delete --name avgtempday
+fission httptrigger delete --name enqueue
+
+fission timetrigger delete --name airquality-ingest
+fission timetrigger delete --name weather-ingest 
+
+fission mqtrigger delete --name add-observations
+fission mqtrigger delete --name airquality-processing
+fission mqtrigger delete --name weather-processing
+
+fission function delete --name avgtemp
+fission function delete --name avgtempdaystation
+fission function delete --name healthcm
+fission function delete --name addobservations
+fission function delete --name health
+fission function delete --name mharvester
+fission function delete --name wharvester
+fission function delete --name aharvester
+fission function delete --name wprocessor
+fission function delete --name aprocessor
+fission function delete --name enqueue
+```
+
+### Delete packages and environments
+```shell
+fission package delete --name addobservations
+fission package delete --name avgtemp
+fission package delete --name enqueue
+fission package delete --name mharvester
+
+fission environment delete --name python
+fission environment delete --name nodejs
+```
+
+### Remove the specs directory
+
+```shell
+rm -r fission/specs
+```
+
+### Kafka uninstallation
+
+```shell
+kubectl delete kafka my-cluster --namespace kafka
+```
+
+```shell
+helm uninstall kafka --namespace kafka
+```
+
+### Keda uninstallation
+
+```shell
+helm uninstall keda --namespace keda
+```
+
+### Delete the ElasticSearch index
+
+```shell
+curl -XDELETE -k 'https://127.0.0.1:9200/observations' \
+   --user 'elastic:elastic' 
+```
+
+### Fission uninstallation
+
+```shell
+kubectl delete -k "github.com/fission/fission/crds/v1?ref=v${FISSION_VERSION}"
 ```

@@ -9,6 +9,8 @@ def main():
         basic_auth=('elastic', 'elastic')
     )
 
+    current_app.logger.info(f'Observations to add:  {request.get_json(force=True)}')
+
     for obs in request.get_json(force=True):
         res = client.index(
             index='observations',
