@@ -199,7 +199,6 @@ Let's start by deleting functions, packages, triggers, and even the environments
 
 ```shell
 fission httptrigger delete --name health
-fission httptrigger delete --name enqueue
 fission function delete --name addobservations
 fission function delete --name health
 fission function delete --name wharvestersimple
@@ -308,7 +307,6 @@ In addition, we have to create the function definition so that the config map is
 (
   cd fission
   fission httptrigger delete --name health
-  fission httptrigger delete --name healthcm
   fission function create --spec --name healthcm --env python --code ./functions/healthcm.py --configmap shared-data
   fission route create --spec --url /healthcm --function healthcm --name healthcm --createingress
 )
@@ -395,15 +393,6 @@ Let's apply the specs to the cluster:
 fission spec apply --specdir fission/specs --wait
 ```
 
-#### ReSTful API test
-
-These requests return empty results because there are no data in ElasticSearch yet. 
-```shell
-curl "http://localhost:9090/temperature/days/2024-01-25" | jq '.'
-curl "http://localhost:9090/temperature/days/2024-01-25/stations/95936" | jq '.'
-```
-(The port forwarding from the Fission router must be running.)
-
 ## Development of an Event-driven architecture with Fission
 
 NOTE: This is not needed for Assignment 2, it is provided for didactic purposes only.
@@ -471,7 +460,7 @@ into a standardized structure that can be added to ElasticSearch.
 We would reuse the `addobservations` functions we introduced earlier, but have also to add:
 
 - an `aharvester` function to get data from the Air Quality project;
-- an `wharvester` function to get data from the BoM;
+- a `wharvester` function to get data from the BoM;
 - a `Wprocessor` function to filter, convert, and split the BoM data into a simpler structure;
 - an `aprocessor` function to filter, convert, and split the AIRQ data into a simpler structure;
 - an `enqueue` function to add data to a queue (Kafka topic).
@@ -628,10 +617,27 @@ NOTE: depending on how we define the document ID in the `addobservations` functi
 
 #### Create a data view from Kibana
 
-Go to Kibana, create a data view named "observations" with pattern "observation\*" and timestamp field "timestamp", and check that the documents have been
+In a different shell, start a port forward from Kibana:
+```shell
+kubectl port-forward service/kibana-kibana -n elastic 5601:5601
+```
+
+Open Kibana in your browser, create a data view named "observations" with pattern "observation\*" and timestamp field "timestamp", and check that the documents have been
 added to the index by going to "Analysis / Discover".
 
 Now Kibana can be used to test search queries or to have a look at the data.
+
+#### ReSTful API test
+
+date +"%Y-%m-%d"
+
+These requests return thelp same results because there is only one station in the data:
+```shell
+curl "http://localhost:9090/temperature/days/$(date +"%Y-%m-%d")" | jq '.'
+curl "http://localhost:9090/temperature/days/$(date +"%Y-%m-%d")/stations/95936" | jq '.'
+```
+(The port forwarding from the Fission router must be running.)
+
 
 ## Harvesting requests
 
@@ -713,10 +719,9 @@ fission fn test --name mharvester | jq '.'
 fission httptrigger delete --name health
 fission httptrigger delete --name healthcm
 fission httptrigger delete --name avgtempday
-fission httptrigger delete --name avgtempdaystation
+fission httptrigger delete --name enqueue
 
 fission timetrigger delete --name airquality-ingest
-fission timetrigger delete --name everyminute
 fission timetrigger delete --name weather-ingest 
 
 fission mqtrigger delete --name add-observations
@@ -728,7 +733,6 @@ fission function delete --name avgtempdaystation
 fission function delete --name healthcm
 fission function delete --name addobservations
 fission function delete --name health
-fission function delete --name wharvestersimple
 fission function delete --name mharvester
 fission function delete --name wharvester
 fission function delete --name aharvester
@@ -748,10 +752,19 @@ fission environment delete --name python
 fission environment delete --name nodejs
 ```
 
+### Remove the specs directory
+
+```shell
+rm -r fission/specs
+```
+
 ### Kafka uninstallation
 
 ```shell
 kubectl delete kafka my-cluster --namespace kafka
+```
+
+```shell
 helm uninstall kafka --namespace kafka
 ```
 

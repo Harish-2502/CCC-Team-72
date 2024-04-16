@@ -16,7 +16,7 @@ station_expr= Template('''{
                           "must": [
                               {
                                   "match": {
-                                      "stationid": "${station}*"
+                                      "stationid": "${station}"
                                   }
                               },
                               {
