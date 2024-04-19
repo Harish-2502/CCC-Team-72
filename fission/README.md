@@ -719,6 +719,7 @@ fission fn test --name mharvester | jq '.'
 fission httptrigger delete --name health
 fission httptrigger delete --name healthcm
 fission httptrigger delete --name avgtempday
+fission httptrigger delete --name avgtempdaystation
 fission httptrigger delete --name enqueue
 
 fission timetrigger delete --name airquality-ingest
@@ -729,7 +730,6 @@ fission mqtrigger delete --name airquality-processing
 fission mqtrigger delete --name weather-processing
 
 fission function delete --name avgtemp
-fission function delete --name avgtempdaystation
 fission function delete --name healthcm
 fission function delete --name addobservations
 fission function delete --name health
