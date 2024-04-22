@@ -7,11 +7,18 @@
 - Connect to [Campus network](https://studentit.unimelb.edu.au/wifi-vpn#uniwireless) if on-campus or [UniMelb Student VPN](https://studentit.unimelb.edu.au/wifi-vpn#vpn) if off-campus
 - Kubernetes cluster is accessible (see [here](../installation/README.md#accessing-the-kubernetes-cluster))
 - ElasticSearch is installed (see [here](../installation/README.md#elasticsearch))
+- Node.js 16.x to load test data
 
 > Note: the code used here is for didactic purposes only. It has no error handling, no testing, and is not production-ready.
 
 ## Accessing the ElasticSearch API and the Kibana User Interface
 
+Before accessing Kubernetes services, an SSH tunnel to the bastion node has to be opened in a different shell and kept open.
+In addition, the `openrc` file has to be source and the kubeconfig file put under the `~/.kube` directory (see the READM in
+the `installaiton` folder for more details).
+
+
+```shell 
 To access services on the cluster, one has to use the `port-forward` command of `kubectl` in a new terminal window.
 
 ```shell
@@ -19,10 +26,7 @@ kubectl port-forward service/elasticsearch-master -n elastic 9200:9200
 ```
 
 > Note: This command will start the port forwarding so please keep this terminal open and do not close it.
-
-```shell
-kubectl port-forward service/elasticsearch-master -n elastic 9200:9200
-```
+> Note: The port forwarding can be stopped by pressing `Ctrl + C` and closing the terminal window. The port forwarding is only active when the terminal window is open. Once it is stopped, you need to re-run the command to start the port forwarding again.
 
 To access the Kibana user interface, one has to use the `port-forward` command of `kubectl` (another terminal window):
 
@@ -36,7 +40,6 @@ kubectl port-forward service/kibana-kibana -n elastic 5601:5601
 Test the ElasticSearch API:
 
 ```shell
-curl -k 'https://127.0.0.1:9200' --user 'elastic:elastic' | jq '.'
 curl -k 'https://127.0.0.1:9200/_cluster/health' --user 'elastic:elastic' | jq '.'
 ```
 
@@ -74,9 +77,9 @@ curl -XPUT -k 'https://127.0.0.1:9200/students'\
    --user 'elastic:elastic' | jq '.'
 ```
 
-The index should now be shown in the Kibana dashboard.
+The index should now be shown in the Kibana dashboard ('Management / Index management').
 
-Let's try to add a document to the newly created index:
+Let's add some documents to the newly created index:
 
 ```shell
 curl -XPUT -k "https://127.0.0.1:9200/students/_doc/1234567"\
@@ -119,7 +122,7 @@ curl -XGET -k "https://127.0.0.1:9200/students/_search"\
 
 ## Create a data view from Kibana
 
-Go to Kibana, create a data view named "students" with pattern "student\*", and check that the documents have been
+Go to Kibana (Management / Kibana / Data views) , create a data view named "students" with pattern "student\*", and check that the documents have been
 added to the index by going to "Analysis / Discover".
 
 Now Kibana can be used to test search queries or to have a look at data.
@@ -215,7 +218,7 @@ curl -XPUT -k "https://127.0.0.1:9200/students/_doc/3?routing=comp90024"\
   --user 'elastic:elastic' | jq '.'
 ```
 
-Example of a query that returns all students of a give course that have a mark greater than 80:
+Example of a query that returns all students of a given course that have a mark greater than 80:
 
 ```shell
 curl -XGET -k "https://127.0.0.1:9200/students/_search"\
@@ -252,8 +255,7 @@ curl -XGET -k "https://127.0.0.1:9200/students/_search"\
 
 ### Data setup
 
-Create an ElasticSearch Index to hold temperatures
-
+Create an ElasticSearch Index to hold temperatures (it uses dynamic mapping):
 ```shell
 curl -XPUT -k 'https://127.0.0.1:9200/temperatures'\
    --header 'Content-Type: application/json'\
@@ -286,11 +288,15 @@ curl -XPUT -k 'https://127.0.0.1:9200/temperatures'\
    --user 'elastic:elastic' | jq '.'
 ```
 
-Load temperatures data
-
+Load temperatures data as vectors in the index (temperatures are expressed in Kelvins):
 ```shell
-node loadTemperature.js
+(
+  cd elastic
+  node loadTemperature.js
+)
 ```
+
+Add the index "temperatures" as a Kibana data view. 
 
 ### Vector search
 
@@ -303,10 +309,44 @@ curl -XGET -k "https://127.0.0.1:9200/temperatures/_search"\
   "knn": {
     "field": "temperature",
     "query_vector": [274.62,275.18,275.9,276.74,277.65,278.56,279.4,280.12,280.68,281.03,281.15,281.03,280.68,280.12,279.4,278.56,277.65,276.74,275.9,275.18,274.62,274.27,274.15,274.27],
-    "k": 10,
+    "k": 4,
     "num_candidates": 100
   },
   "fields": [ "date" ]
 }'\
   --user 'elastic:elastic' | jq '.'
 ```
+
+## Use of Kibana to test queries
+
+Go to "Dev Tools / Console" and try the following queries:
+
+Match partial strings:
+```shell
+POST /_sql?format=txt
+{
+ "query": "SELECT * FROM students WHERE MATCH(coursedescription, 'cloud*')"
+}
+```
+
+Histogram query with CASTing of a text field to a timestamp:
+```shell
+POST /_sql?format=txt
+{
+ "query": "SELECT HISTOGRAM(CAST(date AS TIMESTAMP), INTERVAL 1 MONTH) AS D, COUNT(*) AS N FROM temperatures GROUP BY D"
+}
+```
+
+### Use Kibana to convert queries from SQL to Query DSL
+
+Change the endpoint of thw query to `POST /_sql/translate` and execute it: the result will be the equivalent Query DSL query.
+
+
+### Use of Kibana to browse data
+
+In Kibana, go to "Discover" and select the "students" data view. Create the KQL expressione `name : "john"`, a single document should be returned.
+
+When there is a timestamp in your data, as it is the case for the `observations` index (which can be created by following
+the instructions in the Fission README), you can use Kibana to select data easily by time range.
+
+

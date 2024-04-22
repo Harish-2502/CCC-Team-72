@@ -325,3 +325,5 @@ cython_debug/
 /installation/config.test
 /installation/config.bak
 /installation/config.grp1
+/installation/config.grp70
+/installation/config.test
