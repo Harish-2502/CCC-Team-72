@@ -168,7 +168,7 @@ curl -XPUT -k 'https://127.0.0.1:9200/students' \
             "relation_type": {
                 "type": "join",
                 "relations": {
-                    "parent": "child"
+                    "course": "student"
                 }
             }
         }
@@ -186,7 +186,7 @@ curl -XPUT -k "https://127.0.0.1:9200/students/_doc/1?routing=comp90024"\
         "name": "COMP90024",
         "coursedescription": "Cloud Computing",
         "relation_type": {
-          "name": "parent"
+          "name": "course"
         }
     }'\
   --user 'elastic:elastic' | jq '.'
@@ -198,7 +198,7 @@ curl -XPUT -k "https://127.0.0.1:9200/students/_doc/2?routing=comp90024"\
         "uomid": "1234567",
         "mark": 80,
         "relation_type": {
-          "name": "child",
+          "name": "student",
           "parent": 1
         }
   }'\
@@ -211,7 +211,7 @@ curl -XPUT -k "https://127.0.0.1:9200/students/_doc/3?routing=comp90024"\
         "uomid": "0123456",
         "mark": 90,
         "relation_type": {
-          "name": "child",
+          "name": "student",
           "parent": 1
         }
       }'\
@@ -236,7 +236,7 @@ curl -XGET -k "https://127.0.0.1:9200/students/_search"\
                 },
                 {
                     "has_parent": {
-                        "parent_type": "parent",
+                        "parent_type": "course",
                         "query": {
                             "match": {
                                 "name": "comp90024"
