@@ -32,4 +32,4 @@ Object.entries (temperature).forEach ((item) => {
   req.end ();
 });
 
-// Generate an array of 24 typical temperatures for a day in January in Vancouver
+
