@@ -107,7 +107,7 @@ curl -XGET -k "https://127.0.0.1:9200/students/_search"\
   --data '{
       "query": {
         "match": {
-          "course": "cloud*"
+          "course": "cloud"
         }
       }
     }'\
@@ -131,16 +131,9 @@ two documents should be returned (the expression language used in the Discover t
 To avoid repeating data about the course, it is possible to create a parent-child relationship between the student and the course.
 with some limitations.
 
-Let's first delete the `students` index:
-
+Create a `coursesstudents` database with a mapping that defines the parent-child relationship:
 ```shell
-curl -XDELETE -k 'https://127.0.0.1:9200/students' --user 'elastic:elastic' | jq '.'
-```
-
-Then let's re-create the database with a mapping that defines the parent-child relationship:
-
-```shell
-curl -XPUT -k 'https://127.0.0.1:9200/students' \
+curl -XPUT -k 'https://127.0.0.1:9200/coursesstudents' \
   --header 'Content-Type: application/json' \
   --data '{
     "settings": {
@@ -174,7 +167,7 @@ curl -XPUT -k 'https://127.0.0.1:9200/students' \
 Let's insert some data about courses and students that use the parent-child relationship:
 
 ```shell
-curl -XPUT -k "https://127.0.0.1:9200/students/_doc/comp90024?routing=comp"\
+curl -XPUT -k "https://127.0.0.1:9200/coursesstudents/_doc/comp90024?routing=comp"\
   --header 'Content-Type: application/json'\
   --data '{
         "name": "COMP90024",
@@ -185,7 +178,7 @@ curl -XPUT -k "https://127.0.0.1:9200/students/_doc/comp90024?routing=comp"\
     }'\
   --user 'elastic:elastic' | jq '.'
 
-curl -XPUT -k "https://127.0.0.1:9200/students/_doc/1234567?routing=comp"\
+curl -XPUT -k "https://127.0.0.1:9200/coursesstudents/_doc/1234567?routing=comp"\
   --header 'Content-Type: application/json'\
   --data '{
         "name": "John Smith",
@@ -197,7 +190,7 @@ curl -XPUT -k "https://127.0.0.1:9200/students/_doc/1234567?routing=comp"\
   }'\
   --user 'elastic:elastic' | jq '.'
 
-curl -XPUT -k "https://127.0.0.1:9200/students/_doc/0123456?routing=comp"\
+curl -XPUT -k "https://127.0.0.1:9200/coursesstudents/_doc/0123456?routing=comp"\
   --header 'Content-Type: application/json'\
   --data '{
         "name": "Jane Doe",
@@ -215,7 +208,7 @@ NOTE: the "routing" parameter has to be added so that all children are in the sa
 Example of a query that returns all students of course whose description contains "computing" hat have a mark greater than 80:
 
 ```shell
-curl -XGET -k "https://127.0.0.1:9200/students/_search"\
+curl -XGET -k "https://127.0.0.1:9200/coursesstudents/_search"\
   --header 'Content-Type: application/json'\
   --data '{
     "query": {
@@ -318,7 +311,7 @@ Match partial strings:
 ```shell
 POST /_sql?format=txt
 {
- "query": "SELECT * FROM students WHERE MATCH(coursedescription, 'computing')"
+ "query": "SELECT * FROM students WHERE MATCH(course, 'computing')"
 }
 ```
 
@@ -343,12 +336,13 @@ When there is a timestamp in your data, as it is the case for the `temperatures`
 
 ## Removal of indexes
 
-To remove the data views in Kibana, go to "Management / Kibana / Data views" and delte the data views you want to remove.
+To remove the data views in Kibana, go to "Management / Kibana / Data views" and delete the data views you want to remove.
 
 To remove the indexes created in this workshop, use the following commands:
 
 ```shell
 curl -XDELETE -k 'https://127.0.0.1:9200/students' --user 'elastic:elastic' | jq '.'
+curl -XDELETE -k 'https://127.0.0.1:9200/coursesstudents' --user 'elastic:elastic' | jq '.'
 curl -XDELETE -k 'https://127.0.0.1:9200/temperatures' --user 'elastic:elastic' | jq '.'
 ```
 
