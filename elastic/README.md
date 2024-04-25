@@ -17,8 +17,6 @@ Before accessing Kubernetes services, an SSH tunnel to the bastion node has to b
 In addition, the `openrc` file has to be source and the kubeconfig file put under the `~/.kube` directory (see the READM in
 the `installation` folder for more details).
 
-
-```shell 
 To access services on the cluster, one has to use the `port-forward` command of `kubectl` in a new terminal window.
 
 ```shell
