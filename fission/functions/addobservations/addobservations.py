@@ -6,6 +6,7 @@ def main():
     client = Elasticsearch (
         'https://elasticsearch-master.elastic.svc.cluster.local:9200',
         verify_certs= False,
+        ssl_show_warn= False,
         basic_auth=('elastic', 'elastic')
     )
 

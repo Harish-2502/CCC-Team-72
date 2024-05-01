@@ -675,12 +675,10 @@ statuses in ElasticSearch, with the `lastid` variable value taken from an Elasti
 Even better, the Mastodon harvester could use a WebSocket to communicate with Mastodon in streaming mode and have the function
 executed whenever there are new posts.
 
-Download the [Mastodon.py](https://mastodonpy.readthedocs.io/en/stable/) package as source code and put it in the `functions/mharvester` directory.
-
 Create the archive, the package, and the function:
 ```shell
 (
-  cd ./functions/mharvester
+  cd ./fission/functions/mharvester
   zip -r mharvester.zip .
   mv mharvester.zip ../
 )
