@@ -229,6 +229,16 @@ Let's start by creating the specs for the Python and Node.js environments:
 )  
 ```
 
+NOTE: by default Fission uses Python 3.7, but if you plan to use Pandas 2.2.x you have to use Python 3.9,
+using the following command instead:
+```shell
+(
+  cd fission
+  fission env create --name python --builder fission/python-builder-3.9 --image fission/python-env-3.9
+  fission env create --spec --name nodejs --image fission/node-env --builder fission/node-builder
+)  
+```
+
 Let's create the specification file for a function:
 
 ```shell
