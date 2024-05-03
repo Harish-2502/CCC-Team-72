@@ -160,6 +160,9 @@ a `build.sh` command must be created to install the libraries and finally the fu
   mv addobservations.zip ../
 )
 ```
+NOTE: the ZIP file must be relative to the directory the function is in; otherwise the package build will fail. 
+To avoid this. always build the ZIP file from within the directory the function is in and then move it somewhere else
+to avoid a recursive ZIP file (see the shell commands above).
 
 Creation of a function with dependencies (this function depends on the ElasticSearch client package to add data to ElasticSearch):
 
