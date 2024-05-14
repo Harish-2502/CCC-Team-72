@@ -2,7 +2,9 @@
 
 ## Docs
 
-All files within this folder will contain all relevant documentation to the assignment
+All files within this folder will contain all relevant documentation to the assignment.
+
+Please refer to google doc for share notetaking [here](https://docs.google.com/document/d/1_0PiClO8ymAeUbTgK3BiKjQLMsWB32OxkyywTF6_kMo/edit?usp=sharing)
 
 ### Specs
 
