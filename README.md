@@ -8,7 +8,7 @@ The following are a list of possible sub folders.
 
 ### Backend
 
-See [here](./backend/README.md) for more information.
+See [here](./backend) for more information.
 
 ### Data
 
