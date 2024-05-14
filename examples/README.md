@@ -1,6 +1,6 @@
 # comp90024
 
-Code snippets for the Cloud Computing course
+Code snippets for the Cloud Computing course. Note that this has been stored in a separate folder purely for the group's reference
 
 
 ## General Requirements
