@@ -12,24 +12,24 @@ See [here](./backend) for more information.
 
 ### Data
 
-See [here](./data/README.md) for more information.
+See [here](./data) for more information.
 
 ### Database
 
-See [here](./database/README.md) for more information.
+See [here](./database) for more information.
 
 ### Docs
 
-See [here](./docs/README.md) for more information.
+See [here](./docs) for more information.
 
 ### Examples
 
-See [here](./examples/README.md) for more information.
+See [here](./examples) for more information.
 
 ### Frontend
 
-See [here](./frontend/README.md) for more information.
+See [here](./frontend) for more information.
 
 ### Test
 
-See [here](./test/README.md) for more information.
+See [here](./test) for more information.
