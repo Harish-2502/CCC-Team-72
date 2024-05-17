@@ -13,5 +13,3 @@ COPY sudodataexporter/test_sudodataexporter.py /app/
 COPY bpdataexporter/test_bpdataexporter.py /app/
 
 CMD ["bash", "-c", "coverage run -m unittest && coverage report -m && coverage html && cp -r htmlcov /workspace/"]
-
-RUN cp coverage /workspace/
