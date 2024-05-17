@@ -16,4 +16,4 @@ RUN mkdir -p /coverage
 
 CMD ["bash", "-c", "coverage run -m unittest && coverage report -m && coverage html && mv htmlcov /coverage"]
 
-RUN cp -r /coverage/* /Users/hkannan/.jenkins/workspace/Team-CCC-72/
+RUN cp -r /coverage /Users/hkannan/.jenkins/workspace/Team-CCC-72/
