@@ -1,0 +1,467 @@
+type,topic,id,indicator,period,numerator,denominator,value,value_type,sources
+Liveability,Economy,ECO_1,City's unemployment rate,2015 (June Qtr),"3,942","84,942",4.64,Percentage,"Australian Government Department of Employment, Local Government Area (LGA) Data tables, Small Area Labour Markets, June Quarter 2018"
+Liveability,Economy,ECO_2,Assessed value of commercial and industrial properties as a percentage of total assessed value of all properties,2015 (at 30 June),"48,331,069,777.00","101,671,404,180.00",47.54,Percentage,"City of Melbourne, Property Services, 2015-2018"
+Liveability,Economy,ECO_3,Percentage of city population living in poverty,2015,"13,177","136,872",9.63,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Economy,ECO_4,Percentage of persons (city population) in full-time employment,2017 (June Qtr),"68,722","159,141",43.18,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Economy,ECO_4,Percentage of persons (city population) in full-time employment,2014 (June Qtr),"55,359","127,975",43.26,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Economy,ECO_5,Youth unemployment rate,2014 (June Qtr),"1,367.89","13,048.00",10.48,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Economy,ECO_6,"Number of businesses per 100,000 people",2017 (at 30 June),"14,164",1.59,8900.28,Number,"1. Australian Bureau of Statistics, 8165.0 Counts of Australian Businesses, including Entries and Exits, June 2015 to June 2017
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Economy,ECO_6,"Number of businesses per 100,000 people",2016 (at 30 June),"13,895",1.46,9510.87,Number,"1. Australian Bureau of Statistics, 8165.0 Counts of Australian Businesses, including Entries and Exits, June 2015 to June 2017
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Economy,ECO_7,"Number of new patents per 100,000 people per year",2015,138,1.37,100.82,Number,"1. IP Australia, Intellectual Property Government Open Data, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Economy,ECO_7,"Number of new patents per 100,000 people per year",2014,94,1.28,73.45,Number,"1. IP Australia, Intellectual Property Government Open Data, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Finance,FIN_1,Debt service ratio (debt service expenditure as a percentage of a municipality's own-source revenue),FY 2017/18,"995,000.00","420,287,000.00",0.237,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_1,Debt service ratio (debt service expenditure as a percentage of a municipality's own-source revenue),FY 2015/16,"897,000.00","406,675,000.00",0.221,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_1,Debt service ratio (debt service expenditure as a percentage of a municipality's own-source revenue),FY 2014/15,0.00,"378,466,000.00",0.0,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_2,Capital spending as a percentage of total expenditures,FY 2016/17,"78,325,000.00","492,430,000.00",15.91,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_2,Capital spending as a percentage of total expenditures,FY 2015/16,"75,741,000.00","462,795,000.00",16.37,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_2,Capital spending as a percentage of total expenditures,FY 2014/15,"82,078,000.00","457,698,000.00",17.93,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_4,Tax collected as a percentage of tax billed,FY 2017/18,"269,933,000.00","271,508,000.00",99.42,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_4,Tax collected as a percentage of tax billed,FY 2016/17,"263,276,000.00","262,323,000.00",100.36,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_4,Tax collected as a percentage of tax billed,FY 2014/15,"228,981,000.00","226,920,000.00",100.91,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,"Fire, safety and shelter",FIRE_1,"Number of firefighters per 100,000 people",2017 (at 30 June),160,1.59,100.54,Number,"1. Metropolitan Fire and Emergency Services Board, 2019 (obtained on request)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_1,"Number of firefighters per 100,000 people",2016 (at 30 June),160,1.46,109.52,Number,"1. Metropolitan Fire and Emergency Services Board, 2019 (obtained on request)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_1,"Number of firefighters per 100,000 people",2015 (at 30 June),160,1.37,116.9,Number,"1. Metropolitan Fire and Emergency Services Board, 2019 (obtained on request)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_2,"Number of fire related deaths per 100,000 people",2015,N/A,1.37,1.5,Number,"1-2. National Coronial Information System, Intentional Self-Harm, Natural Disaster, Drowning and Fire-Related Fatalities in Greater Melbourne 2013-2016 (obtained on request)
+3. 2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_4,"Number of homicides per 100,000 people",FY 2015/16,6,1.46,4.11,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_4,"Number of homicides per 100,000 people",FY 2014/15,8,1.37,5.84,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_5,"Crimes against property per 100,000 people",FY 2017/18,"16,361",1.70,9626.33,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_6,"Violent crime rate per 100,000 people",FY 2017/18,"5,014",1.70,2950.09,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_6,"Violent crime rate per 100,000 people",FY 2016/17,"4,696",1.59,2950.84,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Governance,GOV_3,Percentage of women employed in the city government workforce,FY 2017/18,"1,128","2,574",43.82,Percentage,"1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+4. CityWide, People and Culture Team, 2015-2018, obtained on request"
+Liveability,Governance,GOV_3,Percentage of women employed in the city government workforce,FY 2015/16,"1,060","2,431",43.6,Percentage,"1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+4. CityWide, People and Culture Team, 2015-2018, obtained on request"
+Liveability,Governance,GOV_3,Percentage of women employed in the city government workforce,FY 2014/15,"1,019","2,631",38.73,Percentage,"1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+4. CityWide, People and Culture Team, 2015-2018, obtained on request"
+Liveability,Governance,GOV_4,"Citizens' representation: number of local officials elected to office per 100,000 people",2018,11,1.70,6.47,Number,"1. Victorian Electoral Commission, 2017 (obtained on request)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Governance,GOV_4,"Citizens' representation: number of local officials elected to office per 100,000 people",2012,11,1.08,10.23,Number,"1. Victorian Electoral Commission, 2017 (obtained on request)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_1,"Number of in-patient hospital beds per 100,000 people",2015,"2,341",1.19,1972.02,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_2,"Number of physicians per 100,000 people",2016,"3,431.60",1.46,2348.87,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_3,"Under age five mortality per 1,000 live births",2014,N/A,N/A,4.5,Number,"Australian Institute of Health and Welfare, Child Mortality data 2010-2015 (obtained on request)"
+Liveability,Health and education,HEA_3,"Under age five mortality per 1,000 live births",2013,N/A,N/A,5.4,Number,"Australian Institute of Health and Welfare, Child Mortality data 2010-2015 (obtained on request)"
+Liveability,Health and education,HEA_4,"Number of nursing and midwifery personnel per 100,000 people",2016,"7,418.20",1.46,5077.62,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_4,"Number of nursing and midwifery personnel per 100,000 people",2014,"6,924.70",1.28,5410.98,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_5,"Number of mental health practitioners per 100,000 people",2017,"1,306.40",1.59,822.03,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Profile - housing, government and economy",PROH_1,Gross operating budget,FY 2014/15,N/A,N/A,457698000.0,Dollars,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,"Profile - housing, government and economy",PROH_2,Gross capital budget,FY 2016/17,N/A,N/A,78325000.0,Dollars,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,"Profile - housing, government and economy",PROH_2,Gross capital budget,FY 2015/16,N/A,N/A,75741000.0,Dollars,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,"Profile - housing, government and economy",PROH_2,Gross capital budget,FY 2014/15,N/A,N/A,82078000.0,Dollars,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,"Profile - housing, government and economy",PROH_4,Persons per unit (average number of persons per household),2006,N/A,N/A,1.9,Number,"1-2. Australian Bureau of Statistics, 2011 & 2016 Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,"Profile - housing, government and economy",PROH_5,Dwelling density (per square kilometre),2011,"46,353",37.7,1229.52,Number,"1-2. Australian Bureau of Statistics, 2011 & 2016 Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,"Profile - housing, government and economy",PROH_8,Percentage of country GDP,FY 2016/17,"1,323,421,072,479.07","73,043,232,000.00",5.52,Percentage,"1. The World Bank data, GDP (current US$) for Australia, 1960-2017
+2. City of Melbourne, Economic Profile 2018"
+Liveability,"Profile - housing, government and economy",PROH_8,Percentage of country GDP,FY 2015/16,"1,208,039,015,868.39","68,408,312,000.00",5.66,Percentage,"1. The World Bank data, GDP (current US$) for Australia, 1960-2017
+2. City of Melbourne, Economic Profile 2018"
+Liveability,"Profile - housing, government and economy",PROH_8,Percentage of country GDP,FY 2013/14,"1,464,955,475,993.76","83,367,000,000.00",5.69,Percentage,"1. The World Bank data, GDP (current US$) for Australia, 1960-2017
+2. City of Melbourne, Economic Profile 2018"
+Liveability,Profile - people,PROP_1,Total city population,2018 (at 30 June),N/A,N/A,169961.0,Number,"1. Australian Bureau of Statistics, 3218.0 Regional Population Growth, Australia, 2017-18 - Population Estimates by Local Government Area (ASGS 2018), (Table 2)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Profile - people,PROP_10,Percentage of population that are adults (25-64 years),2017 (at 30 June),"91,202","158,923",57.39,Percentage,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_10,Percentage of population that are adults (25-64 years),2014 (at 30 June),"74,084","127,975",57.89,Percentage,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_12,Population dependency ratio (people aged under 15 years or over 64 years),2017 (at 30 June),12.99,87.01,14.93,Percentage,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_12,Population dependency ratio (people aged under 15 years or over 64 years),2016 (at 30 June),13.22,86.78,15.24,Percentage,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_2,Population density per square kilometre (km2),2018 (at 30 June),"169,961",37.7,4508.25,Number,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_2,Population density per square kilometre (km2),2017 (at 30 June),"159,141",37.7,4221.25,Number,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_3,Percentage of country’s population,2017 (at 30 June),"159,141","24,190,907",0.66,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_6,Annual population change,2017 (at 30 June),"146,096","159,141",8.93,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Recreation and urban planning,REC_2,Square metres of public outdoor recreation space per person (m²/capita),2016,"7,687,266","146,096",52.62,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Recreation and urban planning,REC_2,Square metres of public outdoor recreation space per person (m²/capita),2014,"7,689,388","127,975",60.09,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Recreation and urban planning,REC_3,"Green area (hectares) per 100,000 people",2017,582.99,1.59,366.33,Number,"1. City of Melbourne, Open Space Schedule, 2014-2017
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Recreation and urban planning,REC_4,"Annual number of trees planted per 100,000 people",2017,"2,967",1.59,1864.38,Number,"1. City of Melbourne, Urban Forest and Ecology Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Recreation and urban planning,REC_5,Jobs/housing ratio,2015/16,"453,454","71,113",6.38,Number,"City of Melbourne, Census of Land Use and Employment (CLUE), 2017"
+Liveability,Transportation,TRANS_1,"Kilometres of high capacity public transport system per 100,000 people",2017,131.41,1.59,82.57,Number,"1. City of Melbourne, Smart City Office, GIS Team, 2015
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_1,"Kilometres of high capacity public transport system per 100,000 people",2016,131.41,1.46,89.95,Number,"1. City of Melbourne, Smart City Office, GIS Team, 2015
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_2,"Kilometres of light passenger public transport system per 100,000 people",2017,375.02,1.59,235.65,Number,"1. City of Melbourne, Smart City Office, GIS Team, 2015-2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_2,"Kilometres of light passenger public transport system per 100,000 people",2016,366.90,1.46,251.13,Number,"1. City of Melbourne, Smart City Office, GIS Team, 2015-2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_6,Number of two-wheel motorized vehicles per person,2017,"3,084","159,141",0.01938,Number,"1-3. Australian Bureau of Statistics, 2006, 2011 & 2016 Census of Population and Housing - Counting Employed Persons, Place of Work (POW)"
+Liveability,Transportation,TRANS_6,Number of two-wheel motorized vehicles per person,2015,"2,416","136,872",0.01765,Number,"1-3. Australian Bureau of Statistics, 2006, 2011 & 2016 Census of Population and Housing - Counting Employed Persons, Place of Work (POW)"
+Liveability,Transportation,TRANS_7,"Transportation fatalities per 100,000 people",2017,4.00,1.59,2.51,Number,"1. Data.Vic, Crashes Last Five Years, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_7,"Transportation fatalities per 100,000 people",2016,4.00,1.46,2.74,Number,"1. Data.Vic, Crashes Last Five Years, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_7,"Transportation fatalities per 100,000 people",2015,4.00,1.37,2.92,Number,"1. Data.Vic, Crashes Last Five Years, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_1,Total residential electrical energy use per person (kWh/year),FY 202013/14,"366,082,191","127,975",2860.58,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_2,Energy (electricity) consumption of public buildings per year (kWh/m²),FY 202015/16,"11,126,402","83,959",132.52,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_2,Energy (electricity) consumption of public buildings per year (kWh/m²),FY 202014/15,"11,329,464","80,272",141.14,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_3,Total electrical energy use per person (kWh/year),FY 202014/15,"3,490,654,848","136,872",25503.06,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_4,Greenhouse gas emissions measured in tonnes per person,2017,"5,049,262","159,141",31.73,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_4,Greenhouse gas emissions measured in tonnes per person,FY 202013/14,"5,268,025","127,975",41.16,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_5,Total domestic water consumption per person (litres/day),FY 2016/17,"21,442,270.25","159,141",134.74,Number,"1. City West Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+2. South East Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_6,Total water consumption per person (litres/day),FY 2017/18,"61,885,997.95","169,961",364.12,Number,"1. City West Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+2. South East Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Social,Health and physical activity,PHYS_3,Percentage of residents participating in sports and exercise activities in the last 3 months,2018,N/A,"1,247",73.3,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Health and physical activity,PHYS_4,Percentage of residents participating in sports and exercise activities within the City of Melbourne in the last 3 months,2018,N/A,"1,247",67.1,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Health and physical activity,PHYS_6,"Percentage of residents participating in physical activity organised by a fitness, leisure or indoor sports centre in the last 3 months",2018,N/A,"1,247",13.2,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Wellbeing,WELL_2,Personal Wellbeing Index: Residents' satisfaction with their overall subjective wellbeing (average out of 100),2018,N/A,"1,166",73.2,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Wellbeing,WELL_4,Subjective Wellbeing: Residents' satisfaction with their health (average out of 100),2019,N/A,"1,185",74.8,Average,City of Melbourne Social Indicators Survey 2019
+Social,Wellbeing,WELL_4,Subjective Wellbeing: Residents' satisfaction with their health (average out of 100),2018,N/A,"1,166",74.2,Average,City of Melbourne Social Indicators Survey 2018
+Social,Wellbeing,WELL_6,Subjective Wellbeing: Residents' satisfaction with personal relationships (average out of 100),2019,N/A,"1,185",74.5,Average,City of Melbourne Social Indicators Survey 2019
+Social,Wellbeing,WELL_9,Subjective Wellbeing: Residents' satisfaction with their future security (average out of 100),2019,N/A,"1,185",66.7,Average,City of Melbourne Social Indicators Survey 2019
+Social,Wellbeing,WELL_9,Subjective Wellbeing: Residents' satisfaction with their future security (average out of 100),2018,N/A,"1,166",67.4,Average,City of Melbourne Social Indicators Survey 2018
+Social,Food security and production,FOOD_4,Percentage of residents who have run out of food,2019,N/A,"1,245",13.8,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Food security and production,FOOD_5,Percentage of residents who produced and consumed their own food in the last week,2019,N/A,"1,259",61.4,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Food security and production,FOOD_5,Percentage of residents who produced and consumed their own food in the last week,2018,N/A,"1,090",58.9,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Food security and production,FOOD_6,Percentage of residents who met recommended minimum daily intake of fruit and vegetables,2018,N/A,N/A,,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Participation in activities,ACT_2,Percentage of residents who have volunteered in the City of Melbourne in the last 12 months,2019,N/A,"1,246",27.9,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Participation in activities,ACT_2,Percentage of residents who have volunteered in the City of Melbourne in the last 12 months,2018,N/A,"1,232",30.8,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Participation in activities,ACT_3,Percentage of residents who have participated in arts and cultural activities in the last 3 months,2019,N/A,"1,259",19.4,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Participation in activities,ACT_5,Percentage of residents who have participated in learning activities in the last 12 months,2018,N/A,"1,247",86.3,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Participation in activities,ACT_6,Percentage of residents who have participated in learning activities in City of Melbourne in the last 12 months,2019,N/A,"1,259",68.4,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Participation in activities,ACT_6,Percentage of residents who have participated in learning activities in City of Melbourne in the last 12 months,2018,N/A,"1,247",68.0,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Participation in activities,ACT_7,Percentage of residents who have participated in activities to influence government decision making in the last 12 months,2018,N/A,"1,247",56.4,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Participation in activities,ACT_8,Percentage of residents who have participated in activities in the City of Melbourne to influence government decision making in the last 12 months,2018,N/A,"1,247",40.1,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,"Culture, diversity and safety",CULT_2,Percentage of residents that feel the relationship between Aboriginal and Torres Strait Islander people and other Australians for Australia as a nation is important,2019,N/A,"1,203",95.4,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,"Culture, diversity and safety",CULT_2,Percentage of residents that feel the relationship between Aboriginal and Torres Strait Islander people and other Australians for Australia as a nation is important,2018,N/A,"1,194",93.8,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,"Culture, diversity and safety",CULT_3,Percentage of residents that reported feeling safe by themselves in their neighbourhood during the day,2019,N/A,"1,250",86.1,Percentage,City of Melbourne Social Indicators Survey 2019
+Liveability,Economy,ECO_1,City's unemployment rate,2018 (June Qtr),"3,923","100,789",3.89,Percentage,"Australian Government Department of Employment, Local Government Area (LGA) Data tables, Small Area Labour Markets, June Quarter 2018"
+Liveability,Economy,ECO_1,City's unemployment rate,2017 (June Qtr),"3,719","96,258",3.86,Percentage,"Australian Government Department of Employment, Local Government Area (LGA) Data tables, Small Area Labour Markets, June Quarter 2018"
+Liveability,Economy,ECO_3,Percentage of city population living in poverty,2016,"13,804","146,096",9.45,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Economy,ECO_4,Percentage of persons (city population) in full-time employment,2016 (June Qtr),"62,760","146,096",42.96,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Economy,ECO_4,Percentage of persons (city population) in full-time employment,2015 (June Qtr),"58,669","136,872",42.86,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Economy,ECO_5,Youth unemployment rate,2017 (June Qtr),"1,343.01","15,313.82",8.77,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Economy,ECO_6,"Number of businesses per 100,000 people",2015 (at 30 June),"13,760",1.37,10053.19,Number,"1. Australian Bureau of Statistics, 8165.0 Counts of Australian Businesses, including Entries and Exits, June 2015 to June 2017
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Economy,ECO_7,"Number of new patents per 100,000 people per year",2016,125,1.46,85.56,Number,"1. IP Australia, Intellectual Property Government Open Data, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Finance,FIN_2,Capital spending as a percentage of total expenditures,FY 2017/18,"105,256,000.00","541,674,000.00",19.43,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_3,Own-source revenue as a percentage of total revenues,FY 2017/18,"420,287,000.00","469,828,000.00",89.46,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,"Fire, safety and shelter",FIRE_1,"Number of firefighters per 100,000 people",2018 (at 30 June),160,1.70,94.14,Number,"1. Metropolitan Fire and Emergency Services Board, 2019 (obtained on request)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_2,"Number of fire related deaths per 100,000 people",2016,N/A,1.46,0.0,Number,"1-2. National Coronial Information System, Intentional Self-Harm, Natural Disaster, Drowning and Fire-Related Fatalities in Greater Melbourne 2013-2016 (obtained on request)
+3. 2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_4,"Number of homicides per 100,000 people",FY 2017/18,32,1.70,18.83,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_5,"Crimes against property per 100,000 people",FY 2016/17,"17,372",1.59,10916.11,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_5,"Crimes against property per 100,000 people",FY 2015/16,"16,303",1.46,11159.1,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_6,"Violent crime rate per 100,000 people",FY 2014/15,"3,760",1.37,2747.09,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_7,"Number of homeless per 100,000 people",2011,391,0.94,417.62,Number,"1-2. Australian Bureau of Statistics, 2049.0 Census of Population and Housing: Estimating Homelessness, 2011 & 2016"
+Liveability,Governance,GOV_1,Voter participation in last municipal election (as a percentage of eligible voters),2012,"65,071","108,434",60.01,Percentage,"Victorian Electoral Commission, 2017 (obtained on request)"
+Liveability,Governance,GOV_2,Women as a percentage of total elected to city-level office,2018,5,11,45.45,Percentage,"Victorian Electoral Commission, 2017 (obtained on request)"
+Liveability,Governance,GOV_2,Women as a percentage of total elected to city-level office,2016,4,11,36.36,Percentage,"Victorian Electoral Commission, 2017 (obtained on request)"
+Liveability,Governance,GOV_2,Women as a percentage of total elected to city-level office,2012,4,11,36.36,Percentage,"Victorian Electoral Commission, 2017 (obtained on request)"
+Liveability,Governance,GOV_3,Percentage of women employed in the city government workforce,FY 2016/17,"1,143","2,679",42.67,Percentage,"1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+4. CityWide, People and Culture Team, 2015-2018, obtained on request"
+Liveability,Health and education,HEA_1,"Number of in-patient hospital beds per 100,000 people",2017,"2,513",1.59,1579.1,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_1,"Number of in-patient hospital beds per 100,000 people",2016,"2,449",1.37,1789.26,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_2,"Number of physicians per 100,000 people",2017,"3,583.70",1.59,2254.99,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_3,"Under age five mortality per 1,000 live births",2012,N/A,N/A,7.7,Number,"Australian Institute of Health and Welfare, Child Mortality data 2010-2015 (obtained on request)"
+Liveability,Health and education,HEA_5,"Number of mental health practitioners per 100,000 people",2016,"1,240.50",1.46,849.1,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_6,"Suicide rate per 100,000 people",2015,N/A,1.37,11.0,Number,"1-2. National Coronial Information System, Intentional Self-Harm, Natural Disaster, Drowning and Fire-Related Fatalities in Greater Melbourne 2013-2016 (obtained on request)"
+Liveability,Health and education,HEA_6,"Suicide rate per 100,000 people",2013,N/A,1.19,10.0,Number,"1-2. National Coronial Information System, Intentional Self-Harm, Natural Disaster, Drowning and Fire-Related Fatalities in Greater Melbourne 2013-2016 (obtained on request)"
+Liveability,"Profile - housing, government and economy",PROH_3,Total number of households,2006,N/A,N/A,29581.0,Number,"1-2. Australian Bureau of Statistics, 2011 & 2016 Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,"Profile - housing, government and economy",PROH_4,Persons per unit (average number of persons per household),2016,N/A,N/A,2.0,Number,"1-2. Australian Bureau of Statistics, 2011 & 2016 Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,"Profile - housing, government and economy",PROH_4,Persons per unit (average number of persons per household),2011,N/A,N/A,2.0,Number,"1-2. Australian Bureau of Statistics, 2011 & 2016 Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,"Profile - housing, government and economy",PROH_5,Dwelling density (per square kilometre),2016,"66,733",37.7,1770.11,Number,"1-2. Australian Bureau of Statistics, 2011 & 2016 Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_1,Total city population,2017 (at 30 June),N/A,N/A,159141.0,Number,"1. Australian Bureau of Statistics, 3218.0 Regional Population Growth, Australia, 2017-18 - Population Estimates by Local Government Area (ASGS 2018), (Table 2)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Profile - people,PROP_1,Total city population,2016 (at 30 June),N/A,N/A,146096.0,Number,"1. Australian Bureau of Statistics, 3218.0 Regional Population Growth, Australia, 2017-18 - Population Estimates by Local Government Area (ASGS 2018), (Table 2)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Profile - people,PROP_1,Total city population,2015 (at 30 June),N/A,N/A,136872.0,Number,"1. Australian Bureau of Statistics, 3218.0 Regional Population Growth, Australia, 2017-18 - Population Estimates by Local Government Area (ASGS 2018), (Table 2)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Profile - people,PROP_11,Male to female ratio (number of males per 100 females),2015 (at 30 June),"67,469","69,403",97.21,Number,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_11,Male to female ratio (number of males per 100 females),2014 (at 30 June),"63,398","64,577",98.17,Number,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_12,Population dependency ratio (people aged under 15 years or over 64 years),2015 (at 30 June),13.39,86.61,15.45,Percentage,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_12,Population dependency ratio (people aged under 15 years or over 64 years),2014 (at 30 June),13.43,86.57,15.52,Percentage,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_3,Percentage of country’s population,2016 (at 30 June),"146,096","23,815,995",0.61,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_4,Percentage of population that are youth (15-24 years),2017 (at 30 June),"47,080","158,923",29.62,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_5,Percentage of population that are seniors (65+),2014 (at 30 June),"8,413","127,975",6.57,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_6,Annual population change,2018 (at 30 June),"159,141","169,961",6.8,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_6,Annual population change,2016 (at 30 June),"136,872","146,096",6.74,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_6,Annual population change,2015 (at 30 June),"127,975","136,872",6.95,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_7,Percentage of population that are foreign born,2016,"75,797","135,959",55.75,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_9,Percentage of population that are children (0-14 years),2016 (at 30 June),"9,608","146,096",6.58,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_9,Percentage of population that are children (0-14 years),2015 (at 30 June),"9,243","136,872",6.75,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Recreation and urban planning,REC_1,Square metres of public indoor recreation space per person (m²/capita),2016,"1,004,757","146,096",6.88,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Recreation and urban planning,REC_3,"Green area (hectares) per 100,000 people",2016,582.04,1.46,398.39,Number,"1. City of Melbourne, Open Space Schedule, 2014-2017
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Recreation and urban planning,REC_3,"Green area (hectares) per 100,000 people",2014,576.59,1.28,450.55,Number,"1. City of Melbourne, Open Space Schedule, 2014-2017
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Recreation and urban planning,REC_4,"Annual number of trees planted per 100,000 people",2018,"2,846",1.70,1674.5,Number,"1. City of Melbourne, Urban Forest and Ecology Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Recreation and urban planning,REC_5,Jobs/housing ratio,2014/15,"446,772","68,105",6.56,Number,"City of Melbourne, Census of Land Use and Employment (CLUE), 2017"
+Liveability,Transportation,TRANS_1,"Kilometres of high capacity public transport system per 100,000 people",2018,131.41,1.70,77.32,Number,"1. City of Melbourne, Smart City Office, GIS Team, 2015
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_3,Annual number of public transport trips per person,2017,"184,688,600.00","159,141",1160.53,Number,"1. Department of Economic Development, Jobs, Transport and Resources, Market Insights, Data Modelling and Analysis (Public Transport), 2015-2018 (obtained on request)
+2. V/Line Pty Ltd, Patronage and Revenue Reporting, Customer Insights & Ticketing, 2015-2018 (obtained on request)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_3,Annual number of public transport trips per person,2015,"177,975,650.00","136,872",1300.31,Number,"1. Department of Economic Development, Jobs, Transport and Resources, Market Insights, Data Modelling and Analysis (Public Transport), 2015-2018 (obtained on request)
+2. V/Line Pty Ltd, Patronage and Revenue Reporting, Customer Insights & Ticketing, 2015-2018 (obtained on request)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_4,Number of personal automobiles per person,2016,"65,467","146,096",0.45,Number,"1-4. Australian Bureau of Statistics, 9309.0 - Motor Vehicle Census, Australia, 31 Jan 2015; 31 Jan 2016; 31 Jan 2017; 31 Jan 2020"
+Liveability,Transportation,TRANS_5,Percentage of commuters using a travel mode to work other than a personal vehicle,2016,"272,761","389,236",70.08,Percentage,"1-3. Australian Bureau of Statistics, 2006, 2011 & 2016 Census of Population and Housing - Counting Employed Persons, Place of Work (POW)"
+Liveability,Transportation,TRANS_5,Percentage of commuters using a travel mode to work other than a personal vehicle,2006,"163,904","262,874",62.35,Percentage,"1-3. Australian Bureau of Statistics, 2006, 2011 & 2016 Census of Population and Housing - Counting Employed Persons, Place of Work (POW)"
+Liveability,Transportation,TRANS_6,Number of two-wheel motorized vehicles per person,2016,"3,116","146,096",0.02133,Number,"1-3. Australian Bureau of Statistics, 2006, 2011 & 2016 Census of Population and Housing - Counting Employed Persons, Place of Work (POW)"
+Liveability,Transportation,TRANS_7,"Transportation fatalities per 100,000 people",2018,2.00,1.70,1.18,Number,"1. Data.Vic, Crashes Last Five Years, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_1,Total residential electrical energy use per person (kWh/year),2017,"262,967,994","159,141",1652.42,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_1,Total residential electrical energy use per person (kWh/year),FY 202015/16,"242,790,489","146,096",1661.86,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_2,Energy (electricity) consumption of public buildings per year (kWh/m²),2017,"10,090,413","83,959",120.18,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_3,Total electrical energy use per person (kWh/year),2017,"3,282,701,946","159,141",20627.63,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_3,Total electrical energy use per person (kWh/year),FY 202015/16,"3,206,794,519","146,096",21949.91,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_4,Greenhouse gas emissions measured in tonnes per person,FY 202015/16,"5,122,471","146,096",35.06,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_4,Greenhouse gas emissions measured in tonnes per person,FY 202014/15,"5,319,010","136,872",38.86,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_5,Total domestic water consumption per person (litres/day),FY 2015/16,"19,808,644.59","146,096",135.59,Number,"1. City West Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+2. South East Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Social,Health and physical activity,PHYS_1,Percentage of residents reporting their overall health as excellent or very good,2019,N/A,"1,259",53.4,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Health and physical activity,PHYS_5,Percentage of residents participating in organised physical activity in the last 3 months,2018,N/A,"1,247",28.8,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Health and physical activity,PHYS_6,"Percentage of residents participating in physical activity organised by a fitness, leisure or indoor sports centre in the last 3 months",2019,N/A,"1,259",10.5,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Wellbeing,WELL_3,Subjective Wellbeing: Residents' satisfaction with their standard of living (average out of 100),2018,N/A,"1,166",78.1,Average,City of Melbourne Social Indicators Survey 2018
+Social,Wellbeing,WELL_5,Subjective Wellbeing: Residents' satisfaction with what they are currently achieving in life (average out of 100),2018,N/A,"1,166",71.2,Average,City of Melbourne Social Indicators Survey 2018
+Social,Wellbeing,WELL_7,Subjective Wellbeing: Residents' satisfaction with how safe they feel (average out of 100),2019,N/A,"1,185",78.0,Average,City of Melbourne Social Indicators Survey 2019
+Social,Wellbeing,WELL_8,Subjective Wellbeing: Residents' satisfaction with feeling part of their community (average out of 100),2019,N/A,"1,185",65.4,Average,City of Melbourne Social Indicators Survey 2019
+Social,Wellbeing,WELL_8,Subjective Wellbeing: Residents' satisfaction with feeling part of their community (average out of 100),2018,N/A,"1,166",66.4,Average,City of Melbourne Social Indicators Survey 2018
+Social,Food security and production,FOOD_1,Percentage of residents who have experienced food insecurity,2018,N/A,"1,243",26.2,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Food security and production,FOOD_2,Percentage of residents who are worried food would run out,2019,N/A,"1,250",20.4,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Food security and production,FOOD_2,Percentage of residents who are worried food would run out,2018,N/A,"1,242",19.7,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Food security and production,FOOD_3,Percentage of residents who have skipped meals,2018,N/A,"1,237",17.3,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Participation in activities,ACT_1,Percentage of residents who have volunteered in the last 12 months,2019,N/A,"1,246",41.2,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Participation in activities,ACT_1,Percentage of residents who have volunteered in the last 12 months,2018,N/A,"1,232",43.3,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Participation in activities,ACT_3,Percentage of residents who have participated in arts and cultural activities in the last 3 months,2018,N/A,"1,247",23.1,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Participation in activities,ACT_4,Percentage of residents who have participated in arts and cultural activities in the City of Melbourne in the last 3 months,2019,N/A,"1,259",16.1,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Participation in activities,ACT_4,Percentage of residents who have participated in arts and cultural activities in the City of Melbourne in the last 3 months,2018,N/A,"1,247",20.0,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Participation in activities,ACT_5,Percentage of residents who have participated in learning activities in the last 12 months,2019,N/A,"1,259",86.7,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Participation in activities,ACT_8,Percentage of residents who have participated in activities in the City of Melbourne to influence government decision making in the last 12 months,2019,N/A,"1,259",38.3,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,"Culture, diversity and safety",CULT_1,Percentage of residents that agree it is a good thing for society to be made up of different cultures,2019,N/A,"1,252",95.5,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,"Culture, diversity and safety",CULT_1,Percentage of residents that agree it is a good thing for society to be made up of different cultures,2018,N/A,"1,234",93.3,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,"Culture, diversity and safety",CULT_3,Percentage of residents that reported feeling safe by themselves in their neighbourhood during the day,2018,N/A,"1,246",89.1,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,"Culture, diversity and safety",CULT_4,Percentage of residents that reported feeling safe by themselves in their neighbourhood at night,2018,N/A,"1,227",64.0,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,"Culture, diversity and safety",CULT_6,Percentage of residents that reported feeling safe by themselves on public transport in and around City of Melbourne at night,2019,N/A,"1,080",55.1,Percentage,City of Melbourne Social Indicators Survey 2019
+Liveability,Economy,ECO_1,City's unemployment rate,2016 (June Qtr),"3,290","89,855",3.66,Percentage,"Australian Government Department of Employment, Local Government Area (LGA) Data tables, Small Area Labour Markets, June Quarter 2018"
+Liveability,Economy,ECO_2,Assessed value of commercial and industrial properties as a percentage of total assessed value of all properties,2018 (at 30 June),"83,219,547,029.00","183,409,922,856.00",45.37,Percentage,"City of Melbourne, Property Services, 2015-2018"
+Liveability,Economy,ECO_2,Assessed value of commercial and industrial properties as a percentage of total assessed value of all properties,2017 (at 30 June),"76,663,324,098.00","160,147,104,196.00",47.87,Percentage,"City of Melbourne, Property Services, 2015-2018"
+Liveability,Economy,ECO_2,Assessed value of commercial and industrial properties as a percentage of total assessed value of all properties,2016 (at 30 June),"55,126,090,058.00","113,707,243,229.00",48.48,Percentage,"City of Melbourne, Property Services, 2015-2018"
+Liveability,Economy,ECO_3,Percentage of city population living in poverty,2014,"11,556","127,975",9.03,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Economy,ECO_3,Percentage of city population living in poverty,2013,"11,265","118,711",9.49,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Economy,ECO_5,Youth unemployment rate,2016 (June Qtr),"1,433.82","15,006.77",9.55,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Economy,ECO_5,Youth unemployment rate,2015 (June Qtr),"1,412.00","13,913.00",10.15,Percentage,"Geografia, Relative Poverty and Employment Measures, 2018 (commissioned)"
+Liveability,Finance,FIN_1,Debt service ratio (debt service expenditure as a percentage of a municipality's own-source revenue),FY 2016/17,"942,000.00","425,634,000.00",0.221,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_3,Own-source revenue as a percentage of total revenues,FY 2016/17,"425,634,000.00","512,939,000.00",82.98,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_3,Own-source revenue as a percentage of total revenues,FY 2015/16,"406,675,000.00","445,266,000.00",91.33,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_3,Own-source revenue as a percentage of total revenues,FY 2014/15,"378,466,000.00","435,777,000.00",86.85,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,Finance,FIN_4,Tax collected as a percentage of tax billed,FY 2015/16,"240,849,000.00","241,986,000.00",99.53,Percentage,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,"Fire, safety and shelter",FIRE_2,"Number of fire related deaths per 100,000 people",2014,N/A,1.28,0.0,Number,"1-2. National Coronial Information System, Intentional Self-Harm, Natural Disaster, Drowning and Fire-Related Fatalities in Greater Melbourne 2013-2016 (obtained on request)
+3. 2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_2,"Number of fire related deaths per 100,000 people",2013,N/A,1.19,0.8,Number,"1-2. National Coronial Information System, Intentional Self-Harm, Natural Disaster, Drowning and Fire-Related Fatalities in Greater Melbourne 2013-2016 (obtained on request)
+3. 2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_3,"Number of police officers per 100,000 people",2018 (June Qtr),326.00,1.70,191.81,Number,"1. Victoria Police, Employees by Location, June Quarter, 2015-2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_3,"Number of police officers per 100,000 people",2017 (June Qtr),318.95,1.59,200.42,Number,"1. Victoria Police, Employees by Location, June Quarter, 2015-2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_3,"Number of police officers per 100,000 people",2016 (June Qtr),330.63,1.46,226.31,Number,"1. Victoria Police, Employees by Location, June Quarter, 2015-2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_3,"Number of police officers per 100,000 people",2015 (June Qtr),333.16,1.37,243.41,Number,"1. Victoria Police, Employees by Location, June Quarter, 2015-2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_4,"Number of homicides per 100,000 people",FY 2016/17,45,1.59,28.28,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_5,"Crimes against property per 100,000 people",FY 2014/15,"14,333",1.37,10471.83,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_6,"Violent crime rate per 100,000 people",FY 2015/16,"4,005",1.46,2741.35,Number,"1. Crime Statistics Victoria, Offence Visualisation Table 2009-18
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Fire, safety and shelter",FIRE_7,"Number of homeless per 100,000 people",2016,591,1.36,434.69,Number,"1-2. Australian Bureau of Statistics, 2049.0 Census of Population and Housing: Estimating Homelessness, 2011 & 2016"
+Liveability,Governance,GOV_1,Voter participation in last municipal election (as a percentage of eligible voters),2016,"73,849","133,801",55.19,Percentage,"Victorian Electoral Commission, 2017 (obtained on request)"
+Liveability,Governance,GOV_4,"Citizens' representation: number of local officials elected to office per 100,000 people",2016,11,1.46,7.53,Number,"1. Victorian Electoral Commission, 2017 (obtained on request)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Governance,GOV_5,Number of registered voters as a percentage of the voting age population,2016,"133,801","125,070",106.98,Percentage,"1. Victorian Electoral Commission, 2017 (obtained on request)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Governance,GOV_5,Number of registered voters as a percentage of the voting age population,2012,"108,434","85,413",126.95,Percentage,"1. Victorian Electoral Commission, 2017 (obtained on request)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_1,"Number of in-patient hospital beds per 100,000 people",2014,"2,390",1.00,2384.28,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_2,"Number of physicians per 100,000 people",2015,"3,282.00",1.37,2397.86,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_2,"Number of physicians per 100,000 people",2014,"3,232.40",1.28,2525.81,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_3,"Under age five mortality per 1,000 live births",2015,N/A,N/A,3.3,Number,"Australian Institute of Health and Welfare, Child Mortality data 2010-2015 (obtained on request)"
+Liveability,Health and education,HEA_4,"Number of nursing and midwifery personnel per 100,000 people",2017,"7,979.40",1.59,5020.92,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_4,"Number of nursing and midwifery personnel per 100,000 people",2015,"7,134.20",1.37,5212.32,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_5,"Number of mental health practitioners per 100,000 people",2015,"1,176.60",1.37,859.64,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_5,"Number of mental health practitioners per 100,000 people",2014,"1,175.40",1.28,918.46,Number,"1. Department of Health, National Health Workforce Dataset, FTE Clinical by Local Government Area, 2013-2016
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Health and education,HEA_6,"Suicide rate per 100,000 people",2016,N/A,1.46,8.9,Number,"1-2. National Coronial Information System, Intentional Self-Harm, Natural Disaster, Drowning and Fire-Related Fatalities in Greater Melbourne 2013-2016 (obtained on request)"
+Liveability,Health and education,HEA_6,"Suicide rate per 100,000 people",2014,N/A,1.28,8.5,Number,"1-2. National Coronial Information System, Intentional Self-Harm, Natural Disaster, Drowning and Fire-Related Fatalities in Greater Melbourne 2013-2016 (obtained on request)"
+Liveability,Health and education,HEA_7,Primary education student/teacher ratio,2016,"1,544.60",99.90,15.46,Number,"Department of Education and Training, Workforce Planning, People Division, 2018 (obtained on request)"
+Liveability,Health and education,HEA_7,Primary education student/teacher ratio,2015,"1,408.40",89.20,15.79,Number,"Department of Education and Training, Workforce Planning, People Division, 2018 (obtained on request)"
+Liveability,Health and education,HEA_7,Primary education student/teacher ratio,2014,"1,274.40",79.50,16.03,Number,"Department of Education and Training, Workforce Planning, People Division, 2018 (obtained on request)"
+Liveability,"Profile - housing, government and economy",PROH_1,Gross operating budget,FY 2017/18,N/A,N/A,541674000.0,Dollars,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,"Profile - housing, government and economy",PROH_1,Gross operating budget,FY 2016/17,N/A,N/A,492430000.0,Dollars,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,"Profile - housing, government and economy",PROH_1,Gross operating budget,FY 2015/16,N/A,N/A,462795000.0,Dollars,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,"Profile - housing, government and economy",PROH_2,Gross capital budget,FY 2017/18,N/A,N/A,105256000.0,Dollars,1-3. City of Melbourne Annual Report 2017-18; 2016-17; 2015-16 (Local Government Victoria)
+Liveability,"Profile - housing, government and economy",PROH_3,Total number of households,2016,N/A,N/A,57012.0,Number,"1-2. Australian Bureau of Statistics, 2011 & 2016 Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,"Profile - housing, government and economy",PROH_3,Total number of households,2011,N/A,N/A,39976.0,Number,"1-2. Australian Bureau of Statistics, 2011 & 2016 Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,"Profile - housing, government and economy",PROH_5,Dwelling density (per square kilometre),2006,"40,958",37.7,1086.42,Number,"1-2. Australian Bureau of Statistics, 2011 & 2016 Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,"Profile - housing, government and economy",PROH_6,Employment percentage change (based on last 5 years),2017 (June Qtr),N/A,N/A,7.1,Percentage,"1. Australian Bureau of Statistics, Labour Force Surveys, June Quarter, 2013-2017
+2. Department of Jobs and Small Businesses, Small Area Labour Markets, 2017"
+Liveability,"Profile - housing, government and economy",PROH_6,Employment percentage change (based on last 5 years),2016 (June Qtr),N/A,N/A,6.8,Percentage,"1. Australian Bureau of Statistics, Labour Force Surveys, June Quarter, 2013-2017
+2. Department of Jobs and Small Businesses, Small Area Labour Markets, 2017"
+Liveability,"Profile - housing, government and economy",PROH_8,Percentage of country GDP,FY 2014/15,"1,349,034,029,453.37","69,580,800,000.00",5.16,Percentage,"1. The World Bank data, GDP (current US$) for Australia, 1960-2017
+2. City of Melbourne, Economic Profile 2018"
+Liveability,Profile - people,PROP_10,Percentage of population that are adults (25-64 years),2016 (at 30 June),"83,434","146,096",57.11,Percentage,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_10,Percentage of population that are adults (25-64 years),2015 (at 30 June),"78,797","136,872",57.57,Percentage,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_11,Male to female ratio (number of males per 100 females),2017 (at 30 June),"77,918","81,005",96.19,Number,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_11,Male to female ratio (number of males per 100 females),2016 (at 30 June),"71,714","74,382",96.41,Number,"1. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Profile - people,PROP_13,Percentage of residents who are non citizens,2016,"74,568","135,959",54.85,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_13,Percentage of residents who are non citizens,2011,"42,039","93,625",44.9,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_13,Percentage of residents who are non citizens,2006,"35,846","71,379",50.22,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_2,Population density per square kilometre (km2),2016 (at 30 June),"146,096",37.7,3875.23,Number,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_2,Population density per square kilometre (km2),2015 (at 30 June),"136,872",37.7,3630.56,Number,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_3,Percentage of country’s population,2018 (at 30 June),"169,961","24,597,528",0.69,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_3,Percentage of country’s population,2015 (at 30 June),"136,872","23,475,686",0.58,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_4,Percentage of population that are youth (15-24 years),2016 (at 30 June),"43,345","146,096",29.67,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_4,Percentage of population that are youth (15-24 years),2015 (at 30 June),"39,754","136,872",29.04,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_4,Percentage of population that are youth (15-24 years),2014 (at 30 June),"36,701","127,975",28.68,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_5,Percentage of population that are seniors (65+),2017 (at 30 June),"10,292","158,923",6.48,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_5,Percentage of population that are seniors (65+),2016 (at 30 June),"9,709","146,096",6.65,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_5,Percentage of population that are seniors (65+),2015 (at 30 June),"9,078","136,872",6.63,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_7,Percentage of population that are foreign born,2011,"44,530","93,625",47.56,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_7,Percentage of population that are foreign born,2006,"30,103","71,379",42.17,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_8,Percentage of population that are new immigrants,2016,"40,433","135,959",29.74,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_8,Percentage of population that are new immigrants,2011,"20,900","93,625",22.32,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_8,Percentage of population that are new immigrants,2006,"14,394","71,379",20.17,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_9,Percentage of population that are children (0-14 years),2017 (at 30 June),"10,349","158,923",6.51,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Profile - people,PROP_9,Percentage of population that are children (0-14 years),2014 (at 30 June),"8,777","127,975",6.86,Percentage,"Australian Bureau of Statistics, Census of Population and Housing, General Community Profile, Melbourne (C) (LGA24600)"
+Liveability,Recreation and urban planning,REC_1,Square metres of public indoor recreation space per person (m²/capita),2017,"1,012,009","159,141",6.36,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Recreation and urban planning,REC_1,Square metres of public indoor recreation space per person (m²/capita),2015,"968,761","136,872",7.08,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Recreation and urban planning,REC_1,Square metres of public indoor recreation space per person (m²/capita),2014,"947,180","127,975",7.4,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Recreation and urban planning,REC_2,Square metres of public outdoor recreation space per person (m²/capita),2017,"7,803,116","159,141",49.03,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,Recreation and urban planning,REC_2,Square metres of public outdoor recreation space per person (m²/capita),2015,"7,678,041","136,872",56.1,Number,"1. City of Melbourne, Census of Land Use and Employment (CLUE), 2017
+2. Australian Bureau of Statistics, 3235.0 Regional Population by Age and Sex, Australia, 2017 - Local Government Areas (ASGS 2017), 30 June 2017 (Table 3)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2017), Age and Sex, 2001 to 2017"
+Liveability,"Water, energy and environment",WAT_2,Energy (electricity) consumption of public buildings per year (kWh/m²),FY 202013/14,"13,113,244","73,740",177.83,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Recreation and urban planning,REC_3,"Green area (hectares) per 100,000 people",2015,577.25,1.37,421.74,Number,"1. City of Melbourne, Open Space Schedule, 2014-2017
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Recreation and urban planning,REC_4,"Annual number of trees planted per 100,000 people",2016,"2,929",1.46,2004.85,Number,"1. City of Melbourne, Urban Forest and Ecology Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Recreation and urban planning,REC_4,"Annual number of trees planted per 100,000 people",2015,"3,367",1.37,2459.96,Number,"1. City of Melbourne, Urban Forest and Ecology Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Recreation and urban planning,REC_5,Jobs/housing ratio,2016/17,"461,517","76,799",6.01,Number,"City of Melbourne, Census of Land Use and Employment (CLUE), 2017"
+Liveability,Recreation and urban planning,REC_5,Jobs/housing ratio,2013/14,"447,075","62,122",7.2,Number,"City of Melbourne, Census of Land Use and Employment (CLUE), 2017"
+Liveability,Transportation,TRANS_1,"Kilometres of high capacity public transport system per 100,000 people",2015,131.41,1.37,96.01,Number,"1. City of Melbourne, Smart City Office, GIS Team, 2015
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_2,"Kilometres of light passenger public transport system per 100,000 people",2018,388.63,1.70,228.66,Number,"1. City of Melbourne, Smart City Office, GIS Team, 2015-2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_2,"Kilometres of light passenger public transport system per 100,000 people",2015,366.90,1.37,268.06,Number,"1. City of Melbourne, Smart City Office, GIS Team, 2015-2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,Transportation,TRANS_3,Annual number of public transport trips per person,2016,"182,912,452.84","146,096",1252.0,Number,"1. Department of Economic Development, Jobs, Transport and Resources, Market Insights, Data Modelling and Analysis (Public Transport), 2015-2018 (obtained on request)
+2. V/Line Pty Ltd, Patronage and Revenue Reporting, Customer Insights & Ticketing, 2015-2018 (obtained on request)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Social,Food security and production,FOOD_4,Percentage of residents who have run out of food,2018,N/A,"1,235",12.5,Percentage,City of Melbourne Social Indicators Survey 2018
+Liveability,Transportation,TRANS_4,Number of personal automobiles per person,2018,"71,016","169,961",0.42,Number,"1-4. Australian Bureau of Statistics, 9309.0 - Motor Vehicle Census, Australia, 31 Jan 2015; 31 Jan 2016; 31 Jan 2017; 31 Jan 2018"
+Liveability,Transportation,TRANS_4,Number of personal automobiles per person,2017,"67,870","159,141",0.43,Number,"1-4. Australian Bureau of Statistics, 9309.0 - Motor Vehicle Census, Australia, 31 Jan 2015; 31 Jan 2016; 31 Jan 2017; 31 Jan 2019"
+Liveability,Transportation,TRANS_4,Number of personal automobiles per person,2015,"67,947","136,872",0.5,Number,"1-4. Australian Bureau of Statistics, 9309.0 - Motor Vehicle Census, Australia, 31 Jan 2015; 31 Jan 2016; 31 Jan 2017; 31 Jan 2021"
+Liveability,Transportation,TRANS_5,Percentage of commuters using a travel mode to work other than a personal vehicle,2011,"210,588","320,247",65.76,Percentage,"1-3. Australian Bureau of Statistics, 2006, 2011 & 2016 Census of Population and Housing - Counting Employed Persons, Place of Work (POW)"
+Liveability,Transportation,TRANS_6,Number of two-wheel motorized vehicles per person,2018,"3,253","169,961",0.01914,Number,"1-3. Australian Bureau of Statistics, 2006, 2011 & 2016 Census of Population and Housing - Counting Employed Persons, Place of Work (POW)"
+Liveability,"Water, energy and environment",WAT_1,Total residential electrical energy use per person (kWh/year),FY 202014/15,"328,723,911","136,872",2401.69,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_3,Total electrical energy use per person (kWh/year),FY 202013/14,"3,556,329,069","127,975",27789.25,Number,"1. City of Melbourne, Urban Sustainability, Low Carbon Future Team, 2018
+2. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_5,Total domestic water consumption per person (litres/day),FY 2017/18,"20,830,541.37","169,961",122.56,Number,"1. City West Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+2. South East Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_6,Total water consumption per person (litres/day),FY 2016/17,"61,865,802.42","159,141",388.75,Number,"1. City West Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+2. South East Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Liveability,"Water, energy and environment",WAT_6,Total water consumption per person (litres/day),FY 2015/16,"59,480,915.74","146,096",407.14,Number,"1. City West Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+2. South East Water Commercial and Residential water consumption data by postcode, 2016-2018 (obtained on request)
+3. Australian Bureau of Statistics, ERP by LGA (ASGS 2018), 2001 to 2018"
+Social,Health and physical activity,PHYS_1,Percentage of residents reporting their overall health as excellent or very good,2018,N/A,"1,247",51.1,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Health and physical activity,PHYS_2,Percentage of residents participating in adequate physical activity in a usual week,2019,N/A,"1,212",47.5,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Health and physical activity,PHYS_2,Percentage of residents participating in adequate physical activity in a usual week,2018,N/A,"1,180",52.3,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Health and physical activity,PHYS_3,Percentage of residents participating in sports and exercise activities in the last 3 months,2019,N/A,"1,259",70.4,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Health and physical activity,PHYS_4,Percentage of residents participating in sports and exercise activities within the City of Melbourne in the last 3 months,2019,N/A,"1,259",60.6,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Health and physical activity,PHYS_5,Percentage of residents participating in organised physical activity in the last 3 months,2019,N/A,"1,259",23.1,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Health and physical activity,PHYS_7,Percentage of residents participating in physical activity organised by a sports club or association in the last 3 months,2019,N/A,"1,259",10.7,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Health and physical activity,PHYS_7,Percentage of residents participating in physical activity organised by a sports club or association in the last 3 months,2018,N/A,"1,247",11.9,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,Wellbeing,WELL_2,Personal Wellbeing Index: Residents' satisfaction with their overall subjective wellbeing (average out of 100),2019,N/A,"1,185",72.6,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Wellbeing,WELL_3,Subjective Wellbeing: Residents' satisfaction with their standard of living (average out of 100),2019,N/A,"1,185",78.0,Average,City of Melbourne Social Indicators Survey 2019
+Social,Wellbeing,WELL_5,Subjective Wellbeing: Residents' satisfaction with what they are currently achieving in life (average out of 100),2019,N/A,"1,185",70.9,Average,City of Melbourne Social Indicators Survey 2019
+Social,Wellbeing,WELL_6,Subjective Wellbeing: Residents' satisfaction with personal relationships (average out of 100),2018,N/A,"1,166",73.7,Average,City of Melbourne Social Indicators Survey 2018
+Social,Wellbeing,WELL_7,Subjective Wellbeing: Residents' satisfaction with how safe they feel (average out of 100),2018,N/A,"1,166",81.3,Average,City of Melbourne Social Indicators Survey 2018
+Social,Food security and production,FOOD_1,Percentage of residents who have experienced food insecurity,2019,N/A,"1,255",25.8,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Food security and production,FOOD_3,Percentage of residents who have skipped meals,2019,N/A,"1,252",15.2,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Food security and production,FOOD_6,Percentage of residents who met recommended minimum daily intake of fruit and vegetables,2019,N/A,"1,111",4.0,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,Participation in activities,ACT_7,Percentage of residents who have participated in activities to influence government decision making in the last 12 months,2019,N/A,"1,259",49.3,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,"Culture, diversity and safety",CULT_4,Percentage of residents that reported feeling safe by themselves in their neighbourhood at night,2019,N/A,"1,235",57.4,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,"Culture, diversity and safety",CULT_5,Percentage of residents that reported feeling safe by themselves on public transport in and around City of Melbourne during the day,2019,N/A,"1,197",86.0,Percentage,City of Melbourne Social Indicators Survey 2019
+Social,"Culture, diversity and safety",CULT_5,Percentage of residents that reported feeling safe by themselves on public transport in and around City of Melbourne during the day,2018,N/A,"1,188",86.5,Percentage,City of Melbourne Social Indicators Survey 2018
+Social,"Culture, diversity and safety",CULT_6,Percentage of residents that reported feeling safe by themselves on public transport in and around City of Melbourne at night,2018,N/A,"1,086",59.0,Percentage,City of Melbourne Social Indicators Survey 2018
