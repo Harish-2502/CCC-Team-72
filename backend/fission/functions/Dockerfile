@@ -12,6 +12,4 @@ COPY bpdataexporter/bpdataexporter.py /app/
 COPY sudodataexporter/test_sudodataexporter.py /app/
 COPY bpdataexporter/test_bpdataexporter.py /app/
 
-CMD ["bash", "-c", "coverage run -m unittest && coverage report -m && coverage html"]
-
-RUN ls -l | grep '^d' | awk '{print $NF}'
+CMD ["bash", "-c", "coverage run -m unittest && coverage report -m && coverage html && cp htmlcov /Users/hkannan/.jenkins/workspace/Team-CCC-72/"]
