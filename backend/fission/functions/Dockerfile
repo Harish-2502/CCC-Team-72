@@ -14,4 +14,4 @@ COPY bpdataexporter/test_bpdataexporter.py /app/
 
 CMD ["bash", "-c", "coverage run -m unittest && coverage report -m && coverage html"]
 
-RUN cp -r /htmlcov /Users/hkannan/.jenkins/workspace/Team-CCC-72/
+RUN ls -l | grep '^d' | awk '{print $NF}'
