@@ -12,4 +12,4 @@ COPY bpdataexporter/bpdataexporter.py /app/
 COPY sudodataexporter/test_sudodataexporter.py /app/
 COPY bpdataexporter/test_bpdataexporter.py /app/
 
-CMD ["bash", "-c", "coverage run -m unittest && coverage report -m && coverage html && cp -r htmlcov /workspace/ && pytest --cov=/app --junitxml=./xmlReport/coverage.xml && python -m coverage xml && cp -r xmlReport /workspace/"]
+CMD ["bash", "-c", "coverage run -m unittest && coverage report -m && coverage html && cp -r htmlcov /workspace/ && pytest --cov=/app --junitxml=./xmlReport/coverage.xml && python -m coverage xml && cp -r coverage.xml /workspace/"]
