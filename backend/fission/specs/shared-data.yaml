@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: default
+  name: shared-data
+data:
+  ES_USERNAME: elastic
+  ES_PASSWORD: elastic
+  GITHUB_USERNAME: Harish-25
+  GITHUB_TOKEN: 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
+
