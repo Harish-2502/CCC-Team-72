@@ -8,8 +8,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY sudodataexporter/sudodataexporter.py /app/
 COPY bpdataexporter/bpdataexporter.py /app/
-COPY radataexporter/bpdataexporter.py /app/
-COPY lidataexporter/bpdataexporter.py /app/
+COPY radataexporter/radataexporter.py /app/
+COPY lidataexporter/lidataexporter.py /app/
 
 COPY sudodataexporter/test_sudodataexporter.py /app/
 COPY bpdataexporter/test_bpdataexporter.py /app/
