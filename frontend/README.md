@@ -2,7 +2,7 @@
 
 ## Overview
 
-This notebook explores the correlation between rental affordability and population changes in Melbourne, particularly analyzing the effects of the COVID-19 pandemic on rental markets. Through statistical analysis and data visualization, this study aims to provide insights that can assist policymakers and urban planners in understanding housing affordability dynamics.
+This analysis explores the relationship between the population of Melbourne and the rental affordability index over the years 2011 to 2021. Additionally, it examines the impact of the COVID-19 pandemic on the rental affordability index in Melbourne.
 
 ## Objectives
 
@@ -14,42 +14,39 @@ To assess the impact of the COVID-19 pandemic on rental affordability in Melbour
 
 The analysis utilizes two main datasets:
 
-Population Data: Contains estimated annual population figures for Melbourne from 2011 to 2021, sourced from regional population dataset from SUDO.
+Regional Population Dataset: Contains information on the estimated regional population for Melbourne, including data from births, deaths, and migration.
+Rental Affordability Index Dataset: Includes data on rental affordability for different postal codes in Melbourne over multiple quarters in each year from 2011 to 2021.
 
-Rental Affordability Data: Includes quarterly Rental Affordability Index (RAI) figures from 2011 to 2021 for Greater Melbourne, sourced from SUDO.
 
-## Methodology
 
-# Data Collection: 
+## Data Processing
 
-Data was collected via Elasticsearch queries.
+# Regional Population Dataset
+Connect to the Elasticsearch client and retrieve data from the index abs-regional_population_lga_2001-2021.
+Extract relevant population data specifically for Melbourne from the retrieved data.
+Clean the dataset by renaming columns and selecting key columns (erp_2011 to erp_2021) for analysis.
+# Rental Affordability Index Dataset
+Connect to the Elasticsearch client and retrieve data from the index rental_affordability.
+Clean the dataset by removing spaces from column names and selecting columns relevant to rental affordability for each quarter from 2011 to 2021.
+Calculate the average rental affordability index for each year by averaging the quarterly indices.
+# Merging Datasets
+Convert the year columns to numeric format for both datasets.
+Merge the cleaned regional population dataset and rental affordability index dataset on the year column to create a consolidated dataset (analysis_df).
 
-# Data Cleaning: 
+## Analysis
 
-Standardized column names, handled missing values, and calculated annual averages for RAI.
+# Correlation Analysis
+Calculate the correlation matrix for the rental affordability index and population using the consolidated dataset.
+Visualize the correlation matrix using a heatmap to display the correlation coefficient between the variables.
+# Correlation Method
+The correlation between the rental affordability index and population is calculated using the Pearson correlation coefficient.
 
-## Data Analysis
-
-# Statistical Analysis: 
-
-Employed Pearson correlation and regression analysis to determine the relationships.
+# Trend Analysis
+Plot the trend of the rental affordability index over the years using a line graph.
+Highlight the impact period of COVID-19 (2019-2021) and annotate the percentage increase in the rental affordability index during this period.
+The plot shows a significant increase in the rental affordability index during the COVID-19 period (2019-2021). Specifically, there was a 44.63% increase from 2019 to 2021.
 
 ## Results
 
-# COVID-19 Impact: 
-
-A significant 44.63% increase in RAI during the pandemic, indicating a sharp rise in rental prices.
-
-# Correlation: 
-
-A Pearson correlation coefficient of 0.662 suggests a moderate positive correlation between population growth and decreasing rental affordability.
-
-## Visualizations
-
-# Trend Graph: 
-
-Shows the stability of rental prices before a sharp rise during the COVID-19 period.
-
-# Correlation Heatmap: 
-
-Demonstrates the relationship between the variables.
+# Correlation Coefficient: The heatmap reveals a moderate positive correlation (0.662) between the rental affordability index and population.
+# Impact of COVID-19: The rental affordability index increased significantly during the COVID-19 period, with a 44.63% increase from 2019 to 2021.
