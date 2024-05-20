@@ -1,15 +1,12 @@
 ### FRONTEND
 
 
-## SCRIPTS
- # modelling_buildingpermit_population
 
-### FRONTEND
 
 
 ## SCRIPTS
 
-### Rental Affordability and Population Correlation Analysis
+#### Rental Affordability and Population Correlation Analysis
 
 ## Overview
 
@@ -31,8 +28,6 @@ Rental Affordability Data: Includes quarterly Rental Affordability Index (RAI) f
 
 ## Methodology
 
- ## Data Preparation
-
 # Data Collection: 
 
 Data was collected via Elasticsearch queries.
@@ -47,7 +42,6 @@ Standardized column names, handled missing values, and calculated annual average
 
 Employed Pearson correlation and regression analysis to determine the relationships.
 
-
 ## Results
 
 # COVID-19 Impact: 
@@ -58,7 +52,7 @@ A significant 44.63% increase in RAI during the pandemic, indicating a sharp ris
 
 A Pearson correlation coefficient of 0.662 suggests a moderate positive correlation between population growth and decreasing rental affordability.
 
-# Visualizations
+## Visualizations
 
 # Trend Graph: 
 
