@@ -48,5 +48,7 @@ The plot shows a significant increase in the rental affordability index during t
 
 ## Results
 
-# Correlation Coefficient: The heatmap reveals a moderate positive correlation (0.662) between the rental affordability index and population.
-# Impact of COVID-19: The rental affordability index increased significantly during the COVID-19 period, with a 44.63% increase from 2019 to 2021.
+# Correlation Coefficient: 
+The heatmap reveals a moderate positive correlation (0.662) between the rental affordability index and population.
+# Impact of COVID-19: 
+The rental affordability index increased significantly during the COVID-19 period, with a 44.63% increase from 2019 to 2021.
