@@ -1,12 +1,4 @@
-### FRONTEND
-
-
-
-
-
-## SCRIPTS
-
-#### Rental Affordability and Population Correlation Analysis
+## Rental Affordability and Population Correlation Analysis
 
 ## Overview
 
