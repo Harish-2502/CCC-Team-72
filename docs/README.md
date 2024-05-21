@@ -9,3 +9,7 @@ Please refer to google doc for shared notetaking [here](https://docs.google.com/
 ### Specs
 
 This folder contains the assignment specification
+
+### Readme
+
+This folder contains the necessary images to write readme files
