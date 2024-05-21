@@ -1,0 +1,5 @@
+elasticsearch8==8.11.0
+pandas==2.1.4
+requests
+pytest-cov
+coverage
