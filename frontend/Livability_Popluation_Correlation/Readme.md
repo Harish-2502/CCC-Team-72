@@ -1,45 +1,94 @@
+# README: Correlation Analysis between Population and Livability Percentage in Melbourne
 
+## Overview
 
-#### Livability and Population Correlation Analysis
+This Jupyter notebook aims to understand and visualize the correlation between the livability percentage and the population of Melbourne. The analysis involves processing population-related data for Victoria and livability data for Melbourne, followed by statistical analysis and visualization.
 
-### Introduction
+## Libraries Used
 
-This  aims to determine whether there is a correlation between the livability percentage and the population of Melbourne. By analyzing data from 2011 to 2021, we investigate the relationship between these two variables. The analysis utilizes the Regional Population Dataset and the Livability Index Dataset to provide insights into how population changes might impact the overall livability of Melbourne.
+The following libraries are used in this notebook:
 
-### Data Sources
+- pandas
+- numpy
+- seaborn
+- matplotlib.pyplot
+- statsmodels
+- scipy
+- plotly
+- elasticsearch
 
-# Regional Population Dataset
-Description: Contains population-related information in Victoria, including births, deaths, and migration.
-Key Feature: erp_YYYY columns representing the estimated regional population for Melbourne from 2011 to 2021.
-# Livability Index Dataset
-Description: Provides metrics related to the livability of Melbourne, focusing on topics such as economy, finance, governance, housing, and transportation.
-Key Feature: Percentages that reflect different aspects of livability over the years.
-### Data Processing
+## Data Sources
 
-## Regional Population Data
-# Data Retrieval: 
-Extracted from Elasticsearch using the index abs-regional_population_lga_2001-2021.
-# Data Cleaning:
-Removed spacing from column names.
-Extracted key columns for the years 2011 to 2021.
-Selected and cleaned the row corresponding to Melbourne.
-## Livability Index Data
-# Data Retrieval: Extracted from Elasticsearch using the index liveability-index.
-D#ata Cleaning:
-Filtered for rows where type is 'Liveability' and value_type is 'Percentage'.
-Extracted the year from the period column.
-Replaced 'N/A' values and removed rows with NaN values.
-Grouped by year and calculated overall percentages.
-## Merging Datasets
-The cleaned datasets were merged on the year column to facilitate the correlation analysis.
+1. **Regional Population Dataset**:
+   - Contains population-related information in Victoria, ranging from births, deaths to migration.
+   - Key feature: `erp_YYYY` columns, which hold the estimated regional population for Melbourne from 2011 to 2021.
 
-### Analysis  and Visualization
+2. **Livability Index Dataset**:
+   - Contains information about the livability index in Melbourne.
 
-Correlation Calculation
-A correlation matrix was calculated to determine the relationship between the livability percentage and population.
+## Data Processing Steps
 
-An interactive heatmap was created using Plotly to visualize the correlation between the two variables.
+### Loading Data from Elasticsearch
 
-### Results
+Both datasets are retrieved from Elasticsearch indices.
 
-The correlation analysis reveals a weak negative correlation (-0.15) between the livability percentage and population in Melbourne over the period from 2011 to 2018. This suggests that as the population increases, the livability percentage slightly decreases, but the relationship is not significant.
+- **Regional Population Dataset**:
+  - Index: `abs-regional_population_lga_2001-2021`
+  - All documents are fetched using the `match_all` query.
+  - Loaded into a pandas DataFrame named `response`.
+
+- **Livability Index Dataset**:
+  - Index: `liveability-index`
+  - All documents are fetched using the `match_all` query.
+  - Loaded into a pandas DataFrame named `liveability`.
+
+### Data Cleaning
+
+#### Regional Population Dataset
+
+1. **Column Name Cleanup**:
+   - Removed random spaces from column names.
+
+2. **Key Columns Extraction**:
+   - Extracted `erp_YYYY` columns for the years 2011 to 2021.
+   - Created a cleaned DataFrame, `response_clean`, with columns `year` and `population`.
+
+3. **Filter for Melbourne**:
+   - Extracted the row corresponding to Melbourne from the population dataset.
+
+#### Livability Index Dataset
+
+1. **Filter Data**:
+   - Filtered rows where `type` is 'Liveability' and `value_type` is 'Percentage'.
+   - Extracted the year from the `period` column.
+   - Removed NaN values from `numerator` and `denominator`.
+
+2. **Numerator and Denominator Cleanup**:
+   - Converted `numerator` and `denominator` columns to integers after removing commas and converting to float.
+
+3. **Remove Outliers**:
+   - Removed rows where the `indicator` is 'Percentage of country GDP' to avoid skewing the data.
+
+4. **Yearly Percentage Calculation**:
+   - Calculated the yearly average percentage for the livability index.
+   - Created a cleaned DataFrame, `liveability_clean`, with columns `year` and `livability_percentage`.
+
+### Merging Datasets
+
+- Merged the cleaned population and livability datasets on the `year` column, creating a single DataFrame, `analysis_df`, with columns `year`, `livability_percentage`, and `population`.
+
+## Analysis and Visualization
+
+1. **Correlation Analysis**:
+   - Calculated the Pearson correlation coefficient between `livability_percentage` and `population`.
+
+2. **Heatmap Visualization**:
+   - Created an interactive heatmap using Plotly to visualize the correlation matrix.
+
+## Conclusion
+
+The analysis demonstrates the correlation between the livability percentage and population in Melbourne. The interactive heatmap provides a clear visualization of this relationship.
+
+---
+
+This README file provides a comprehensive overview of the data processing, cleaning, analysis, and visualization steps undertaken in the notebook.
