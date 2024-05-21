@@ -8,10 +8,11 @@ All files within this folder will contain notebooks & scripts which deal with pr
 
 - location_analysis.ipynb
   - Contains analysis and processing of location related information
-- modelling.ipynb
-  - Conatins code related to predictive modelling
+- permit_population modelling.ipynb
+  - Conatins initial analsis code related to predictive modelling for the datasets Melbourne Building Permits and Melbourne population data
+- livability_affordability modelling.ipynb
+  - Contains initial analysis information related to Melbourne's liveability scores and rental affordability index
 
-### Scripts
+### Fission
 
-- *Add scripts here*
-  - *Add description of said script*
+- Holds various fission functions which were used as part of this project
