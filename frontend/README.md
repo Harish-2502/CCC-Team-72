@@ -14,7 +14,7 @@ Folder containing script and description for analyzing data related to populatio
  Folder containing script and description for the correlation between the population of Melbourne and rental affordability, and the impact of COVID-19 on the rental affordability index in the Melbourne region. 
 
 # Building_permits_Visualization
- Folder containing script and description for the visualisation  of number of building permit in different regions of melbourne by GUI w
+ Folder containing script and description for the visualisation  of number of building permit in different regions of melbourne by GUI 
 
 
 
