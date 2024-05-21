@@ -2,8 +2,6 @@
 
 This github contains the work of group 72's assignment 2 related information for COMP90024 course
 
-dummy
-
 ## Available folders
 
 The following are a list of possible sub folders.
