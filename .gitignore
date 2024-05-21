@@ -1,3 +1,4 @@
+*.DS_Store
 backend/fission/specs
 backend/fission/functions/sudodataexporter.zip
 backend/fission/functions/bpdataexporter.zip
