@@ -1,6 +1,6 @@
 # COMP90024 Assignment 2
 
-This github contains the work of group 72's assignment 2 related information for COMP90024 course.
+This github contains the work of group 72's Assignment 2 related information for COMP90024 course.
 
 dummy commit
 
