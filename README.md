@@ -2,8 +2,6 @@
 
 This github contains the work of group 72's Assignment 2 related information for COMP90024 course.
 
-dummy commit
-
 Please find the final report in the Docs folder.
 
 ## Available folders
